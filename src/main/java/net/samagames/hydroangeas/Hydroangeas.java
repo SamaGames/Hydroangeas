@@ -28,7 +28,7 @@ public class Hydroangeas
             {
                 acceptsAll(Arrays.asList("?", "help"), "Show the help");
 
-                acceptsAll(Arrays.asList("c", "config"), "Configuration file in json")
+                acceptsAll(Arrays.asList("c", "config"), "Configuration file")
                         .withRequiredArg()
                         .ofType(String.class);
 
