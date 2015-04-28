@@ -12,9 +12,13 @@ public class Hydroangeas
 {
     private static Hydroangeas instance;
 
+    private boolean debug;
+
     public Hydroangeas(OptionSet options)
     {
+        instance = this;
 
+        this.debug = options.has("debug");
     }
 
     public static void main(String[] args)
@@ -30,7 +34,7 @@ public class Hydroangeas
 
                 acceptsAll(Arrays.asList("d", "default"), "Create a default configuration file");
 
-                acceptsAll(Collections.singletonList("debug"), "First jar with original names, for generating mapping");
+                acceptsAll(Collections.singletonList("debug"), "Debug flag");
 
                 acceptsAll(Arrays.asList("v", "version"), "Displays version information");
             }
@@ -40,7 +44,7 @@ public class Hydroangeas
         {
             OptionSet options = parser.parse(args);
 
-            if (options == null || options.has("?"))
+            if (options == null || !options.hasOptions() || options.has("?"))
             {
                 try
                 {
@@ -55,10 +59,10 @@ public class Hydroangeas
                 return;
             }
 
+            System.out.println("Hydroangeas version 1.0.0 by BlueSlime");
+
             if (options.has("version"))
             {
-                System.out.println("Hydroangeas version 1.0.0 by BlueSlime");
-
                 System.exit(0);
                 return;
             }
