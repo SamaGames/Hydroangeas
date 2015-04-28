@@ -29,7 +29,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>net.samagames.hydroangeas.Hydroangeas</mainClass>
+                            <mainClass>net.samagames.hydroangeas.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -51,6 +51,12 @@
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>2.6.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>LATEST</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
