@@ -27,7 +27,6 @@ public class Main
 
                 acceptsAll(Arrays.asList("d", "default"), "Create a default configuration file");
                 acceptsAll(Arrays.asList("v", "version"), "Displays version information");
-                acceptsAll(Collections.singletonList("debug"), "Debug flag");
             }
         };
 
@@ -54,6 +53,12 @@ public class Main
             {
                 System.exit(0);
                 return;
+            }
+
+            if (!options.has("c"))
+            {
+                System.err.println("You most provide a configuration file!");
+                System.exit(-1);
             }
 
             if (!options.has("client") && !options.has("server"))

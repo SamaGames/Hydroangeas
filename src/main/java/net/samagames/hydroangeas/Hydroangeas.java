@@ -1,18 +1,18 @@
 package net.samagames.hydroangeas;
 
 import joptsimple.OptionSet;
-import net.samagames.hydroangeas.common.listeners.RedisSubscriber;
+import net.samagames.hydroangeas.common.database.DatabaseConnector;
+import net.samagames.hydroangeas.common.database.RedisSubscriber;
 
 import java.util.logging.Level;
 
-public class Hydroangeas
+public abstract class Hydroangeas
 {
     private static Hydroangeas instance;
 
     protected Configuration configuration;
+    protected DatabaseConnector databaseConnector;
     protected RedisSubscriber redisSubscriber;
-
-    private boolean debug;
 
     public Hydroangeas(OptionSet options)
     {
@@ -21,9 +21,25 @@ public class Hydroangeas
         System.out.println("Hydroangeas version 1.0.0 by BlueSlime");
         System.out.println("----------------------------------------");
 
-        this.debug = options.has("debug");
         this.configuration = new Configuration(this, options);
+        this.databaseConnector = new DatabaseConnector(this);
         this.redisSubscriber = new RedisSubscriber(this);
+
+        this.enable();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() ->
+        {
+            this.log(Level.INFO, "Shutdown asked!");
+            this.shutdown();
+            this.log(Level.INFO, "Bye!");
+        }));
+    }
+
+    public abstract void enable();
+
+    public void shutdown()
+    {
+        this.redisSubscriber.disable();
     }
 
     public void log(Level level, String message)
@@ -36,9 +52,19 @@ public class Hydroangeas
             System.out.println(finalMessage);
     }
 
-    public boolean isDebugEnabled()
+    public Configuration getConfiguration()
     {
-        return this.debug;
+        return this.configuration;
+    }
+
+    public DatabaseConnector getDatabaseConnector()
+    {
+        return this.databaseConnector;
+    }
+
+    public RedisSubscriber getRedisSubscriber()
+    {
+        return this.redisSubscriber;
     }
 
     public static Hydroangeas getInstance()
