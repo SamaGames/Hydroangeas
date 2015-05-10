@@ -55,7 +55,7 @@ public class Main
                 return;
             }
 
-            if (!options.has("c"))
+            if (!options.has("c") && !options.has("d"))
             {
                 System.err.println("You most provide a configuration file!");
                 System.exit(-1);

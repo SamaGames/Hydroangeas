@@ -4,13 +4,14 @@ import joptsimple.OptionSet;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.server.http.HttpServerManager;
 import net.samagames.hydroangeas.server.http.NetworkHttpHandler;
-import net.samagames.hydroangeas.server.packets.ServerReceiver;
+import net.samagames.hydroangeas.server.packets.HelloClientPacketReceiver;
 
 import java.util.logging.Level;
 
 public class HydroangeasServer extends Hydroangeas
 {
     private HttpServerManager httpServerManager;
+    private ClientManager clientManager;
 
     public HydroangeasServer(OptionSet options)
     {
@@ -22,10 +23,12 @@ public class HydroangeasServer extends Hydroangeas
     {
         this.log(Level.INFO, "Starting Hydroangeas server...");
 
-        this.redisSubscriber.registerReceiver("hydroangeas-server", new ServerReceiver());
+        this.redisSubscriber.registerReceiver("hello@hydroangeas-server", new HelloClientPacketReceiver());
 
         this.httpServerManager = new HttpServerManager(this);
         this.httpServerManager.getHttpServer().createContext("/network", new NetworkHttpHandler());
+
+        this.clientManager = new ClientManager(this);
     }
 
     @Override
@@ -33,5 +36,10 @@ public class HydroangeasServer extends Hydroangeas
     {
         super.shutdown();
         this.httpServerManager.disable();
+    }
+
+    public ClientManager getClientManager()
+    {
+        return this.clientManager;
     }
 }

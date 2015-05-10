@@ -1,0 +1,11 @@
+{
+  /** Common **/
+  "redis-ip": "127.0.0.1",
+  "redis-port": 6379,
+  "redis-password": "passw0rd",
+
+  /** Server **/
+
+  /** Client **/
+  "dedicated-game": null
+}

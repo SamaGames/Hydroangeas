@@ -1,6 +1,5 @@
 package net.samagames.hydroangeas.common.database;
 
-import com.google.gson.Gson;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
 import net.samagames.hydroangeas.common.packets.PacketReceiver;
@@ -76,7 +75,7 @@ public class RedisSubscriber extends JedisPubSub
     public void send(AbstractPacket message)
     {
         Jedis jedis = this.instance.getDatabaseConnector().getJedisPool().getResource();
-        jedis.publish(message.getChannel(), message.getClass().getName() + "@" + message.getData());
+        jedis.publish(message.getChannel(), message.getData());
         jedis.close();
 
         message.callback();
@@ -85,20 +84,9 @@ public class RedisSubscriber extends JedisPubSub
     @Override
     public void onMessage(String channel, String message)
     {
-        try
-        {
-            HashSet<PacketReceiver> receivers = this.packetsReceivers.get(channel);
+        HashSet<PacketReceiver> receivers = this.packetsReceivers.get(channel);
 
-            if (receivers != null)
-            {
-                Class<? extends AbstractPacket> clazz = (Class<? extends AbstractPacket>) Class.forName(message.split("@")[0]);
-                receivers.forEach((PacketReceiver receiver) -> receiver.receive(new Gson().fromJson(message, clazz)));
-            }
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-
+        if (receivers != null)
+            receivers.forEach((PacketReceiver receiver) -> receiver.receive(message));
     }
 }

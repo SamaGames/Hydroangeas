@@ -1,17 +1,21 @@
 package net.samagames.hydroangeas;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.utils.MiscUtils;
+import org.apache.commons.io.FileUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.logging.Level;
 
 public class Configuration
 {
     private final Hydroangeas instance;
+    private JsonObject jsonConfiguration;
 
     public String redisIp;
     public String redisPassword;
@@ -46,6 +50,7 @@ public class Configuration
         }
 
         JsonObject jsonRoot = new JsonParser().parse(new FileReader(new File(path))).getAsJsonObject();
+        this.jsonConfiguration = jsonRoot;
 
         if(!validateJson(jsonRoot))
         {
@@ -60,24 +65,10 @@ public class Configuration
 
     public void createDefaultConfiguration()
     {
-        File configFile = new File(MiscUtils.getJarFolder(), "config.json");
-        JsonObject jsonRoot = new JsonObject();
-
-        jsonRoot.addProperty("redis-ip", "0.0.0.0");
-        jsonRoot.addProperty("redis-port", "6379");
-        jsonRoot.addProperty("redis-password", "passw0rd");
-
         try
         {
-            if(configFile.exists())
-            {
-                configFile.delete();
-                configFile.createNewFile();
-            }
-
-            FileWriter writer = new FileWriter(configFile);
-            writer.write(new Gson().toJson(jsonRoot));
-            writer.close();
+            File destinationFile = new File(MiscUtils.getJarFolder(), "config.json");
+            FileUtils.copyURLToFile(Configuration.class.getResource("/config.json"), destinationFile);
         }
         catch (IOException e)
         {
@@ -88,13 +79,21 @@ public class Configuration
         System.exit(0);
     }
 
+    public JsonObject getJsonConfiguration()
+    {
+        return this.jsonConfiguration;
+    }
     public boolean validateJson(JsonObject object)
     {
         boolean flag = true;
 
+        /** Common **/
         if(!object.has("redis-ip")) flag = false;
         if(!object.has("redis-port")) flag = false;
         if(!object.has("redis-password")) flag = false;
+
+        /** Client **/
+        if(!object.has("dedicated-game")) flag = false;
 
         return flag;
     }
