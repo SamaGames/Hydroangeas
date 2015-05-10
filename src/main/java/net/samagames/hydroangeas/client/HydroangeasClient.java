@@ -27,7 +27,7 @@ public class HydroangeasClient extends Hydroangeas
         this.clientUUID = UUID.randomUUID();
         this.dedicatedGame = JsonUtils.getStringOrNull(this.configuration.getJsonConfiguration().get("dedicated-game"));
 
-        this.redisSubscriber.registerReceiver("hello@hydroangeas-client", new HelloServerPacketReceiver());
+        this.redisSubscriber.registerReceiver("hello@" + this.clientUUID.toString() + "@hydroangeas-client", new HelloServerPacketReceiver());
 
         this.lifeThread = new LifeThread(this);
         this.lifeThread.start();
@@ -37,6 +37,7 @@ public class HydroangeasClient extends Hydroangeas
     public void shutdown()
     {
         super.shutdown();
+
         this.lifeThread.stop();
     }
 
