@@ -5,6 +5,7 @@ import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.server.http.HttpServerManager;
 import net.samagames.hydroangeas.server.http.NetworkHttpHandler;
 import net.samagames.hydroangeas.server.packets.HelloClientPacketReceiver;
+import net.samagames.hydroangeas.server.packets.MinecraftServerIssueReceiver;
 import net.samagames.hydroangeas.utils.ChatColor;
 import net.samagames.hydroangeas.utils.ModMessage;
 
@@ -26,6 +27,7 @@ public class HydroangeasServer extends Hydroangeas
         this.log(Level.INFO, "Starting Hydroangeas server...");
 
         this.redisSubscriber.registerReceiver("hello@hydroangeas-server", new HelloClientPacketReceiver());
+        this.redisSubscriber.registerReceiver("issue@hydroangeas-server", new MinecraftServerIssueReceiver());
 
         this.httpServerManager = new HttpServerManager(this);
         this.httpServerManager.getHttpServer().createContext("/network", new NetworkHttpHandler());

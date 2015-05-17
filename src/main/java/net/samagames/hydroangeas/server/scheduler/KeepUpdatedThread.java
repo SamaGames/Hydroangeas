@@ -35,7 +35,7 @@ public class KeepUpdatedThread
                 {
                     if (!this.clientsScheduler.containsKey(clientUUID))
                     {
-                        this.clientsScheduler.put(clientUUID, this.scheduler.scheduleAtFixedRate(new ClientScheduledRunnable(this.instance, this.instance.getClientManager().getClientInfosByUUID(clientUUID)), 70, 70, TimeUnit.SECONDS));
+                        this.clientsScheduler.put(clientUUID, this.scheduler.scheduleAtFixedRate(new ClientScheduledRunnable(this.instance, this.instance.getClientManager().getClientInfosByUUID(clientUUID)), 65, 65, TimeUnit.SECONDS));
                     }
                 }
 

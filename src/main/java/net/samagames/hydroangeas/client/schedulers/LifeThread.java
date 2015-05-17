@@ -1,5 +1,6 @@
-package net.samagames.hydroangeas.client;
+package net.samagames.hydroangeas.client.schedulers;
 
+import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.packets.HelloClientPacket;
 import net.samagames.hydroangeas.utils.ChatColor;
 import net.samagames.hydroangeas.utils.ModMessage;

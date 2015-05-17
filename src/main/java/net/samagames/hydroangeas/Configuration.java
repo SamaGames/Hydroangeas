@@ -94,6 +94,7 @@ public class Configuration
 
         /** Client **/
         if(!object.has("dedicated-game")) flag = false;
+        if(!object.has("templates-domain")) flag = false;
 
         return flag;
     }

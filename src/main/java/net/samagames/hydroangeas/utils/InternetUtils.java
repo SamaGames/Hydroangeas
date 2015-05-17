@@ -7,6 +7,26 @@ import java.net.URL;
 
 public class InternetUtils
 {
+    public static String readURL(String url)
+    {
+        try
+        {
+            URL oracle = new URL(url);
+            BufferedReader in = new BufferedReader(new InputStreamReader(oracle.openStream()));
+
+            String inputLine = in.readLine();
+            in.close();
+
+            return inputLine;
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public static String getExternalIp()
     {
         try

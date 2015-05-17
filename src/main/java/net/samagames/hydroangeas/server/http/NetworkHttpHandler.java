@@ -3,7 +3,7 @@ package net.samagames.hydroangeas.server.http;
 import com.sun.net.httpserver.HttpExchange;
 import javafx.util.Pair;
 import net.samagames.hydroangeas.Hydroangeas;
-import net.samagames.hydroangeas.common.ClientInfos;
+import net.samagames.hydroangeas.common.informations.ClientInfos;
 
 import java.io.*;
 import java.net.HttpURLConnection;

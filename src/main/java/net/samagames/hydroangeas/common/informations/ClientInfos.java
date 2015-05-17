@@ -1,4 +1,4 @@
-package net.samagames.hydroangeas.common;
+package net.samagames.hydroangeas.common.informations;
 
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.utils.InternetUtils;

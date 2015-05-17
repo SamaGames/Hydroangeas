@@ -1,7 +1,7 @@
 package net.samagames.hydroangeas.server;
 
 import net.samagames.hydroangeas.client.packets.HelloClientPacket;
-import net.samagames.hydroangeas.common.ClientInfos;
+import net.samagames.hydroangeas.common.informations.ClientInfos;
 import net.samagames.hydroangeas.server.packets.HelloServerPacket;
 import net.samagames.hydroangeas.server.scheduler.KeepUpdatedThread;
 

@@ -17,4 +17,9 @@ public class ModMessage
     {
         sendModMessage(new JsonModMessage(from, colorCode, message));
     }
+
+    public static void sendModMessageError(String from, ChatColor colorCode, String message)
+    {
+        sendModMessage(new JsonModMessage(from, colorCode, ChatColor.RED + "✖" + ChatColor.RESET + " " + message));
+    }
 }
