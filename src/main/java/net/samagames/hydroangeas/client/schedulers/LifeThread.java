@@ -2,7 +2,7 @@ package net.samagames.hydroangeas.client.schedulers;
 
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.packets.HelloClientPacket;
-import net.samagames.hydroangeas.utils.ChatColor;
+import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
 
 import java.util.concurrent.Executors;
@@ -14,7 +14,7 @@ import java.util.logging.Level;
 public class LifeThread
 {
     private final HydroangeasClient instance;
-    private ScheduledExecutorService scheduler;
+    private final ScheduledExecutorService scheduler;
     private ScheduledFuture scheduledFuture;
     private boolean beforeConnected;
     private boolean connected;
@@ -37,21 +37,18 @@ public class LifeThread
             {
                 Thread.sleep(5000);
             }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
+            catch (InterruptedException ignored) {}
 
             if(!this.connected)
             {
-                ModMessage.sendModMessage("Hydroangeas Client", ChatColor.GREEN, "[" + this.instance.getClientUUID().toString() + "] Impossible de contacter le serveur Hydroangeas !");
+                ModMessage.sendMessage(InstanceType.CLIENT, "[" + this.instance.getClientUUID().toString() + "] Impossible de contacter le serveur Hydroangeas !");
 
                 this.instance.log(Level.SEVERE, "Can't tell the Hydroangeas Server! Maybe it's down?");
                 this.beforeConnected = false;
             }
             else if(this.connected && !this.beforeConnected)
             {
-                ModMessage.sendModMessage("Hydroangeas Client", ChatColor.GREEN, "[" + this.instance.getClientUUID().toString() + "] Retour à la normale !");
+                ModMessage.sendMessage(InstanceType.CLIENT, "[" + this.instance.getClientUUID().toString() + "] Retour à la normale !");
 
                 this.instance.log(Level.INFO, "Hydroangeas Server has responded! Back to normal!");
                 this.beforeConnected = true;

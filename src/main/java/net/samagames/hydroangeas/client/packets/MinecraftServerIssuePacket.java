@@ -7,7 +7,7 @@ import net.samagames.hydroangeas.common.packets.AbstractPacket;
 
 public class MinecraftServerIssuePacket extends AbstractPacket
 {
-    public enum Type { MAKE, START, STOP };
+    public enum Type { MAKE, PATCH, START, STOP };
 
     private final ClientInfos clientInfos;
     private final MinecraftServerInfos serverInfos;
@@ -24,6 +24,10 @@ public class MinecraftServerIssuePacket extends AbstractPacket
         {
             case MAKE:
                 this.message = "Impossible de créer le serveur '" + serverInfos.getServerName() + "'!";
+                break;
+
+            case PATCH:
+                this.message = "Impossible de patcher le serveur '" + serverInfos.getServerName() + "'!";
                 break;
 
             case START:

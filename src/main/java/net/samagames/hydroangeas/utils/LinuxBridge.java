@@ -2,69 +2,99 @@ package net.samagames.hydroangeas.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class LinuxBridge
 {
-    public static void bash(String path)
+    private final ExecutorService executor;
+
+    public LinuxBridge()
     {
-        exec(new String[] { "bash", path });
+        this.executor = Executors.newFixedThreadPool(1);
     }
 
-    public static void mkdir(String path)
+    public void bash(String path)
     {
-        exec(new String[] { "mkdir", path });
+        this.exec(new String[] {"bash", path});
     }
 
-    public static void rm(String path, boolean folder)
+    public void mkdir(String path)
     {
-        exec(new String[] { "rm", (folder ? "-Rf" : null), path });
+        this.exec(new String[]{"mkdir", path});
     }
 
-    public static void cp(String from, String to, boolean recursively)
+    public void rm(String path, boolean folder)
     {
-        exec(new String[] { "cp", (recursively ? "-R" : null), from, to });
+        this.exec(new String[]{"rm", (folder ? "-Rf" : null), path});
     }
 
-    public static void mv(String from, String to)
+    public void cp(String from, String to, boolean recursively)
     {
-        exec(new String[] { "mv", from, to });
+        this.exec(new String[]{"cp", (recursively ? "-R" : null), from, to});
     }
 
-    public static void wget(String url, String to)
+    public void mv(String from, String to)
     {
-        exec(new String[] { "wget", "-P", to, url });
+        this.exec(new String[]{"mv", from, to});
     }
 
-    public static void gzipExtract(String archive, String to)
+    public void wget(String url, String to)
     {
-        exec(new String[] { "tar", "-xzvf", archive, "-C", to });
+        this.exec(new String[]{"wget", "-P", to, url});
     }
 
-    public static void gzipMake(String archiveName, String what, String to)
+    public void gzipExtract(String archive, String to)
     {
-        exec(new String[] { "tar", "-czvf", to + (!to.endsWith(File.separator) ? File.separator : null) + archiveName, what });
+        this.exec(new String[]{"tar", "-xzvf", archive, "-C", to});
     }
 
-    public static void screenCreate(String name, String toExecute)
+    public void gzipMake(String archiveName, String what, String to)
     {
-        exec(new String[] { "screen", "-dmS", name, toExecute });
+        this.exec(new String[]{"tar", "-czvf", to + (!to.endsWith(File.separator) ? File.separator : null) + archiveName, what});
     }
 
-    public static void screenKill(String name)
+    public void grantBash(String path)
     {
-        exec(new String[] { "screen", "-S", name, "-X", "quit" });
+        this.exec(new String[]{"chmod", "+x", path});
     }
 
-    public static void exec(String[] commands)
+    public void chmod(int number, String path)
     {
-        try
+        this.exec(new String[]{"chmod", String.valueOf(number), path});
+    }
+
+    public void mark2Start(String serverPath)
+    {
+        this.exec(new String[]{"mark2", "start", serverPath});
+    }
+
+    public void mark2Stop(String serverName)
+    {
+        this.exec(new String[]{"mark2", "kill", "-n", serverName});
+    }
+
+    public void sed(String before, String after, String path)
+    {
+        this.exec(new String[]{"sed", "-i", "s/" + before + "/" + after + "/", path});
+    }
+
+    public void exec(String[] commands)
+    {
+        this.executor.submit(() ->
         {
-            ProcessBuilder pb = new ProcessBuilder(commands);
-            pb.start();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+            try
+            {
+                ProcessBuilder pb = new ProcessBuilder(commands);
+                pb.redirectErrorStream(true);
+
+                Process p = pb.start();
+                p.waitFor();
+            }
+            catch (IOException | InterruptedException e)
+            {
+                e.printStackTrace();
+            }
+        });
     }
 }

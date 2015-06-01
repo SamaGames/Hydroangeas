@@ -13,13 +13,18 @@ public class ModMessage
         jedis.close();
     }
 
-    public static void sendModMessage(String from, ChatColor colorCode, String message)
+    public static void sendMessage(InstanceType type, String message)
     {
-        sendModMessage(new JsonModMessage(from, colorCode, message));
+        sendModMessage(new JsonModMessage("Hydroangeas " + type.toString(), ChatColor.GREEN, message));
     }
 
-    public static void sendModMessageError(String from, ChatColor colorCode, String message)
+    public static void sendError(InstanceType type, String message)
     {
-        sendModMessage(new JsonModMessage(from, colorCode, ChatColor.RED + "✖" + ChatColor.RESET + " " + message));
+        sendModMessage(new JsonModMessage("Hydroangeas " + type.toString(), ChatColor.GREEN, ChatColor.RED + "✖" + ChatColor.RESET + " " + message));
+    }
+
+    public static void sendDebug(String message)
+    {
+        sendModMessage(new JsonModMessage("Hydroangeas DEBUG", ChatColor.DARK_PURPLE, message));
     }
 }

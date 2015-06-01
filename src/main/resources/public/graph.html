@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Hydroangeas &bull; Graphiques</title>
+        <meta http-equiv="refresh" content="30">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+        <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="js/chart.min.js"></script>
+        <script type="text/javascript" src="js/chart.legend.js"></script>
+    </head>
+
+    <body>
+        <br/><br/>
+
+        <div class="container">
+            <h1>Statistiques</h1><br/>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Serveurs semestriels</h3>
+                        </div>
+                        <div class="panel-body">
+                            <canvas id="weeklyServersGraph"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Jeux semestriels</h3>
+                        </div>
+                        <div class="panel-body">
+                            <canvas id="weeklyGamesGraph"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            var weeklyServersGraphData = {
+                labels: ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"],
+                datasets: [
+                    {
+                        label: "Servers",
+                        fillColor: "rgba(151,187,205,0.2)",
+                        strokeColor: "rgba(151,187,205,1)",
+                        pointColor: "rgba(151,187,205,1)",
+                        pointStrokeColor: "#fff",
+                        pointHighlightFill: "#fff",
+                        pointHighlightStroke: "rgba(151,187,205,1)",
+                        data: [WEEKLY_SERVERS_MONDAY, WEEKLY_SERVERS_TUESDAY, WEEKLY_SERVERS_WEDNESDAY, WEEKLY_SERVERS_THURSDAY, WEEKLY_SERVERS_FRIDAY, WEEKLY_SERVERS_SATURDAY, WEEKLY_SERVERS_SUNDAY]
+                    }
+                ]
+            };
+
+            var weeklyGamesGraphData = {
+                labels: [WEEKLY_GAMES_LABEL],
+                datasets: [
+                    {
+                        label: "Games",
+                        fillColor: "rgba(151,187,205,0.2)",
+                        strokeColor: "rgba(151,187,205,1)",
+                        pointColor: "rgba(151,187,205,1)",
+                        pointStrokeColor: "#fff",
+                        pointHighlightFill: "#fff",
+                        pointHighlightStroke: "rgba(151,187,205,1)",
+                        data: [WEEKLY_GAMES]
+                    }
+                ]
+            };
+
+            window.onload = function() {
+                new Chart(document.getElementById("weeklyServersGraph").getContext("2d")).Line(weeklyServersGraphData, {responsive: true});
+                new Chart(document.getElementById("weeklyGamesGraph").getContext("2d")).Bar(weeklyGamesGraphData, {responsive: true});
+            }
+        </script>
+    </body>
+</html>

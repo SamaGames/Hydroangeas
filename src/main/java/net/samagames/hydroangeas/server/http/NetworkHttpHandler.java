@@ -4,8 +4,12 @@ import com.sun.net.httpserver.HttpExchange;
 import javafx.util.Pair;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.informations.ClientInfos;
+import net.samagames.hydroangeas.common.informations.MinecraftServerInfos;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 
 public class NetworkHttpHandler extends AbstractHttpHandler
@@ -16,7 +20,6 @@ public class NetworkHttpHandler extends AbstractHttpHandler
         try
         {
             StringBuilder page = new StringBuilder();
-            OutputStream os = httpExchange.getResponseBody();
             InputStream in = NetworkHttpHandler.class.getResourceAsStream("/public/network.html");
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
@@ -31,14 +34,15 @@ public class NetworkHttpHandler extends AbstractHttpHandler
 
             for(ClientInfos clientInfos : Hydroangeas.getInstance().getAsServer().getClientManager().getClients().values())
             {
-                clients.append("<tr>");
-                clients.append("<td>").append(clientInfos.getClientUUID().toString()).append("</td>");
-                clients.append("<td>").append(clientInfos.getIp()).append("</td>");
-                clients.append("<td>").append(clientInfos.getDedicatedGame() == null ? "None" : clientInfos.getDedicatedGame()).append("</td>");
-                clients.append("</tr>");
+                String dedicatedGame = (clientInfos.getDedicatedGame() == null ? "Aucun jeu dédié" : clientInfos.getDedicatedGame());
+                clients.append("[{v:'").append(clientInfos.getIp()).append("', f:'").append(clientInfos.getIp()).append("<div style=\"color:green;\">Hydroangeas Client</div><div style=\"color:yellow;\">" + dedicatedGame + "</div>'}, 'Hydroangeas Server'],");
+
+                if(!clientInfos.getServerInfos().isEmpty())
+                    for(MinecraftServerInfos serverInfos : clientInfos.getServerInfos())
+                        clients.append("['").append(serverInfos.getServerName()).append("', '").append(clientInfos.getIp()).append("']");
             }
 
-            String finalPage = page.toString().replace("%CLIENTS%", clients);
+            String finalPage = page.toString().replace("%DATA%", clients);
 
             return new Pair<>(HttpURLConnection.HTTP_OK, finalPage);
         }

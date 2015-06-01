@@ -5,6 +5,7 @@ import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.common.database.DatabaseConnector;
 import net.samagames.hydroangeas.common.database.RedisSubscriber;
 import net.samagames.hydroangeas.server.HydroangeasServer;
+import net.samagames.hydroangeas.utils.LinuxBridge;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -19,6 +20,7 @@ public abstract class Hydroangeas
     protected Configuration configuration;
     protected DatabaseConnector databaseConnector;
     protected RedisSubscriber redisSubscriber;
+    protected LinuxBridge linuxBridge;
 
     public Hydroangeas(OptionSet options)
     {
@@ -31,6 +33,7 @@ public abstract class Hydroangeas
         this.configuration = new Configuration(this, options);
         this.databaseConnector = new DatabaseConnector(this);
         this.redisSubscriber = new RedisSubscriber(this);
+        this.linuxBridge = new LinuxBridge();
 
         this.enable();
 
@@ -73,6 +76,11 @@ public abstract class Hydroangeas
     public RedisSubscriber getRedisSubscriber()
     {
         return this.redisSubscriber;
+    }
+
+    public LinuxBridge getLinuxBridge()
+    {
+        return this.linuxBridge;
     }
 
     public HydroangeasClient getAsClient()

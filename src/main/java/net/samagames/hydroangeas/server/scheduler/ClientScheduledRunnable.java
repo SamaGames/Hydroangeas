@@ -3,7 +3,7 @@ package net.samagames.hydroangeas.server.scheduler;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.informations.ClientInfos;
 import net.samagames.hydroangeas.server.HydroangeasServer;
-import net.samagames.hydroangeas.utils.ChatColor;
+import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
 
 import java.util.UUID;
@@ -31,7 +31,7 @@ public class ClientScheduledRunnable implements Runnable
         if(!now.getTimestamp().after(this.lastInfos.getTimestamp()))
         {
             Hydroangeas.getInstance().log(Level.WARNING, "Lost connection with client " + this.clientUUID.toString() + "!");
-            ModMessage.sendModMessage("Hydroangeas Server", ChatColor.GREEN, "Connexion perdue avec le client " + this.clientUUID.toString() + " !");
+            ModMessage.sendMessage(InstanceType.SERVER, "Connexion perdue avec le client " + this.clientUUID.toString() + " !");
 
             this.instance.getClientManager().onClientNoReachable(this.clientUUID);
             this.instance.getClientManager().getKeepUpdatedThread().stopClient(this.clientUUID);
