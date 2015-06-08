@@ -5,7 +5,6 @@ import net.samagames.hydroangeas.client.packets.HelloClientPacket;
 import net.samagames.hydroangeas.client.packets.MinecraftServerIssuePacket;
 import net.samagames.hydroangeas.client.schedulers.ServerCheckerThread;
 import net.samagames.hydroangeas.common.informations.MinecraftServerInfos;
-import net.samagames.hydroangeas.utils.ModMessage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +34,8 @@ public class ServerManager
 
     public void newServer(MinecraftServerInfos serverInfos)
     {
-        MinecraftServer server = new MinecraftServer(this.instance, serverInfos);
+        int port = instance.getServerManager().getAvailablePort();
+        MinecraftServer server = new MinecraftServer(this.instance, serverInfos, port);
 
         if(!server.makeServer())
         {
@@ -50,6 +50,7 @@ public class ServerManager
         }
 
         this.servers.put(serverInfos.getUUID(), server);
+        this.portsUsed.add(port);
         this.scheduledFuture.put(serverInfos.getUUID(), this.scheduler.scheduleAtFixedRate(new ServerCheckerThread(this.instance, server), 10, 10, TimeUnit.SECONDS));
 
         new HelloClientPacket(this.instance).send();
@@ -72,18 +73,16 @@ public class ServerManager
         this.scheduledFuture.get(server.getServerInfos().getUUID()).cancel(true);
         this.scheduledFuture.remove(server.getServerInfos().getUUID());
         this.servers.remove(server.getServerInfos().getUUID());
-        this.portsUsed.remove(server.getPort());
+        this.portsUsed.remove(this.portsUsed.indexOf(server.getPort()));
 
         new HelloClientPacket(this.instance).send();
-
-        ModMessage.sendDebug("Server ended");
     }
 
     public int getAvailablePort()
     {
-        String portString = "2";
+        String portString = "20";
 
-        for(int i = 0; i < 4; i++)
+        for(int i = 0; i < 3; i++)
             portString += new Random().nextInt(9);
 
         int port = Integer.valueOf(portString);

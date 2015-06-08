@@ -83,6 +83,7 @@ public class Configuration
     {
         return this.jsonConfiguration;
     }
+
     public boolean validateJson(JsonObject object)
     {
         boolean flag = true;
@@ -91,10 +92,12 @@ public class Configuration
         if(!object.has("redis-ip")) flag = false;
         if(!object.has("redis-port")) flag = false;
         if(!object.has("redis-password")) flag = false;
+        if(!object.has("web-domain")) flag = false;
 
         /** Client **/
+        if(!object.has("unique-name")) flag = false;
         if(!object.has("dedicated-game")) flag = false;
-        if(!object.has("templates-domain")) flag = false;
+        if(!object.has("max-instances")) flag = false;
 
         return flag;
     }

@@ -6,35 +6,34 @@ import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
 
-import java.util.UUID;
 import java.util.logging.Level;
 
 public class ClientScheduledRunnable implements Runnable
 {
     private final HydroangeasServer instance;
-    private final UUID clientUUID;
+    private final String clientName;
 
     private ClientInfos lastInfos;
 
     public ClientScheduledRunnable(HydroangeasServer instance, ClientInfos initialClientInfos)
     {
         this.instance = instance;
-        this.clientUUID = initialClientInfos.getClientUUID();
+        this.clientName = initialClientInfos.getClientName();
         this.lastInfos = initialClientInfos;
     }
 
     @Override
     public void run()
     {
-        ClientInfos now = Hydroangeas.getInstance().getAsServer().getClientManager().getClientInfosByUUID(this.clientUUID);
+        ClientInfos now = Hydroangeas.getInstance().getAsServer().getClientManager().getClientInfosByUUID(this.clientName);
 
         if(!now.getTimestamp().after(this.lastInfos.getTimestamp()))
         {
-            Hydroangeas.getInstance().log(Level.WARNING, "Lost connection with client " + this.clientUUID.toString() + "!");
-            ModMessage.sendMessage(InstanceType.SERVER, "Connexion perdue avec le client " + this.clientUUID.toString() + " !");
+            Hydroangeas.getInstance().log(Level.WARNING, "Lost connection with client " + this.clientName + "!");
+            ModMessage.sendMessage(InstanceType.SERVER, "Connexion perdue avec le client " + this.clientName + " !");
 
-            this.instance.getClientManager().onClientNoReachable(this.clientUUID);
-            this.instance.getClientManager().getKeepUpdatedThread().stopClient(this.clientUUID);
+            this.instance.getClientManager().onClientNoReachable(this.clientName);
+            this.instance.getClientManager().getKeepUpdatedThread().stopClient(this.clientName);
 
             return;
         }

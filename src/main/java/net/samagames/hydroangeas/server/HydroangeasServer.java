@@ -2,7 +2,6 @@ package net.samagames.hydroangeas.server;
 
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.Hydroangeas;
-import net.samagames.hydroangeas.server.http.GraphHttpHandler;
 import net.samagames.hydroangeas.server.http.HttpServerManager;
 import net.samagames.hydroangeas.server.http.NetworkHttpHandler;
 import net.samagames.hydroangeas.server.packets.HelloClientPacketReceiver;
@@ -17,6 +16,7 @@ public class HydroangeasServer extends Hydroangeas
 {
     private HttpServerManager httpServerManager;
     private ClientManager clientManager;
+    private AlgorithmicMachine algorithmicMachine;
 
     public HydroangeasServer(OptionSet options)
     {
@@ -33,9 +33,9 @@ public class HydroangeasServer extends Hydroangeas
 
         this.httpServerManager = new HttpServerManager(this);
         this.httpServerManager.getHttpServer().createContext("/network", new NetworkHttpHandler());
-        this.httpServerManager.getHttpServer().createContext("/graph", new GraphHttpHandler());
 
         this.clientManager = new ClientManager(this);
+        this.algorithmicMachine = new AlgorithmicMachine(this);
 
         new StartThread().start();
     }
@@ -54,5 +54,10 @@ public class HydroangeasServer extends Hydroangeas
     public ClientManager getClientManager()
     {
         return this.clientManager;
+    }
+
+    public AlgorithmicMachine getAlgorithmicMachine()
+    {
+        return this.algorithmicMachine;
     }
 }

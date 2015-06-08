@@ -13,12 +13,12 @@ public class MinecraftServer
     private final File serverFolder;
     private int port;
 
-    public MinecraftServer(HydroangeasClient instance, MinecraftServerInfos serverInfos)
+    public MinecraftServer(HydroangeasClient instance, MinecraftServerInfos serverInfos, int port)
     {
         this.instance = instance;
         this.serverInfos = serverInfos;
         this.serverFolder = new File(this.instance.getServerFolder(), this.serverInfos.getServerName());
-        this.port = instance.getServerManager().getAvailablePort();
+        this.port = port;
     }
 
     public boolean makeServer()

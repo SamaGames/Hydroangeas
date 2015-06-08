@@ -16,7 +16,7 @@ public class MinecraftServerIssueReceiver implements PacketReceiver
     {
         MinecraftServerIssuePacket packet = new Gson().fromJson(data, MinecraftServerIssuePacket.class);
 
-        Hydroangeas.getInstance().log(Level.SEVERE, "An error occurred with the client '" + packet.getClientInfos().getClientUUID().toString() + "'!");
+        Hydroangeas.getInstance().log(Level.SEVERE, "An error occurred with the client '" + packet.getClientInfos().getClientName() + "'!");
         Hydroangeas.getInstance().log(Level.SEVERE, "> Category: Server issue (" + packet.getIssueType().name() + ")");
 
         ModMessage.sendError(InstanceType.SERVER, packet.getMessage());
