@@ -69,7 +69,7 @@ public class ClientManager
 
         for(ClientInfos infos : this.clients.values())
             if(infos.getDedicatedGame().equals(game))
-                for(MinecraftServerInfos serverInfos : infos.getServerInfos())
+                for(MinecraftServerInfos serverInfos : infos.getServersInfos())
                     if(serverInfos.getMap().equals(map))
                         temp++;
 

@@ -20,7 +20,7 @@ public class StartThread
     public void start()
     {
         ModMessage.sendMessage(InstanceType.SERVER, "Démarrage d'Hydroangeas Server...");
-        ModMessage.sendMessage(InstanceType.SERVER, "> Etape 1 : Assimilation des données éxistantes (60 secondes)...");
+        ModMessage.sendMessage(InstanceType.SERVER, "> Assimilation des données éxistantes (60 secondes)...");
 
         this.scheduler.schedule(() -> Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().startMachinery(), 60, TimeUnit.SECONDS);
     }

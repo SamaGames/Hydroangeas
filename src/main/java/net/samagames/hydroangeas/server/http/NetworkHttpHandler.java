@@ -37,8 +37,8 @@ public class NetworkHttpHandler extends AbstractHttpHandler
                 String dedicatedGame = (clientInfos.getDedicatedGame() == null ? "Aucun jeu dédié" : clientInfos.getDedicatedGame());
                 clients.append("[{v:'").append(clientInfos.getIp()).append("', f:'").append(clientInfos.getIp()).append("<div style=\"color:green;\">Hydroangeas Client</div><div style=\"color:yellow;\">" + dedicatedGame + "</div>'}, 'Hydroangeas Server'],");
 
-                if(!clientInfos.getServerInfos().isEmpty())
-                    for(MinecraftServerInfos serverInfos : clientInfos.getServerInfos())
+                if(!clientInfos.getServersInfos().isEmpty())
+                    for(MinecraftServerInfos serverInfos : clientInfos.getServersInfos())
                         clients.append("['").append(serverInfos.getServerName()).append("', '").append(clientInfos.getIp()).append("']");
             }
 

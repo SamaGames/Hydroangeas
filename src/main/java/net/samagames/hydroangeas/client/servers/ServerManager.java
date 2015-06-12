@@ -2,6 +2,7 @@ package net.samagames.hydroangeas.client.servers;
 
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.packets.HelloClientPacket;
+import net.samagames.hydroangeas.client.packets.MinecraftServerEndPacket;
 import net.samagames.hydroangeas.client.packets.MinecraftServerIssuePacket;
 import net.samagames.hydroangeas.client.schedulers.ServerCheckerThread;
 import net.samagames.hydroangeas.common.informations.MinecraftServerInfos;
@@ -14,6 +15,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 public class ServerManager
 {
@@ -53,6 +55,8 @@ public class ServerManager
         this.portsUsed.add(port);
         this.scheduledFuture.put(serverInfos.getUUID(), this.scheduler.scheduleAtFixedRate(new ServerCheckerThread(this.instance, server), 10, 10, TimeUnit.SECONDS));
 
+        this.instance.log(Level.INFO, "New server started -> Game (" + serverInfos.getGame() + ") & Map (" + serverInfos.getMap() + ")");
+
         new HelloClientPacket(this.instance).send();
     }
 
@@ -76,6 +80,7 @@ public class ServerManager
         this.portsUsed.remove(this.portsUsed.indexOf(server.getPort()));
 
         new HelloClientPacket(this.instance).send();
+        new MinecraftServerEndPacket(server).send();
     }
 
     public int getAvailablePort()

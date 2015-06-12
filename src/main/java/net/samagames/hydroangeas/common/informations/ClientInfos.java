@@ -55,7 +55,7 @@ public class ClientInfos
         return this.timestamp;
     }
 
-    public ArrayList<MinecraftServerInfos> getServerInfos()
+    public ArrayList<MinecraftServerInfos> getServersInfos()
     {
         return this.serverInfos;
     }

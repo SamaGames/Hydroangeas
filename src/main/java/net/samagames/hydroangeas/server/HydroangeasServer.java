@@ -5,6 +5,7 @@ import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.server.http.HttpServerManager;
 import net.samagames.hydroangeas.server.http.NetworkHttpHandler;
 import net.samagames.hydroangeas.server.packets.HelloClientPacketReceiver;
+import net.samagames.hydroangeas.server.packets.MinecraftServerEndReceiver;
 import net.samagames.hydroangeas.server.packets.MinecraftServerIssueReceiver;
 import net.samagames.hydroangeas.server.scheduler.StartThread;
 import net.samagames.hydroangeas.utils.InstanceType;
@@ -30,6 +31,7 @@ public class HydroangeasServer extends Hydroangeas
 
         this.redisSubscriber.registerReceiver("hello@hydroangeas-server", new HelloClientPacketReceiver());
         this.redisSubscriber.registerReceiver("issue@hydroangeas-server", new MinecraftServerIssueReceiver());
+        this.redisSubscriber.registerReceiver("end@hydroangeas-server", new MinecraftServerEndReceiver());
 
         this.httpServerManager = new HttpServerManager(this);
         this.httpServerManager.getHttpServer().createContext("/network", new NetworkHttpHandler());
