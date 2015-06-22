@@ -30,7 +30,7 @@ public class MinecraftServer
             this.instance.getResourceManager().downloadServer(this, this.serverFolder);
             this.instance.getResourceManager().downloadMap(this, this.serverFolder);
             this.instance.getResourceManager().downloadDependencies(this, this.serverFolder);
-            this.instance.getResourceManager().patchServer(this, this.serverFolder);
+            this.instance.getResourceManager().patchServer(this, this.serverFolder, this.serverInfos.isCoupaingServer());
         }
         catch (Exception e)
         {

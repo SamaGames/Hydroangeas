@@ -1,5 +1,6 @@
 package net.samagames.hydroangeas.client.servers;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -7,9 +8,8 @@ import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.packets.MinecraftServerIssuePacket;
 import net.samagames.hydroangeas.utils.InternetUtils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
+import java.util.HashMap;
 
 public class ResourceManager
 {
@@ -75,8 +75,7 @@ public class ResourceManager
         {
             File dependenciesFile = new File(serverPath, "dependencies.json");
 
-            if(!dependenciesFile.exists())
-                return;
+            while(!dependenciesFile.exists()) {}
 
             JsonArray jsonRoot = new JsonParser().parse(new FileReader(dependenciesFile)).getAsJsonArray();
 
@@ -98,7 +97,7 @@ public class ResourceManager
         {
             String existURL = this.instance.getTemplatesDomain() + "dependencies/exist.php?name=" + dependency.getName() + "&version=" + dependency.getVersion();
             String wgetURL = this.instance.getTemplatesDomain() + "dependencies/" + dependency.getName() + "_" + dependency.getVersion() + ".tar.gz";
-            File pluginsPath = new File(serverPath, "plugins");
+            File pluginsPath = new File(serverPath, "plugins/");
 
             if(!pluginsPath.exists())
                 pluginsPath.mkdirs();
@@ -113,7 +112,6 @@ public class ResourceManager
 
             this.instance.getLinuxBridge().wget(wgetURL, pluginsPath.getAbsolutePath());
             this.instance.getLinuxBridge().gzipExtract(new File(pluginsPath, dependency.getName() + "_" + dependency.getVersion() + ".tar.gz").getAbsolutePath(), pluginsPath.getAbsolutePath());
-
         }
         catch (Exception e)
         {
@@ -122,7 +120,7 @@ public class ResourceManager
         }
     }
 
-    public void patchServer(MinecraftServer server, File serverPath)
+    public void patchServer(MinecraftServer server, File serverPath, boolean isCoupaingServer)
     {
         try
         {
@@ -130,6 +128,27 @@ public class ResourceManager
             this.instance.getLinuxBridge().sed("%serverPort%", String.valueOf(server.getPort()), new File(serverPath, "server.properties").getAbsolutePath());
             this.instance.getLinuxBridge().sed("%serverIp%", InternetUtils.getExternalIp(), new File(serverPath, "server.properties").getAbsolutePath());
             this.instance.getLinuxBridge().sed("%serverName%", server.getServerInfos().getServerName(), new File(serverPath, "scripts.txt").getAbsolutePath());
+
+            if(isCoupaingServer)
+            {
+                File coupaingFile = new File(serverPath, "plugins/coupaing.json");
+                coupaingFile.createNewFile();
+
+                JsonObject rootJson = new JsonObject();
+                rootJson.addProperty("min-slot", server.getServerInfos().getMinSlot());
+                rootJson.addProperty("max-slot", server.getServerInfos().getMaxSlot());
+
+                HashMap<String, String> options = server.getServerInfos().getOptions();
+
+                for(String key : options.keySet())
+                    rootJson.addProperty(key, options.get(key));
+
+                FileOutputStream fOut = new FileOutputStream(coupaingFile);
+                OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
+                myOutWriter.append(new Gson().toJson(rootJson));
+                myOutWriter.close();
+                fOut.close();
+            }
         }
         catch (Exception e)
         {

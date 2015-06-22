@@ -97,6 +97,12 @@ public class AlgorithmicMachine
                     MinecraftServerInfos serverInfos = new MinecraftServerInfos(serverGame.getGame(), serverGame.getMap());
                     ClientInfos selected = this.selectMostUseableClient(serverGame.getGame());
 
+                    if(selected == null)
+                    {
+                        this.instance.log(Level.SEVERE, "No client found for the game '" + serverGame.getGame() + "'!");
+                        return;
+                    }
+
                     new MinecraftServerPacket(selected, serverInfos).send();
                 }
             }
@@ -108,14 +114,26 @@ public class AlgorithmicMachine
     public ClientInfos selectMostUseableClient(String game)
     {
         ArrayList<ClientInfos> clients = Hydroangeas.getInstance().getAsServer().getClientManager().getClientsByGame(game);
+
+        if(clients == null || clients.isEmpty())
+            return null;
+
         ClientInfos selected = null;
 
-        for(ClientInfos clientInfos : clients)
+        for(int i = 0; i < clients.size(); i++)
         {
-            if((clientInfos.getServersInfos().size() / clientInfos.getMaxInstances()) * 100 <= 70)
+            ClientInfos clientInfos = clients.get(i);
+
+            //TODO: Système de poid
+            if ((clientInfos.getServersInfos().size() / clientInfos.getMaxInstances()) * 100 <= 70)
             {
                 selected = clientInfos;
                 break;
+            }
+            else if ((i + 1) == clients.size())
+            {
+                selected = clientInfos;
+                this.instance.log(Level.WARNING, "Clients for the game '" + game + "' are almost full!");
             }
         }
 
@@ -125,9 +143,15 @@ public class AlgorithmicMachine
     public void onServerUpdate(MinecraftServerEndPacket serverStatus)
     {
         MinecraftServerInfos serverInfos = new MinecraftServerInfos(serverStatus.getServerInfos().getGame(), serverStatus.getServerInfos().getMap());
-        ClientInfos client = this.selectMostUseableClient(serverInfos.getGame());
+        ClientInfos selected = this.selectMostUseableClient(serverInfos.getGame());
 
-        if(client == null)
+        if(selected == null)
+        {
+            this.instance.log(Level.SEVERE, "No client found for the game '" + serverStatus.getServerInfos().getGame() + "'!");
+            return;
+        }
+
+        if(selected == null)
         {
             Hydroangeas.getInstance().log(Level.SEVERE, "No client available for the game '" + serverInfos.getGame() + "'!");
             ModMessage.sendError(InstanceType.SERVER, "Aucun client disponible pour le jeu '" + serverInfos.getGame() + "'!");
@@ -135,6 +159,6 @@ public class AlgorithmicMachine
             return;
         }
 
-        new MinecraftServerPacket(client, serverInfos).send();
+        new MinecraftServerPacket(selected, serverInfos).send();
     }
 }
