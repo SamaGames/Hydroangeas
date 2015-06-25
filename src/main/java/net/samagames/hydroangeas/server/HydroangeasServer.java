@@ -2,8 +2,6 @@ package net.samagames.hydroangeas.server;
 
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.Hydroangeas;
-import net.samagames.hydroangeas.server.http.HttpServerManager;
-import net.samagames.hydroangeas.server.http.NetworkHttpHandler;
 import net.samagames.hydroangeas.server.packets.CoupaingServerReceiver;
 import net.samagames.hydroangeas.server.packets.HelloClientPacketReceiver;
 import net.samagames.hydroangeas.server.packets.MinecraftServerIssueReceiver;
@@ -15,7 +13,6 @@ import java.util.logging.Level;
 
 public class HydroangeasServer extends Hydroangeas
 {
-    private HttpServerManager httpServerManager;
     private ClientManager clientManager;
     private AlgorithmicMachine algorithmicMachine;
 
@@ -33,9 +30,6 @@ public class HydroangeasServer extends Hydroangeas
         this.redisSubscriber.registerReceiver("issue@hydroangeas-server", new MinecraftServerIssueReceiver());
         this.redisSubscriber.registerReceiver("coupaing@hydroangeas-server", new CoupaingServerReceiver());
 
-        this.httpServerManager = new HttpServerManager(this);
-        this.httpServerManager.getHttpServer().createContext("/network", new NetworkHttpHandler());
-
         this.clientManager = new ClientManager(this);
         this.algorithmicMachine = new AlgorithmicMachine(this);
 
@@ -50,7 +44,6 @@ public class HydroangeasServer extends Hydroangeas
         super.shutdown();
 
         this.clientManager.getKeepUpdatedThread().stop();
-        this.httpServerManager.disable();
     }
 
     public ClientManager getClientManager()

@@ -3,6 +3,7 @@ package net.samagames.hydroangeas.server.scheduler;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -11,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 public class KeepUpdatedThread
 {
     private final HydroangeasServer instance;
-    private final HashMap<String, ScheduledFuture> clientsScheduler;
+    private final HashMap<UUID, ScheduledFuture> clientsScheduler;
 
     private ScheduledExecutorService scheduler;
     private boolean doLoop;
@@ -30,9 +31,9 @@ public class KeepUpdatedThread
         {
             while(this.doLoop)
             {
-                for (String clientName : this.instance.getClientManager().getClients().keySet())
-                    if (!this.clientsScheduler.containsKey(clientName))
-                        this.clientsScheduler.put(clientName, this.scheduler.scheduleAtFixedRate(new ClientScheduledRunnable(this.instance, this.instance.getClientManager().getClientInfosByUUID(clientName)), 65, 65, TimeUnit.SECONDS));
+                for (UUID clientUUID : this.instance.getClientManager().getClients().keySet())
+                    if (!this.clientsScheduler.containsKey(clientUUID))
+                        this.clientsScheduler.put(clientUUID, this.scheduler.scheduleAtFixedRate(new ClientScheduledRunnable(this.instance, this.instance.getClientManager().getClientInfosByUUID(clientUUID)), 65, 65, TimeUnit.SECONDS));
 
                 try
                 {
@@ -48,12 +49,12 @@ public class KeepUpdatedThread
         thread.start();
     }
 
-    public void stopClient(String clientName)
+    public void stopClient(UUID clientUUID)
     {
-        if(this.clientsScheduler.containsKey(clientName))
+        if(this.clientsScheduler.containsKey(clientUUID))
         {
-            this.clientsScheduler.get(clientName).cancel(true);
-            this.clientsScheduler.remove(clientName);
+            this.clientsScheduler.get(clientUUID).cancel(true);
+            this.clientsScheduler.remove(clientUUID);
         }
     }
 

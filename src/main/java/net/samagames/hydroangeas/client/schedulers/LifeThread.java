@@ -41,14 +41,14 @@ public class LifeThread
 
             if(!this.connected)
             {
-                ModMessage.sendMessage(InstanceType.CLIENT, "[" + this.instance.getClientName() + "] Impossible de contacter le serveur Hydroangeas !");
+                ModMessage.sendMessage(InstanceType.CLIENT, "[" + this.instance.getClientUUID().toString() + "] Impossible de contacter le serveur Hydroangeas !");
 
                 this.instance.log(Level.SEVERE, "Can't tell the Hydroangeas Server! Maybe it's down?");
                 this.beforeConnected = false;
             }
             else if(this.connected && !this.beforeConnected)
             {
-                ModMessage.sendMessage(InstanceType.CLIENT, "[" + this.instance.getClientName() + "] Retour à la normale !");
+                ModMessage.sendMessage(InstanceType.CLIENT, "[" + this.instance.getClientUUID().toString() + "] Retour à la normale !");
 
                 this.instance.log(Level.INFO, "Hydroangeas Server has responded! Back to normal!");
                 this.beforeConnected = true;

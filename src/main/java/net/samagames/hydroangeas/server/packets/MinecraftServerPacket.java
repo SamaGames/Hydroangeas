@@ -28,6 +28,6 @@ public class MinecraftServerPacket extends AbstractPacket
     @Override
     public String getChannel()
     {
-        return "server@" + clientInfos.getClientName() + "@hydroangeas-client";
+        return "server@" + clientInfos.getClientUUID().toString() + "@hydroangeas-client";
     }
 }

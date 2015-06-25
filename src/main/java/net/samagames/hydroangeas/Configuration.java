@@ -95,9 +95,7 @@ public class Configuration
         if(!object.has("web-domain")) flag = false;
 
         /** Client **/
-        if(!object.has("unique-name")) flag = false;
-        if(!object.has("dedicated-game")) flag = false;
-        if(!object.has("max-instances")) flag = false;
+        if(!object.has("max-weight")) flag = false;
 
         return flag;
     }

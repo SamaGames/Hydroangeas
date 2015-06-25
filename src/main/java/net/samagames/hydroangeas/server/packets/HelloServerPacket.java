@@ -15,7 +15,7 @@ public class HelloServerPacket extends AbstractPacket
     @Override
     public String getChannel()
     {
-        return "hello@" + this.clientPacket.getClientInfos().getClientName() + "@hydroangeas-client";
+        return "hello@" + this.clientPacket.getClientInfos().getClientUUID().toString() + "@hydroangeas-client";
     }
 
     @Override

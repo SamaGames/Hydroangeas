@@ -7,18 +7,17 @@ import net.samagames.hydroangeas.client.packets.MinecraftServerReceiver;
 import net.samagames.hydroangeas.client.schedulers.LifeThread;
 import net.samagames.hydroangeas.client.servers.ResourceManager;
 import net.samagames.hydroangeas.client.servers.ServerManager;
-import net.samagames.hydroangeas.utils.JsonUtils;
 import net.samagames.hydroangeas.utils.MiscUtils;
 
 import java.io.File;
+import java.util.UUID;
 import java.util.logging.Level;
 
 public class HydroangeasClient extends Hydroangeas
 {
-    private String clientName;
-    private String dedicatedGame;
+    private UUID clientUUID;
     private String templatesDomain;
-    private int maxInstances;
+    private int maxWeight;
     private File serverFolder;
 
     private LifeThread lifeThread;
@@ -35,17 +34,16 @@ public class HydroangeasClient extends Hydroangeas
     {
         this.log(Level.INFO, "Starting Hydroangeas client...");
 
-        this.clientName = this.configuration.getJsonConfiguration().get("unique-name").getAsString();
-        this.dedicatedGame = JsonUtils.getStringOrNull(this.configuration.getJsonConfiguration().get("dedicated-game"));
+        this.clientUUID = UUID.randomUUID();
         this.templatesDomain = this.configuration.getJsonConfiguration().get("web-domain").getAsString() + "templates/";
-        this.maxInstances = this.configuration.getJsonConfiguration().get("max-instances").getAsInt();
+        this.maxWeight = this.configuration.getJsonConfiguration().get("max-weight").getAsInt();
         this.serverFolder = new File(MiscUtils.getJarFolder(), "servers");
 
         if(!this.serverFolder.exists())
             this.serverFolder.mkdirs();
 
-        this.redisSubscriber.registerReceiver("hello@" + this.clientName + "@hydroangeas-client", new HelloServerPacketReceiver());
-        this.redisSubscriber.registerReceiver("server@" + this.clientName + "@hydroangeas-client", new MinecraftServerReceiver());
+        this.redisSubscriber.registerReceiver("hello@" + this.clientUUID.toString() + "@hydroangeas-client", new HelloServerPacketReceiver());
+        this.redisSubscriber.registerReceiver("server@" + this.clientUUID.toString() + "@hydroangeas-client", new MinecraftServerReceiver());
 
         this.lifeThread = new LifeThread(this);
         this.lifeThread.start();
@@ -63,19 +61,14 @@ public class HydroangeasClient extends Hydroangeas
         this.serverManager.stopAll();
     }
 
-    public String getClientName()
+    public UUID getClientUUID()
     {
-        return this.clientName;
+        return this.clientUUID;
     }
 
-    public String getDedicatedGame()
+    public int getMaxWeight()
     {
-        return this.dedicatedGame;
-    }
-
-    public int getMaxInstances()
-    {
-        return this.maxInstances;
+        return this.maxWeight;
     }
 
     public String getTemplatesDomain()
