@@ -3,8 +3,6 @@ package net.samagames.hydroangeas.server;
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.server.packets.CoupaingServerReceiver;
-import net.samagames.hydroangeas.server.packets.HelloClientPacketReceiver;
-import net.samagames.hydroangeas.server.packets.MinecraftServerIssueReceiver;
 import net.samagames.hydroangeas.server.scheduler.StartThread;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
@@ -13,6 +11,7 @@ import java.util.logging.Level;
 
 public class HydroangeasServer extends Hydroangeas
 {
+    public ServerConnectionManager connectionManager;
     private ClientManager clientManager;
     private AlgorithmicMachine algorithmicMachine;
 
@@ -26,8 +25,9 @@ public class HydroangeasServer extends Hydroangeas
     {
         this.log(Level.INFO, "Starting Hydroangeas server...");
 
-        this.redisSubscriber.registerReceiver("hello@hydroangeas-server", new HelloClientPacketReceiver());
-        this.redisSubscriber.registerReceiver("issue@hydroangeas-server", new MinecraftServerIssueReceiver());
+        connectionManager = new ServerConnectionManager(this);
+
+        this.redisSubscriber.registerReceiver("global@hydroangeas-server", data -> connectionManager.getPacket(data));
         this.redisSubscriber.registerReceiver("coupaing@hydroangeas-server", new CoupaingServerReceiver());
 
         this.clientManager = new ClientManager(this);

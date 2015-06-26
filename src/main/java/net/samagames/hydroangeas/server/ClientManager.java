@@ -1,53 +1,56 @@
 package net.samagames.hydroangeas.server;
 
-import net.samagames.hydroangeas.client.packets.HelloClientPacket;
-import net.samagames.hydroangeas.common.informations.ClientInfos;
-import net.samagames.hydroangeas.server.packets.HelloServerPacket;
+import net.samagames.hydroangeas.common.protocol.HelloFromClientPacket;
+import net.samagames.hydroangeas.server.client.HydroClient;
 import net.samagames.hydroangeas.server.scheduler.KeepUpdatedThread;
 
-import java.util.HashMap;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
 public class ClientManager
 {
     private final HydroangeasServer instance;
-    private final HashMap<UUID, ClientInfos> clients;
+    private final List<HydroClient> clients = new ArrayList<>();
+    //private final HashMap<UUID, ClientInfos> clients = new HashMap<>();
     private final KeepUpdatedThread keepUpdatedThread;
 
     public ClientManager(HydroangeasServer instance)
     {
         this.instance = instance;
-        this.clients = new HashMap<>();
 
         this.keepUpdatedThread = new KeepUpdatedThread(instance);
         this.keepUpdatedThread.start();
     }
 
-    public void onClientHeartbeat(HelloClientPacket packet)
+    public void updateClient(HelloFromClientPacket packet)
     {
-        if(!this.clients.containsKey(packet.getClientInfos().getClientUUID()))
+        HydroClient client = this.getClientByUUID(packet.getUUID());
+        if(client == null)
         {
-            this.instance.log(Level.INFO, "Client " + packet.getClientInfos().getClientUUID().toString() + " connected!");
+
+        }
+    }
+
+    public void onClientHeartbeat(UUID uuid)
+    {
+        HydroClient client = this.getClientByUUID(uuid);
+        if(client == null)
+        {
+            this.instance.log(Level.INFO, "Client " + uuid.toString() + " connected!");
+            //Todo get data
+            return;
         }
 
-        this.clients.put(packet.getClientInfos().getClientUUID(), packet.getClientInfos());
-
-        new HelloServerPacket(packet).send();
+        client.setTimestamp(new Timestamp(System.currentTimeMillis()));
     }
 
     public void onClientNoReachable(UUID clientUUID)
     {
-        if(this.clients.containsKey(clientUUID))
+        if(this.getClientByUUID(clientUUID) == null)
             this.clients.remove(clientUUID);
-    }
-
-    public ClientInfos getClientInfosByUUID(UUID clientUUID)
-    {
-        if(this.clients.containsKey(clientUUID))
-            return this.clients.get(clientUUID);
-        else
-            return null;
     }
 
     public KeepUpdatedThread getKeepUpdatedThread()
@@ -55,8 +58,19 @@ public class ClientManager
         return this.keepUpdatedThread;
     }
 
-    public HashMap<UUID, ClientInfos> getClients()
+    public List<HydroClient> getClients()
     {
         return this.clients;
+    }
+
+    public HydroClient getClientByUUID(UUID uuid)
+    {
+        for(HydroClient client : clients)
+        {
+            if(client.getUUID().equals(uuid)){
+                return client;
+            }
+        }
+        return null;
     }
 }

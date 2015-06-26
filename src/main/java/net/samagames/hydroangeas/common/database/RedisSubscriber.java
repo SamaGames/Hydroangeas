@@ -1,7 +1,6 @@
 package net.samagames.hydroangeas.common.database;
 
 import net.samagames.hydroangeas.Hydroangeas;
-import net.samagames.hydroangeas.common.packets.AbstractPacket;
 import net.samagames.hydroangeas.common.packets.PacketReceiver;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
@@ -72,13 +71,11 @@ public class RedisSubscriber extends JedisPubSub
         this.instance.log(Level.INFO, "Registered receiver '" + receiver.getClass().getSimpleName() + "' on channel '" + channel + "'");
     }
 
-    public void send(AbstractPacket message)
+    public void send(String channel, String packet)
     {
         Jedis jedis = this.instance.getDatabaseConnector().getJedisPool().getResource();
-        jedis.publish(message.getChannel(), message.getData());
+        jedis.publish(channel, channel);
         jedis.close();
-
-        message.callback();
     }
 
     @Override

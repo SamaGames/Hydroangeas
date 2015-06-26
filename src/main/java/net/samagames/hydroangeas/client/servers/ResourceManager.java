@@ -5,7 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.samagames.hydroangeas.client.HydroangeasClient;
-import net.samagames.hydroangeas.client.packets.MinecraftServerIssuePacket;
+import net.samagames.hydroangeas.common.protocol.MinecraftServerIssuePacket;
 import net.samagames.hydroangeas.utils.InternetUtils;
 
 import java.io.*;

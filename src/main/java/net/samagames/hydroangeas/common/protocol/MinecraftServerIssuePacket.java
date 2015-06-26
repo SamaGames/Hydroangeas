@@ -1,22 +1,19 @@
-package net.samagames.hydroangeas.client.packets;
+package net.samagames.hydroangeas.common.protocol;
 
-import net.samagames.hydroangeas.client.HydroangeasClient;
-import net.samagames.hydroangeas.common.informations.ClientInfos;
 import net.samagames.hydroangeas.common.informations.MinecraftServerInfos;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
 
+import java.util.UUID;
+
 public class MinecraftServerIssuePacket extends AbstractPacket
 {
-    public enum Type { MAKE, PATCH, START, STOP };
-
-    private final ClientInfos clientInfos;
     private final MinecraftServerInfos serverInfos;
     private final Type issueType;
     private final String message;
-
-    public MinecraftServerIssuePacket(HydroangeasClient instance, MinecraftServerInfos serverInfos, Type issueType)
+    public UUID uuid;
+    public MinecraftServerIssuePacket(UUID uuid, MinecraftServerInfos serverInfos, Type issueType)
     {
-        this.clientInfos = new ClientInfos(instance);
+        this.uuid = uuid;
         this.serverInfos = serverInfos;
         this.issueType = issueType;
 
@@ -44,9 +41,9 @@ public class MinecraftServerIssuePacket extends AbstractPacket
         }
     }
 
-    public ClientInfos getClientInfos()
+    public UUID getUUID()
     {
-        return this.clientInfos;
+        return uuid;
     }
 
     public MinecraftServerInfos getServerInfos()
@@ -64,9 +61,5 @@ public class MinecraftServerIssuePacket extends AbstractPacket
         return this.message;
     }
 
-    @Override
-    public String getChannel()
-    {
-        return "issue@hydroangeas-server";
-    }
+    public enum Type { MAKE, PATCH, START, STOP }
 }

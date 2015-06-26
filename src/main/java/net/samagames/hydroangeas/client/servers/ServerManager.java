@@ -3,9 +3,9 @@ package net.samagames.hydroangeas.client.servers;
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.packets.HelloClientPacket;
 import net.samagames.hydroangeas.client.packets.MinecraftServerEndPacket;
-import net.samagames.hydroangeas.client.packets.MinecraftServerIssuePacket;
 import net.samagames.hydroangeas.client.schedulers.ServerCheckerThread;
 import net.samagames.hydroangeas.common.informations.MinecraftServerInfos;
+import net.samagames.hydroangeas.common.protocol.MinecraftServerIssuePacket;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,13 +41,13 @@ public class ServerManager
 
         if(!server.makeServer())
         {
-            new MinecraftServerIssuePacket(this.instance, serverInfos, MinecraftServerIssuePacket.Type.MAKE).send();
+            new MinecraftServerIssuePacket(this.instance.getClientUUID(), serverInfos, MinecraftServerIssuePacket.Type.MAKE).send();
             return;
         }
 
         if(!server.startServer())
         {
-            new MinecraftServerIssuePacket(this.instance, serverInfos, MinecraftServerIssuePacket.Type.START).send();
+            new MinecraftServerIssuePacket(this.instance.getClientUUID(), serverInfos, MinecraftServerIssuePacket.Type.START).send();
             return;
         }
 

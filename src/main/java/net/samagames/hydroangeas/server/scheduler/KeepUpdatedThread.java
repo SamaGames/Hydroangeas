@@ -19,6 +19,7 @@ public class KeepUpdatedThread
 
     public KeepUpdatedThread(HydroangeasServer instance)
     {
+        //TODO: refaire
         this.instance = instance;
         this.clientsScheduler = new HashMap<>();
         this.scheduler = Executors.newScheduledThreadPool(60);

@@ -1,0 +1,69 @@
+package net.samagames.hydroangeas.common.protocol;
+
+import net.samagames.hydroangeas.common.informations.MinecraftServerInfos;
+import net.samagames.hydroangeas.common.packets.AbstractPacket;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * This file is a part of the SamaGames Project CodeBase
+ * This code is absolutely confidential.
+ * Created by Geekpower14 on 25/06/2015.
+ * (C) Copyright Elydra Network 2014 & 2015
+ * All rights reserved.
+ */
+public class HelloFromClientPacket extends AbstractPacket{
+
+    public UUID uuid;
+    public String ip;
+    public int maxWeight;
+    public int actualWeight;
+    public Timestamp timestamp;
+
+    public ArrayList<MinecraftServerInfos> serverInfos = new ArrayList<>();
+
+    public HelloFromClientPacket(UUID uuid, String ip, int maxWeight, int actualWeight, Timestamp timestamp, List<MinecraftServerInfos> serverInfos)
+    {
+        this.uuid = uuid;
+        this.ip = ip;
+        this.maxWeight = maxWeight;
+        this.actualWeight = actualWeight;
+        this.timestamp = timestamp;
+
+        this.serverInfos.addAll(serverInfos);
+    }
+
+    public UUID getUUID()
+    {
+        return uuid;
+    }
+
+    public String getIp()
+    {
+        return ip;
+    }
+
+    public int getMaxWeight()
+    {
+        return maxWeight;
+    }
+
+    public int getActualWeight()
+    {
+        return actualWeight;
+    }
+
+    public Timestamp getTimestamp()
+    {
+        return timestamp;
+    }
+
+    public List<MinecraftServerInfos> getsServerInfoses()
+    {
+        return serverInfos;
+    }
+
+}
