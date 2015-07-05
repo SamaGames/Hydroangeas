@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.logging.Level;
 
-public class MinecraftServer
+public class MinecraftServerC
 {
     private final HydroangeasClient instance;
 
@@ -25,7 +25,7 @@ public class MinecraftServer
 
     private ServerThread serverThread;
 
-    public MinecraftServer(HydroangeasClient instance, MinecraftServerOrderPacket serverInfos, int port)
+    public MinecraftServerC(HydroangeasClient instance, MinecraftServerOrderPacket serverInfos, int port)
     {
         this.instance = instance;
 
@@ -70,7 +70,7 @@ public class MinecraftServer
         try
         {
             //this.instance.getLinuxBridge().mark2Start(this.serverFolder.getAbsolutePath()); //Old system
-            serverThread = new ServerThread(new String[]{"java"}, new String[]{""}, serverFolder);//TODO commande java
+            serverThread = new ServerThread(this, new String[]{"java"}, new String[]{""}, serverFolder);//TODO commande java
         }
         catch (Exception e)
         {
@@ -104,6 +104,12 @@ public class MinecraftServer
     public File getServerFolder()
     {
         return this.serverFolder;
+    }
+
+    public int getWeight()
+    {
+        //TODO CALCUL POID
+        return 1;
     }
 
     public int getPort()

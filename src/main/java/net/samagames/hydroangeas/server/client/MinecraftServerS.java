@@ -1,10 +1,17 @@
-package net.samagames.hydroangeas.common.informations;
+package net.samagames.hydroangeas.server.client;
 
 import java.util.HashMap;
 import java.util.UUID;
 
-public class MinecraftServerInfos
-{
+/**
+ * This file is a part of the SamaGames Project CodeBase
+ * This code is absolutely confidential.
+ * Created by Geekpower14 on 25/06/2015.
+ * (C) Copyright Elydra Network 2014 & 2015
+ * All rights reserved.
+ */
+public class MinecraftServerS {
+
     private final UUID uuid;
     private final boolean coupaingServer;
     private String game;
@@ -13,16 +20,19 @@ public class MinecraftServerInfos
     private int maxSlot;
     private HashMap<String, String> options;
 
-    public MinecraftServerInfos(String game, String map)
+    public MinecraftServerS(String game, String map)
     {
         this.uuid = UUID.randomUUID();
         this.game = game;
         this.map = map;
+        this.minSlot = 0;
+        this.maxSlot = 0;
+        this.options = null;
 
         this.coupaingServer = false;
     }
 
-    public MinecraftServerInfos(String game, String map, int minSlot, int maxSlot, HashMap<String, String> options)
+    public MinecraftServerS(String game, String map, int minSlot, int maxSlot, HashMap<String, String> options)
     {
         this.uuid = UUID.randomUUID();
         this.game = game;
@@ -73,4 +83,5 @@ public class MinecraftServerInfos
     {
         return this.coupaingServer;
     }
+
 }

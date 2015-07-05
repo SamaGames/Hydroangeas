@@ -13,7 +13,7 @@ import java.util.logging.Level;
 
 public class KeepUpdatedThread
 {
-    private final static long TIMEOUT = 20L;
+    private final static long TIMEOUT = 20 * 1000L;
     private final HydroangeasServer instance;
 
     public KeepUpdatedThread(HydroangeasServer instance)

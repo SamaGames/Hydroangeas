@@ -3,8 +3,7 @@ package net.samagames.hydroangeas.server;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
 import net.samagames.hydroangeas.common.packets.ConnectionManager;
-import net.samagames.hydroangeas.common.protocol.HeartbeatPacket;
-import net.samagames.hydroangeas.common.protocol.MinecraftServerIssuePacket;
+import net.samagames.hydroangeas.common.protocol.*;
 import net.samagames.hydroangeas.server.client.HydroClient;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
@@ -30,7 +29,6 @@ public class ServerConnectionManager extends ConnectionManager{
         sendPacket(channel, packet);
     }
 
-
     @Override
     public void handler(int id, String data) {
         Object spacket = gson.fromJson(data, packets[id]);
@@ -46,6 +44,26 @@ public class ServerConnectionManager extends ConnectionManager{
             hydroangeas.log(Level.SEVERE, "> Category: Server issue (" + packet.getIssueType().name() + ")");
 
             ModMessage.sendError(InstanceType.SERVER, packet.getMessage());
+        }else if(spacket instanceof MinecraftServerUpdatePacket)
+        {
+            MinecraftServerUpdatePacket packet = (MinecraftServerUpdatePacket) spacket;
+            //TODO handle update
+
+        }else if(spacket instanceof ByeFromClientPacket)
+        {
+            ByeFromClientPacket packet = (ByeFromClientPacket) spacket;
+            //TODO delete client
+
+        }else if(spacket instanceof CoupaingServerPacket)
+        {
+            CoupaingServerPacket packet = (CoupaingServerPacket) spacket;
+            //TODO handle the creation of coupaing server
+
+        }else if(spacket instanceof HelloFromClientPacket)
+        {
+            HelloFromClientPacket packet = (HelloFromClientPacket) spacket;
+            //TODO add client
+
         }
     }
 }

@@ -3,6 +3,7 @@ package net.samagames.hydroangeas.client;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
 import net.samagames.hydroangeas.common.packets.ConnectionManager;
+import net.samagames.hydroangeas.common.protocol.AskForClientDataPacket;
 import net.samagames.hydroangeas.common.protocol.HeartbeatPacket;
 import net.samagames.hydroangeas.common.protocol.MinecraftServerOrderPacket;
 
@@ -38,6 +39,10 @@ public class ClientConnectionManager extends ConnectionManager {
             MinecraftServerOrderPacket packet = (MinecraftServerOrderPacket) spacket;
 
             Hydroangeas.getInstance().getAsClient().getServerManager().newServer(packet);
+        }else if(spacket instanceof AskForClientDataPacket)
+        {
+            AskForClientDataPacket packet = (AskForClientDataPacket) spacket;
+            Hydroangeas.getInstance().getAsClient().getLifeThread().sendData(true);
         }
     }
 }

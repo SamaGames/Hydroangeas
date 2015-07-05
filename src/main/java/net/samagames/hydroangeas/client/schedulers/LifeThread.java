@@ -1,8 +1,10 @@
 package net.samagames.hydroangeas.client.schedulers;
 
 import net.samagames.hydroangeas.client.HydroangeasClient;
+import net.samagames.hydroangeas.client.servers.MinecraftServerC;
 import net.samagames.hydroangeas.common.protocol.HeartbeatPacket;
 import net.samagames.hydroangeas.common.protocol.HelloFromClientPacket;
+import net.samagames.hydroangeas.common.protocol.MinecraftServerUpdatePacket;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
 
@@ -12,7 +14,7 @@ import java.util.logging.Level;
 
 public class LifeThread
 {
-    private final static long TIMEOUT = 20L;
+    private final static long TIMEOUT = 20 * 1000L;
     private final HydroangeasClient instance;
     private long lastHeartbeatFromServer;
     private boolean connected;
@@ -44,7 +46,9 @@ public class LifeThread
         {
             ModMessage.sendMessage(InstanceType.CLIENT, "[" + this.instance.getClientUUID().toString() + "] Retour à la normale !");
 
-            this.instance.log(Level.INFO, "Hydroangeas Server has responded! Back to normal!");
+            this.instance.log(Level.INFO, "Hydroangeas Server has responded! Resync data...");
+            sendData(true);
+
             connected = true;
         }
     }
@@ -54,7 +58,10 @@ public class LifeThread
         instance.getConnectionManager().sendPacket(new HelloFromClientPacket(instance));
         if(all)
         {
-            //TODO send all sub minecraft server
+            for(MinecraftServerC server : instance.getServerManager().getServers())
+            {
+                instance.getConnectionManager().sendPacket(new MinecraftServerUpdatePacket(instance, server.getServerName(), MinecraftServerUpdatePacket.UType.INFO));
+            }
         }
     }
 

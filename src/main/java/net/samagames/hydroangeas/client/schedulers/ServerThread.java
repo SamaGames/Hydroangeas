@@ -1,5 +1,8 @@
 package net.samagames.hydroangeas.client.schedulers;
 
+import net.samagames.hydroangeas.Hydroangeas;
+import net.samagames.hydroangeas.client.servers.MinecraftServerC;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -14,15 +17,15 @@ import java.io.InputStreamReader;
  */
 public class ServerThread implements Runnable {
 
-    public boolean isServerProcessAlive = false;
-
+    public boolean isServerProcessAlive;
     public Process server;
     public Thread errorThread;
-
     public File directory;
+    private MinecraftServerC instance;
 
-    public ServerThread(String[] command, String[] env, File directory)
+    public ServerThread(MinecraftServerC instance, String[] command, String[] env, File directory)
     {
+        this.instance = instance;
         try {
             this.directory = directory;
 
@@ -33,7 +36,7 @@ public class ServerThread implements Runnable {
                 public void run() {
                     try {
                         BufferedReader reader = new BufferedReader(new InputStreamReader(server.getErrorStream()));
-                        String line = "";
+                        String line = null;
                         try {
                             while(isServerProcessAlive && (line = reader.readLine()) != null) {
                                 //TODO handle errors
@@ -53,17 +56,21 @@ public class ServerThread implements Runnable {
     }
 
     @Override
-    public void run() {
+    public void run()
+    {
         try {
             server.waitFor();
             isServerProcessAlive = false;
+            Hydroangeas.getInstance().getAsClient().getServerManager().onServerStop(instance);
         } catch (InterruptedException e) {
             e.printStackTrace();
+            isServerProcessAlive = false;
         }
     }
 
     public void stop()
     {
+        isServerProcessAlive = false;
         directory.delete();
         errorThread.interrupt();
         server.destroy();
@@ -71,6 +78,8 @@ public class ServerThread implements Runnable {
 
     public void forceStop()
     {
+        isServerProcessAlive = false;
+        directory.delete();
         errorThread.interrupt();
         server.destroyForcibly();
     }

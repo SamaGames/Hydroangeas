@@ -20,56 +20,56 @@ public class ResourceManager
         this.instance = instance;
     }
 
-    public void downloadServer(MinecraftServer server, File serverPath)
+    public void downloadServer(MinecraftServerC server, File serverPath)
     {
         try
         {
-            String existURL = this.instance.getTemplatesDomain() + "servers/exist.php?game=" + server.getServerInfos().getGame();
-            String wgetURL = this.instance.getTemplatesDomain() + "servers/" + server.getServerInfos().getGame() + ".tar.gz";
+            String existURL = this.instance.getTemplatesDomain() + "servers/exist.php?game=" + server.getGame();
+            String wgetURL = this.instance.getTemplatesDomain() + "servers/" + server.getGame() + ".tar.gz";
             boolean exist = Boolean.valueOf(InternetUtils.readURL(existURL));
 
             if (!exist)
             {
-                new MinecraftServerIssuePacket(this.instance, server.getServerInfos(), MinecraftServerIssuePacket.Type.MAKE);
+                instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
                 throw new IllegalStateException("Server template don't exist!");
             }
 
             this.instance.getLinuxBridge().wget(wgetURL, serverPath.getAbsolutePath());
-            this.instance.getLinuxBridge().gzipExtract(new File(serverPath, server.getServerInfos().getGame() + ".tar.gz").getAbsolutePath(), serverPath.getAbsolutePath());
+            this.instance.getLinuxBridge().gzipExtract(new File(serverPath, server.getGame() + ".tar.gz").getAbsolutePath(), serverPath.getAbsolutePath());
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            new MinecraftServerIssuePacket(this.instance, server.getServerInfos(), MinecraftServerIssuePacket.Type.MAKE).send();
+            instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
         }
     }
 
-    public void downloadMap(MinecraftServer server, File serverPath)
+    public void downloadMap(MinecraftServerC server, File serverPath)
     {
         try
         {
-            String existURL = this.instance.getTemplatesDomain() + "maps/exist.php?game=" + server.getServerInfos().getGame() + "&map=" + server.getServerInfos().getMap();
-            String wgetURL = this.instance.getTemplatesDomain() + "maps/" + server.getServerInfos().getGame() + "_" + server.getServerInfos().getMap() + ".tar.gz";
+            String existURL = this.instance.getTemplatesDomain() + "maps/exist.php?game=" + server.getGame() + "&map=" + server.getMap();
+            String wgetURL = this.instance.getTemplatesDomain() + "maps/" + server.getGame() + "_" + server.getMap() + ".tar.gz";
             boolean exist = Boolean.valueOf(InternetUtils.readURL(existURL));
 
             if (!exist)
             {
-                new MinecraftServerIssuePacket(this.instance, server.getServerInfos(), MinecraftServerIssuePacket.Type.MAKE);
+                new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.MAKE);
                 throw new IllegalStateException("Server's map don't exist!");
             }
 
             this.instance.getLinuxBridge().wget(wgetURL, serverPath.getAbsolutePath());
-            this.instance.getLinuxBridge().gzipExtract(new File(serverPath, server.getServerInfos().getGame() + "_" + server.getServerInfos().getMap() + ".tar.gz").getAbsolutePath(), serverPath.getAbsolutePath());
+            this.instance.getLinuxBridge().gzipExtract(new File(serverPath, server.getGame() + "_" + server.getMap() + ".tar.gz").getAbsolutePath(), serverPath.getAbsolutePath());
 
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            new MinecraftServerIssuePacket(this.instance, server.getServerInfos(), MinecraftServerIssuePacket.Type.MAKE).send();
+            instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
         }
     }
 
-    public void downloadDependencies(MinecraftServer server, File serverPath)
+    public void downloadDependencies(MinecraftServerC server, File serverPath)
     {
         try
         {
@@ -91,7 +91,7 @@ public class ResourceManager
         }
     }
 
-    public void downloadDependency(MinecraftServer server, ServerDependency dependency, File serverPath)
+    public void downloadDependency(MinecraftServerC server, ServerDependency dependency, File serverPath)
     {
         try
         {
@@ -106,7 +106,7 @@ public class ResourceManager
 
             if (!exist)
             {
-                new MinecraftServerIssuePacket(this.instance, server.getServerInfos(), MinecraftServerIssuePacket.Type.MAKE);
+                instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
                 throw new IllegalStateException("Servers' dependency '" + dependency.getName() + "' don't exist!");
             }
 
@@ -116,11 +116,11 @@ public class ResourceManager
         catch (Exception e)
         {
             e.printStackTrace();
-            new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.MAKE).send();
+            instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
         }
     }
 
-    public void patchServer(MinecraftServer server, File serverPath, boolean isCoupaingServer)
+    public void patchServer(MinecraftServerC server, File serverPath, boolean isCoupaingServer)
     {
         try
         {
@@ -153,7 +153,7 @@ public class ResourceManager
         catch (Exception e)
         {
             e.printStackTrace();
-            new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.PATCH).send();
+            instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.PATCH));
         }
     }
 }

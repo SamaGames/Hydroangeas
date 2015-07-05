@@ -1,8 +1,8 @@
 package net.samagames.hydroangeas.server;
 
 import com.google.gson.JsonArray;
-import net.samagames.hydroangeas.client.packets.MinecraftServerEndPacket;
-import net.samagames.hydroangeas.common.informations.MinecraftServerInfos;
+import net.samagames.hydroangeas.common.protocol.MinecraftServerUpdatePacket;
+import net.samagames.hydroangeas.server.client.HydroClient;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
 
@@ -21,8 +21,13 @@ public class AlgorithmicMachine
         ModMessage.sendMessage(InstanceType.SERVER, "> Prêt !");
     }
 
-    public void onServerUpdate(MinecraftServerEndPacket serverStatus)
+    public void onServerUpdate(MinecraftServerUpdatePacket serverStatus)
     {
-        MinecraftServerInfos serverInfos = new MinecraftServerInfos(serverStatus.getServerInfos().getGame(), serverStatus.getServerInfos().getMap());
+        if(serverStatus.getAction().equals(MinecraftServerUpdatePacket.UType.END))
+        {
+            HydroClient client = instance.getClientManager().getClientByUUID(serverStatus.getUUID());
+            client.get //TO BE CONTINUED
+        }
+
     }
 }

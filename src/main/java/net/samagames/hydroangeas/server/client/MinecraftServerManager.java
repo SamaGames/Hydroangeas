@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class MinecraftServerManager {
 
-    private List<MinecraftServer> servers = new ArrayList<>();
+    private List<MinecraftServerS> servers = new ArrayList<>();
 
     public MinecraftServerManager()
     {
@@ -29,7 +29,7 @@ public class MinecraftServerManager {
 
     }
 
-    public List<MinecraftServer> getServers()
+    public List<MinecraftServerS> getServers()
     {
         return servers;
     }

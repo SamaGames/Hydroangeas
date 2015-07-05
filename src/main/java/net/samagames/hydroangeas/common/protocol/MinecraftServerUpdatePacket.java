@@ -1,5 +1,6 @@
 package net.samagames.hydroangeas.common.protocol;
 
+import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
 
 import java.util.UUID;
@@ -19,11 +20,16 @@ public class MinecraftServerUpdatePacket extends AbstractPacket {
     public UUID uuid;
     public String serverName;
 
+    public int newWeight;
+    public int maxWeight;
 
 
-    public MinecraftServerUpdatePacket(UUID uuid, String serverName, UType action)
+    public MinecraftServerUpdatePacket(HydroangeasClient instance, String serverName, UType action)
     {
-        this.uuid = uuid;
+        this.uuid = instance.getClientUUID();
+        this.newWeight = instance.getActualWeight();
+        this.maxWeight = instance.getMaxWeight();
+
         this.serverName = serverName;
         this.action = action;
     }
@@ -44,5 +50,5 @@ public class MinecraftServerUpdatePacket extends AbstractPacket {
     }
 
 
-    public enum UType { MAKE, PATCH, START, STOP, DELETE }
+    public enum UType {START, INFO, END}
 }

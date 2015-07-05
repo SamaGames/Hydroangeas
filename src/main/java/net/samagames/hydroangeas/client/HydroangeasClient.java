@@ -72,8 +72,7 @@ public class HydroangeasClient extends Hydroangeas
 
     public int getActualWeight()
     {
-        //TODO CACLUL WEIGHT
-        return 0;
+        return serverManager.getWeightOfAllServers();
     }
 
     public String getTemplatesDomain()
