@@ -1,67 +1,49 @@
 package net.samagames.hydroangeas.server.scheduler;
 
+import net.samagames.hydroangeas.Hydroangeas;
+import net.samagames.hydroangeas.common.protocol.HeartbeatPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
+import net.samagames.hydroangeas.server.client.HydroClient;
+import net.samagames.hydroangeas.utils.InstanceType;
+import net.samagames.hydroangeas.utils.ModMessage;
 
-import java.util.HashMap;
-import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
+import java.sql.Timestamp;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 public class KeepUpdatedThread
 {
+    private final static long TIMEOUT = 20L;
     private final HydroangeasServer instance;
-    private final HashMap<UUID, ScheduledFuture> clientsScheduler;
-
-    private ScheduledExecutorService scheduler;
-    private boolean doLoop;
 
     public KeepUpdatedThread(HydroangeasServer instance)
     {
-        //TODO: refaire
         this.instance = instance;
-        this.clientsScheduler = new HashMap<>();
-        this.scheduler = Executors.newScheduledThreadPool(60);
-        this.doLoop = true;
     }
 
     public void start()
     {
-        Thread thread = new Thread(() ->
+        instance.getScheduler().scheduleAtFixedRate(() -> check(), 2, 10, TimeUnit.SECONDS);
+    }
+
+    public void check()
+    {
+        for(HydroClient client : this.instance.getClientManager().getClients())
         {
-            while(this.doLoop)
+            try{
+                instance.getConnectionManager().sendPacket(client, new HeartbeatPacket(instance.getServerUUID()));
+                Timestamp actualTime = new Timestamp(System.currentTimeMillis());
+                if(actualTime.getTime() - client.getTimestamp().getTime() > TIMEOUT)
+                {
+                    Hydroangeas.getInstance().log(Level.WARNING, "Lost connection with client " + client.getUUID().toString() + "!");
+                    ModMessage.sendMessage(InstanceType.SERVER, "Connexion perdue avec le client " + client.getUUID().toString() + " !");
+
+                    this.instance.getClientManager().onClientNoReachable(client.getUUID());
+                }
+            }catch(Exception e)
             {
-                for (UUID clientUUID : this.instance.getClientManager().getClients().keySet())
-                    if (!this.clientsScheduler.containsKey(clientUUID))
-                        this.clientsScheduler.put(clientUUID, this.scheduler.scheduleAtFixedRate(new ClientScheduledRunnable(this.instance, this.instance.getClientManager().getClientInfosByUUID(clientUUID)), 65, 65, TimeUnit.SECONDS));
-
-                try
-                {
-                    Thread.sleep(10000);
-                }
-                catch (InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
+                e.printStackTrace();
             }
-        });
-
-        thread.start();
-    }
-
-    public void stopClient(UUID clientUUID)
-    {
-        if(this.clientsScheduler.containsKey(clientUUID))
-        {
-            this.clientsScheduler.get(clientUUID).cancel(true);
-            this.clientsScheduler.remove(clientUUID);
         }
-    }
-
-    public void stop()
-    {
-        this.doLoop = false;
-        this.clientsScheduler.keySet().forEach(this::stopClient);
     }
 }

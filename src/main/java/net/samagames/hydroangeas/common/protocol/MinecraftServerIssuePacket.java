@@ -1,42 +1,41 @@
 package net.samagames.hydroangeas.common.protocol;
 
-import net.samagames.hydroangeas.common.informations.MinecraftServerInfos;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
 
 import java.util.UUID;
 
 public class MinecraftServerIssuePacket extends AbstractPacket
 {
-    private final MinecraftServerInfos serverInfos;
     private final Type issueType;
     private final String message;
     public UUID uuid;
-    public MinecraftServerIssuePacket(UUID uuid, MinecraftServerInfos serverInfos, Type issueType)
+    public String serverName;
+    public MinecraftServerIssuePacket(UUID uuid, String serverName, Type issueType)
     {
         this.uuid = uuid;
-        this.serverInfos = serverInfos;
+        this.serverName = serverName;
         this.issueType = issueType;
 
         switch(issueType)
         {
             case MAKE:
-                this.message = "Impossible de créer le serveur '" + serverInfos.getServerName() + "'!";
+                this.message = "Impossible de créer le serveur '" + serverName + "'!";
                 break;
 
             case PATCH:
-                this.message = "Impossible de patcher le serveur '" + serverInfos.getServerName() + "'!";
+                this.message = "Impossible de patcher le serveur '" + serverName + "'!";
                 break;
 
             case START:
-                this.message = "Impossible de démarrer le serveur '" + serverInfos.getServerName() + "'!";
+                this.message = "Impossible de démarrer le serveur '" + serverName + "'!";
                 break;
 
             case STOP:
-                this.message = "Impossible de stopper le serveur '" + serverInfos.getServerName() + "'!";
+                this.message = "Impossible de stopper le serveur '" + serverName + "'!";
                 break;
 
             default:
-                this.message = "Une erreur s'est produite avec le serveur '" + serverInfos.getServerName() + "'!";
+                this.message = "Une erreur s'est produite avec le serveur '" + serverName + "'!";
                 break;
         }
     }
@@ -46,9 +45,9 @@ public class MinecraftServerIssuePacket extends AbstractPacket
         return uuid;
     }
 
-    public MinecraftServerInfos getServerInfos()
+    public String getServerName()
     {
-        return this.serverInfos;
+        return serverName;
     }
 
     public Type getIssueType()

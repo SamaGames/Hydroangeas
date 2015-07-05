@@ -1,9 +1,11 @@
 package net.samagames.hydroangeas.server;
 
 import net.samagames.hydroangeas.Hydroangeas;
+import net.samagames.hydroangeas.common.packets.AbstractPacket;
 import net.samagames.hydroangeas.common.packets.ConnectionManager;
 import net.samagames.hydroangeas.common.protocol.HeartbeatPacket;
 import net.samagames.hydroangeas.common.protocol.MinecraftServerIssuePacket;
+import net.samagames.hydroangeas.server.client.HydroClient;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
 
@@ -21,6 +23,13 @@ public class ServerConnectionManager extends ConnectionManager{
     public ServerConnectionManager(Hydroangeas hydroangeas) {
         super(hydroangeas);
     }
+
+    public void sendPacket(HydroClient client, AbstractPacket packet)
+    {
+        String channel = "global@" + client.getUUID().toString() + "@hydroangeas-client";
+        sendPacket(channel, packet);
+    }
+
 
     @Override
     public void handler(int id, String data) {

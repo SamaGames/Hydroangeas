@@ -1,70 +1,71 @@
 package net.samagames.hydroangeas.client.schedulers;
 
 import net.samagames.hydroangeas.client.HydroangeasClient;
-import net.samagames.hydroangeas.client.packets.HelloClientPacket;
+import net.samagames.hydroangeas.common.protocol.HeartbeatPacket;
+import net.samagames.hydroangeas.common.protocol.HelloFromClientPacket;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class LifeThread
 {
+    private final static long TIMEOUT = 20L;
     private final HydroangeasClient instance;
-    private final ScheduledExecutorService scheduler;
-    private ScheduledFuture scheduledFuture;
-    private boolean beforeConnected;
+    private long lastHeartbeatFromServer;
     private boolean connected;
 
     public LifeThread(HydroangeasClient instance)
     {
         this.instance = instance;
-        this.scheduler = Executors.newScheduledThreadPool(4);
-        this.beforeConnected = true;
         this.connected = false;
     }
 
     public void start()
     {
-        this.scheduledFuture = this.scheduler.scheduleAtFixedRate(() ->
+        instance.getScheduler().scheduleAtFixedRate(() -> check(), 2, 10, TimeUnit.SECONDS);
+    }
+
+    public void check()
+    {
+        instance.getConnectionManager().sendPacket(new HeartbeatPacket(instance.getClientUUID()));
+
+        if(System.currentTimeMillis() - lastHeartbeatFromServer > TIMEOUT)
         {
-            new HelloClientPacket(this.instance).send();
-
-            try
-            {
-                Thread.sleep(5000);
-            }
-            catch (InterruptedException ignored) {}
-
-            if(!this.connected)
+            if(this.connected)
             {
                 ModMessage.sendMessage(InstanceType.CLIENT, "[" + this.instance.getClientUUID().toString() + "] Impossible de contacter le serveur Hydroangeas !");
-
-                this.instance.log(Level.SEVERE, "Can't tell the Hydroangeas Server! Maybe it's down?");
-                this.beforeConnected = false;
             }
-            else if(this.connected && !this.beforeConnected)
-            {
-                ModMessage.sendMessage(InstanceType.CLIENT, "[" + this.instance.getClientUUID().toString() + "] Retour à la normale !");
-
-                this.instance.log(Level.INFO, "Hydroangeas Server has responded! Back to normal!");
-                this.beforeConnected = true;
-            }
-
+            this.instance.log(Level.SEVERE, "Can't tell the Hydroangeas Server! Maybe it's down?");
             this.connected = false;
-        }, 0, 60, TimeUnit.SECONDS);
+        }else if(!connected)
+        {
+            ModMessage.sendMessage(InstanceType.CLIENT, "[" + this.instance.getClientUUID().toString() + "] Retour à la normale !");
+
+            this.instance.log(Level.INFO, "Hydroangeas Server has responded! Back to normal!");
+            connected = true;
+        }
     }
 
-    public void stop()
+    public void sendData(boolean all)
     {
-        this.scheduledFuture.cancel(true);
+        instance.getConnectionManager().sendPacket(new HelloFromClientPacket(instance));
+        if(all)
+        {
+            //TODO send all sub minecraft server
+        }
     }
 
-    public void connectedToServer()
+    public void onServerHeartbeat(UUID uuid)
     {
-        this.connected = true;
+        lastHeartbeatFromServer = System.currentTimeMillis();
     }
+
+    public boolean isConnected()
+    {
+        return connected;
+    }
+
 }

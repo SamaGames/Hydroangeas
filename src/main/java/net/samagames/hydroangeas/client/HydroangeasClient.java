@@ -2,11 +2,11 @@ package net.samagames.hydroangeas.client;
 
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.Hydroangeas;
-import net.samagames.hydroangeas.client.packets.HelloServerPacketReceiver;
-import net.samagames.hydroangeas.client.packets.MinecraftServerReceiver;
 import net.samagames.hydroangeas.client.schedulers.LifeThread;
 import net.samagames.hydroangeas.client.servers.ResourceManager;
 import net.samagames.hydroangeas.client.servers.ServerManager;
+import net.samagames.hydroangeas.common.protocol.ByeFromClientPacket;
+import net.samagames.hydroangeas.utils.InternetUtils;
 import net.samagames.hydroangeas.utils.MiscUtils;
 
 import java.io.File;
@@ -20,6 +20,7 @@ public class HydroangeasClient extends Hydroangeas
     private int maxWeight;
     private File serverFolder;
 
+    private ClientConnectionManager connectionManager;
     private LifeThread lifeThread;
     private ServerManager serverManager;
     private ResourceManager resourceManager;
@@ -42,8 +43,9 @@ public class HydroangeasClient extends Hydroangeas
         if(!this.serverFolder.exists())
             this.serverFolder.mkdirs();
 
-        this.redisSubscriber.registerReceiver("hello@" + this.clientUUID.toString() + "@hydroangeas-client", new HelloServerPacketReceiver());
-        this.redisSubscriber.registerReceiver("server@" + this.clientUUID.toString() + "@hydroangeas-client", new MinecraftServerReceiver());
+        connectionManager = new ClientConnectionManager(this);
+
+        this.redisSubscriber.registerReceiver("global@" + this.clientUUID.toString() + "@hydroangeas-client", data -> connectionManager.getPacket(data));
 
         this.lifeThread = new LifeThread(this);
         this.lifeThread.start();
@@ -52,12 +54,9 @@ public class HydroangeasClient extends Hydroangeas
         this.resourceManager = new ResourceManager(this);
     }
 
-    @Override
-    public void shutdown()
+    public void disable()
     {
-        super.shutdown();
-
-        this.lifeThread.stop();
+        connectionManager.sendPacket(new ByeFromClientPacket(clientUUID));
         this.serverManager.stopAll();
     }
 
@@ -69,6 +68,12 @@ public class HydroangeasClient extends Hydroangeas
     public int getMaxWeight()
     {
         return this.maxWeight;
+    }
+
+    public int getActualWeight()
+    {
+        //TODO CACLUL WEIGHT
+        return 0;
     }
 
     public String getTemplatesDomain()
@@ -89,6 +94,16 @@ public class HydroangeasClient extends Hydroangeas
     public ServerManager getServerManager()
     {
         return this.serverManager;
+    }
+
+    public String getIP()
+    {
+        return InternetUtils.getExternalIp();
+    }
+
+    public ClientConnectionManager getConnectionManager()
+    {
+        return connectionManager;
     }
 
     public ResourceManager getResourceManager()

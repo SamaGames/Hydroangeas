@@ -1,11 +1,9 @@
 package net.samagames.hydroangeas.common.protocol;
 
-import net.samagames.hydroangeas.common.informations.MinecraftServerInfos;
+import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -23,17 +21,18 @@ public class HelloFromClientPacket extends AbstractPacket{
     public int actualWeight;
     public Timestamp timestamp;
 
-    public ArrayList<MinecraftServerInfos> serverInfos = new ArrayList<>();
+    public HelloFromClientPacket(HydroangeasClient instance)
+    {
+        this(instance.getClientUUID(), instance.getIP(), instance.getMaxWeight(), instance.getActualWeight(), new Timestamp(System.currentTimeMillis()));
+    }
 
-    public HelloFromClientPacket(UUID uuid, String ip, int maxWeight, int actualWeight, Timestamp timestamp, List<MinecraftServerInfos> serverInfos)
+    public HelloFromClientPacket(UUID uuid, String ip, int maxWeight, int actualWeight, Timestamp timestamp)
     {
         this.uuid = uuid;
         this.ip = ip;
         this.maxWeight = maxWeight;
         this.actualWeight = actualWeight;
         this.timestamp = timestamp;
-
-        this.serverInfos.addAll(serverInfos);
     }
 
     public UUID getUUID()
@@ -60,10 +59,4 @@ public class HelloFromClientPacket extends AbstractPacket{
     {
         return timestamp;
     }
-
-    public List<MinecraftServerInfos> getsServerInfoses()
-    {
-        return serverInfos;
-    }
-
 }

@@ -7,15 +7,18 @@ import net.samagames.hydroangeas.common.database.RedisSubscriber;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.utils.LinuxBridge;
 
+import java.net.ServerSocket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 
 public abstract class Hydroangeas
 {
     private static Hydroangeas instance;
-
+    protected final ScheduledExecutorService scheduler;
     protected OptionSet options;
     protected Configuration configuration;
     protected DatabaseConnector databaseConnector;
@@ -28,6 +31,8 @@ public abstract class Hydroangeas
 
         System.out.println("Hydroangeas version 1.0.0 by BlueSlime");
         System.out.println("----------------------------------------");
+
+        this.scheduler = Executors.newScheduledThreadPool(16);
 
         this.options = options;
         this.configuration = new Configuration(this, options);
@@ -45,10 +50,31 @@ public abstract class Hydroangeas
         }));
     }
 
+    public static Hydroangeas getInstance()
+    {
+        return instance;
+    }
+
+    public static int findRandomOpenPort() {
+        try (ServerSocket socket = new ServerSocket(0)) {
+            return socket.getLocalPort();
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
     public abstract void enable();
+
+    public abstract void disable();
 
     public void shutdown()
     {
+        disable();
+
+        scheduler.shutdown();
+
         this.redisSubscriber.disable();
     }
 
@@ -83,6 +109,11 @@ public abstract class Hydroangeas
         return this.linuxBridge;
     }
 
+    public ScheduledExecutorService getScheduler()
+    {
+        return scheduler;
+    }
+
     public HydroangeasClient getAsClient()
     {
         if(this instanceof HydroangeasClient)
@@ -97,10 +128,5 @@ public abstract class Hydroangeas
             return (HydroangeasServer) this;
         else
             return null;
-    }
-
-    public static Hydroangeas getInstance()
-    {
-        return instance;
     }
 }

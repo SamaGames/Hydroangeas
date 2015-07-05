@@ -30,8 +30,10 @@ public class ClientManager
         HydroClient client = this.getClientByUUID(packet.getUUID());
         if(client == null)
         {
-
+            client = new HydroClient(packet.getUUID());
+            clients.add(client);
         }
+        client.updateData(packet);
     }
 
     public void onClientHeartbeat(UUID uuid)
@@ -40,7 +42,7 @@ public class ClientManager
         if(client == null)
         {
             this.instance.log(Level.INFO, "Client " + uuid.toString() + " connected!");
-            //Todo get data
+            //Todo ask for get data
             return;
         }
 
@@ -60,7 +62,9 @@ public class ClientManager
 
     public List<HydroClient> getClients()
     {
-        return this.clients;
+        List<HydroClient> data = new ArrayList<>();
+        data.addAll(clients);
+        return data;
     }
 
     public HydroClient getClientByUUID(UUID uuid)

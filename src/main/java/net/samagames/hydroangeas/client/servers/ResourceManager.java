@@ -116,7 +116,7 @@ public class ResourceManager
         catch (Exception e)
         {
             e.printStackTrace();
-            new MinecraftServerIssuePacket(this.instance, server.getServerInfos(), MinecraftServerIssuePacket.Type.MAKE).send();
+            new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.MAKE).send();
         }
     }
 
@@ -124,10 +124,10 @@ public class ResourceManager
     {
         try
         {
-            this.instance.getLinuxBridge().sed("%serverName%", server.getServerInfos().getServerName(), new File(serverPath, "plugins" + File.separator + "SamaGamesAPI" + File.separator + "config.yml").getAbsolutePath());
+            this.instance.getLinuxBridge().sed("%serverName%", server.getServerName(), new File(serverPath, "plugins" + File.separator + "SamaGamesAPI" + File.separator + "config.yml").getAbsolutePath());
             this.instance.getLinuxBridge().sed("%serverPort%", String.valueOf(server.getPort()), new File(serverPath, "server.properties").getAbsolutePath());
             this.instance.getLinuxBridge().sed("%serverIp%", InternetUtils.getExternalIp(), new File(serverPath, "server.properties").getAbsolutePath());
-            this.instance.getLinuxBridge().sed("%serverName%", server.getServerInfos().getServerName(), new File(serverPath, "scripts.txt").getAbsolutePath());
+            this.instance.getLinuxBridge().sed("%serverName%", server.getServerName(), new File(serverPath, "scripts.txt").getAbsolutePath());
 
             if(isCoupaingServer)
             {
@@ -135,10 +135,10 @@ public class ResourceManager
                 coupaingFile.createNewFile();
 
                 JsonObject rootJson = new JsonObject();
-                rootJson.addProperty("min-slot", server.getServerInfos().getMinSlot());
-                rootJson.addProperty("max-slot", server.getServerInfos().getMaxSlot());
+                rootJson.addProperty("min-slot", server.getMinSlot());
+                rootJson.addProperty("max-slot", server.getMaxSlot());
 
-                HashMap<String, String> options = server.getServerInfos().getOptions();
+                HashMap<String, String> options = server.getOptions();
 
                 for(String key : options.keySet())
                     rootJson.addProperty(key, options.get(key));
@@ -153,7 +153,7 @@ public class ResourceManager
         catch (Exception e)
         {
             e.printStackTrace();
-            new MinecraftServerIssuePacket(this.instance, server.getServerInfos(), MinecraftServerIssuePacket.Type.PATCH).send();
+            new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.PATCH).send();
         }
     }
 }

@@ -19,14 +19,15 @@ public abstract class ConnectionManager {
 
     public Class<? extends AbstractPacket>[] packets = new Class[256];
 
-    public Gson gson;
+    protected Gson gson;
     protected Hydroangeas hydroangeas;
 
-    public ConnectionManager(Hydroangeas hydroangeas)
+    protected ConnectionManager(Hydroangeas hydroangeas)
     {
         packets[0] = HeartbeatPacket.class;
         packets[1] = HelloFromClientPacket.class;
         packets[2] = CoupaingServerPacket.class;
+        //Todo register all packets
 
         this.hydroangeas = hydroangeas;
 
@@ -53,6 +54,42 @@ public abstract class ConnectionManager {
         packet = packet.substring(id.length()+1, packet.length());
 
         this.handler(Integer.valueOf(id), packet);
+    }
+
+    protected int getPacketId(AbstractPacket packet)
+    {
+        //Binary search faster ?
+        for(int i = 0; i < 256; i++)
+        {
+            if(packets[i] == null)
+            {
+                break;
+            }else if(packet.getClass().equals(packets[i]))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    protected void sendPacket(String channel, AbstractPacket data)
+    {
+        int i = getPacketId(data);
+        if(i < 0)
+        {
+            hydroangeas.log(Level.SEVERE, "Bad packet ID: " + i);
+            return;
+        }else if(channel == null)
+        {
+            hydroangeas.log(Level.SEVERE, "Channel null !");
+            return;
+        }
+        try{
+            hydroangeas.getRedisSubscriber().send(channel, gson.toJson(data));
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public abstract void handler(int id, String packet);

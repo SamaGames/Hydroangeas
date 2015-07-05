@@ -1,14 +1,12 @@
 package net.samagames.hydroangeas.common.informations;
 
 import net.samagames.hydroangeas.client.HydroangeasClient;
-import net.samagames.hydroangeas.client.servers.MinecraftServer;
 import net.samagames.hydroangeas.utils.InternetUtils;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class ClientInfos
 {
@@ -30,7 +28,7 @@ public class ClientInfos
         this.actualWeight = 0;
 
         this.serverInfos = new ArrayList<>();
-        this.serverInfos.addAll(instance.getServerManager().getServers().values().stream().map(MinecraftServer::getServerInfos).collect(Collectors.toList()));
+      //  this.serverInfos.addAll(instance.getServerManager().getServers().values().stream().map(MinecraftServer::getServerInfos).collect(Collectors.toList()));
     }
 
     public UUID getClientUUID()

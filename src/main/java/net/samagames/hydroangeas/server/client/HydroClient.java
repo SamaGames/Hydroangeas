@@ -25,18 +25,11 @@ public class HydroClient {
 
     private List<MinecraftServerInfos> serverInfos = new ArrayList<>();
 
-    public HydroClient(UUID uuid, String ip, int maxWeight, int actualWeight, List<MinecraftServerInfos> serverInfos)
+    public HydroClient(UUID uuid)
     {
         this.uuid = uuid;
-        this.ip = ip;
-
-        this.maxWeight = maxWeight;
-        // TODO: Actual Weight calc
-        this.actualWeight = actualWeight;
 
         this.timestamp = new Timestamp(System.currentTimeMillis());
-
-        this.serverInfos.addAll(serverInfos);
     }
 
     public void updateData(HelloFromClientPacket packet)

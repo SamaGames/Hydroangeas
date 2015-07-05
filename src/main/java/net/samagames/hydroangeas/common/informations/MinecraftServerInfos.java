@@ -18,9 +18,6 @@ public class MinecraftServerInfos
         this.uuid = UUID.randomUUID();
         this.game = game;
         this.map = map;
-        this.minSlot = 0;
-        this.maxSlot = 0;
-        this.options = null;
 
         this.coupaingServer = false;
     }
