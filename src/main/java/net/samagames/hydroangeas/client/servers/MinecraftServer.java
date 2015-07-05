@@ -1,6 +1,7 @@
 package net.samagames.hydroangeas.client.servers;
 
 import net.samagames.hydroangeas.client.HydroangeasClient;
+import net.samagames.hydroangeas.client.schedulers.ServerThread;
 import net.samagames.hydroangeas.common.protocol.MinecraftServerOrderPacket;
 
 import java.io.File;
@@ -21,6 +22,8 @@ public class MinecraftServer
     private int maxSlot;
     private HashMap<String, String> options = new HashMap<>();
     private int port;
+
+    private ServerThread serverThread;
 
     public MinecraftServer(HydroangeasClient instance, MinecraftServerOrderPacket serverInfos, int port)
     {
@@ -66,7 +69,8 @@ public class MinecraftServer
     {
         try
         {
-            this.instance.getLinuxBridge().mark2Start(this.serverFolder.getAbsolutePath());
+            //this.instance.getLinuxBridge().mark2Start(this.serverFolder.getAbsolutePath()); //Old system
+            serverThread = new ServerThread(new String[]{"java"}, new String[]{""}, serverFolder);//TODO commande java
         }
         catch (Exception e)
         {
@@ -83,7 +87,8 @@ public class MinecraftServer
     {
         try
         {
-            this.instance.getLinuxBridge().mark2Stop(getServerName());
+            //this.instance.getLinuxBridge().mark2Stop(getServerName());
+            serverThread.stop();
         }
         catch (Exception e)
         {

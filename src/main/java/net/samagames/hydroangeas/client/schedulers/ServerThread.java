@@ -19,9 +19,13 @@ public class ServerThread implements Runnable {
     public Process server;
     public Thread errorThread;
 
+    public File directory;
+
     public ServerThread(String[] command, String[] env, File directory)
     {
         try {
+            this.directory = directory;
+
             server = Runtime.getRuntime().exec(command, env, directory);
             isServerProcessAlive = true;
 
@@ -60,6 +64,7 @@ public class ServerThread implements Runnable {
 
     public void stop()
     {
+        directory.delete();
         errorThread.interrupt();
         server.destroy();
     }
