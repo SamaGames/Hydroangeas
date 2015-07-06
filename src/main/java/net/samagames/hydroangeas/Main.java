@@ -72,14 +72,36 @@ public class Main
                 System.exit(-1);
             }
 
-            if (options.has("client"))
-                new HydroangeasClient(options);
-            else if (options.has("server"))
-                new HydroangeasServer(options);
+            Hydroangeas hydroangeas;
+
+            if (options.has("server"))
+                hydroangeas = new HydroangeasServer(options);
+            else //if (options.has("client"))
+                hydroangeas = new HydroangeasClient(options);
+
+            while (hydroangeas.isRunning)
+            {
+                String line = null;
+                try {
+                    line = hydroangeas.getConsoleReader().readLine( ">" );
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if ( line != null )
+                {
+                    if ( line.equals("stop") )
+                    {
+                        hydroangeas.shutdown();
+                    }
+                }
+            }
         }
         catch (OptionException ex)
         {
             System.err.println(ex.getLocalizedMessage());
+            System.exit(-1);
+        } catch (IOException e) {
+            System.err.println(e.getLocalizedMessage());
             System.exit(-1);
         }
     }

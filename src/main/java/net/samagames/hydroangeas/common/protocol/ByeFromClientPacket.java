@@ -20,6 +20,10 @@ public class ByeFromClientPacket extends AbstractPacket {
         this.uuid = uuid;
     }
 
+    public ByeFromClientPacket() {
+
+    }
+
     public UUID getUUID()
     {
         return uuid;

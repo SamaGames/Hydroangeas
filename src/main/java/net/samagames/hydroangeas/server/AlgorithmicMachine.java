@@ -7,6 +7,9 @@ import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
 
+import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
+
 public class AlgorithmicMachine
 {
     private final HydroangeasServer instance;
@@ -20,6 +23,7 @@ public class AlgorithmicMachine
     public void startMachinery()
     {
         ModMessage.sendMessage(InstanceType.SERVER, "> Prêt !");
+        instance.getScheduler().schedule(() -> instance.getClientManager().getClients().get(0).getServerManager().addServer("quake", "babylon", 2, 10, new HashMap<>()), 20, TimeUnit.SECONDS);
     }
 
     public void onServerUpdate(MinecraftServerUpdatePacket serverStatus)

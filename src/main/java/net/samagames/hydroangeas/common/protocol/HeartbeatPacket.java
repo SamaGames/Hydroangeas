@@ -21,6 +21,10 @@ public class HeartbeatPacket extends AbstractPacket {
         this.uuid = uuid;
     }
 
+    public HeartbeatPacket() {
+
+    }
+
     public UUID getUUID()
     {
         return uuid;

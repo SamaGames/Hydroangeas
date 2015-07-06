@@ -20,6 +20,10 @@ public class AskForClientDataPacket extends AbstractPacket {
         this.uuid = uuid;
     }
 
+    public AskForClientDataPacket() {
+
+    }
+
     public UUID getUUID()
     {
         return uuid;

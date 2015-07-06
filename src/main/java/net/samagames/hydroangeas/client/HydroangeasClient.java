@@ -10,6 +10,7 @@ import net.samagames.hydroangeas.utils.InternetUtils;
 import net.samagames.hydroangeas.utils.MiscUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -25,8 +26,7 @@ public class HydroangeasClient extends Hydroangeas
     private ServerManager serverManager;
     private ResourceManager resourceManager;
 
-    public HydroangeasClient(OptionSet options)
-    {
+    public HydroangeasClient(OptionSet options) throws IOException {
         super(options);
     }
 
@@ -47,11 +47,11 @@ public class HydroangeasClient extends Hydroangeas
 
         this.redisSubscriber.registerReceiver("global@" + this.clientUUID.toString() + "@hydroangeas-client", data -> connectionManager.getPacket(data));
 
-        this.lifeThread = new LifeThread(this);
-        this.lifeThread.start();
-
         this.serverManager = new ServerManager(this);
         this.resourceManager = new ResourceManager(this);
+
+        this.lifeThread = new LifeThread(this);
+        this.lifeThread.start();
     }
 
     public void disable()

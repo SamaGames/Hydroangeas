@@ -6,8 +6,8 @@ import java.util.UUID;
 
 public class MinecraftServerIssuePacket extends AbstractPacket
 {
-    private final Type issueType;
-    private final String message;
+    private Type issueType;
+    private String message;
     private UUID uuid;
     private String serverName;
 
@@ -40,6 +40,11 @@ public class MinecraftServerIssuePacket extends AbstractPacket
                 break;
         }
     }
+
+    public MinecraftServerIssuePacket() {
+
+    }
+
 
     public UUID getUUID()
     {

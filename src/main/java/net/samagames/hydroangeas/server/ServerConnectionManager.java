@@ -9,6 +9,7 @@ import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
 
+import java.util.UUID;
 import java.util.logging.Level;
 
 /**
@@ -33,9 +34,15 @@ public class ServerConnectionManager extends ConnectionManager{
         sendPacket(channel, packet);
     }
 
+    public void sendPacket(UUID client, AbstractPacket packet)
+    {
+        String channel = "global@" + client.toString() + "@hydroangeas-client";
+        sendPacket(channel, packet);
+    }
+
     @Override
     public void handler(int id, String data) {
-        Object spacket = gson.fromJson(data, packets[id]);
+        Object spacket = gson.fromJson(data, packets[id].getClass());
 
         if(spacket instanceof HeartbeatPacket)
         {

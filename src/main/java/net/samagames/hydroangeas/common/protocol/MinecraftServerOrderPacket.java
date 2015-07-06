@@ -42,6 +42,10 @@ public class MinecraftServerOrderPacket extends AbstractPacket{
         this.options = options;
     }
 
+    public MinecraftServerOrderPacket() {
+
+    }
+
     public UUID getUUID()
     {
         return this.uuid;

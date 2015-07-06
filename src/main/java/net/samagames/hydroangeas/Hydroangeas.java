@@ -1,12 +1,16 @@
 package net.samagames.hydroangeas;
 
+import jline.UnsupportedTerminal;
+import jline.console.ConsoleReader;
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.common.database.DatabaseConnector;
 import net.samagames.hydroangeas.common.database.RedisSubscriber;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.utils.LinuxBridge;
+import org.fusesource.jansi.AnsiConsole;
 
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -19,14 +23,15 @@ public abstract class Hydroangeas
 {
     private static Hydroangeas instance;
     protected final ScheduledExecutorService scheduler;
+    protected final ConsoleReader consoleReader;
+    public boolean isRunning;
     protected OptionSet options;
     protected Configuration configuration;
     protected DatabaseConnector databaseConnector;
     protected RedisSubscriber redisSubscriber;
     protected LinuxBridge linuxBridge;
 
-    public Hydroangeas(OptionSet options)
-    {
+    public Hydroangeas(OptionSet options) throws IOException {
         instance = this;
 
         System.out.println("Hydroangeas version 1.0.0 by BlueSlime");
@@ -48,6 +53,18 @@ public abstract class Hydroangeas
             this.shutdown();
             this.log(Level.INFO, "Bye!");
         }));
+
+        AnsiConsole.systemInstall();
+        consoleReader = new ConsoleReader();
+        consoleReader.setExpandEvents(false);
+
+        if ( consoleReader.getTerminal() instanceof UnsupportedTerminal)
+        {
+            log(Level.INFO, "Unable to initialize fancy terminal. To fix this on Windows, install the correct Microsoft Visual C++ 2008 Runtime");
+            log(Level.INFO, "NOTE: This error is non crucial, and BungeeCord will still function correctly! Do not bug the author about it unless you are still unable to get it working");
+        }
+
+        isRunning = true;
     }
 
     public static Hydroangeas getInstance()
@@ -71,6 +88,8 @@ public abstract class Hydroangeas
 
     public void shutdown()
     {
+        isRunning = false;
+
         disable();
 
         scheduler.shutdown();
@@ -128,5 +147,9 @@ public abstract class Hydroangeas
             return (HydroangeasServer) this;
         else
             return null;
+    }
+
+    public ConsoleReader getConsoleReader() {
+        return consoleReader;
     }
 }

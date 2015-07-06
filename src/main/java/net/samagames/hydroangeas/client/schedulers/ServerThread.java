@@ -2,6 +2,7 @@ package net.samagames.hydroangeas.client.schedulers;
 
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;
+import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,7 +16,7 @@ import java.io.InputStreamReader;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class ServerThread implements Runnable {
+public class ServerThread extends Thread {
 
     public boolean isServerProcessAlive;
     public Process server;
@@ -60,7 +61,7 @@ public class ServerThread implements Runnable {
     {
         try {
             server.waitFor();
-            isServerProcessAlive = false;
+            normalStop();
             Hydroangeas.getInstance().getAsClient().getServerManager().onServerStop(instance);
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -68,19 +69,20 @@ public class ServerThread implements Runnable {
         }
     }
 
-    public void stop()
+    public void normalStop()
     {
         isServerProcessAlive = false;
-        directory.delete();
+        try {
+            FileUtils.deleteDirectory(directory);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         errorThread.interrupt();
-        server.destroy();
     }
 
     public void forceStop()
     {
-        isServerProcessAlive = false;
-        directory.delete();
-        errorThread.interrupt();
-        server.destroyForcibly();
+        normalStop();
+        server.destroy();
     }
 }

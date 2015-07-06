@@ -2,9 +2,7 @@ package net.samagames.hydroangeas.common.packets;
 
 import com.google.gson.Gson;
 import net.samagames.hydroangeas.Hydroangeas;
-import net.samagames.hydroangeas.common.protocol.CoupaingServerPacket;
-import net.samagames.hydroangeas.common.protocol.HeartbeatPacket;
-import net.samagames.hydroangeas.common.protocol.HelloFromClientPacket;
+import net.samagames.hydroangeas.common.protocol.*;
 
 import java.util.logging.Level;
 
@@ -17,17 +15,21 @@ import java.util.logging.Level;
  */
 public abstract class ConnectionManager {
 
-    public Class<? extends AbstractPacket>[] packets = new Class[256];
+    public AbstractPacket[] packets = new AbstractPacket[256];
 
     protected Gson gson;
     protected Hydroangeas hydroangeas;
 
     protected ConnectionManager(Hydroangeas hydroangeas)
     {
-        packets[0] = HeartbeatPacket.class;
-        packets[1] = HelloFromClientPacket.class;
-        packets[2] = CoupaingServerPacket.class;
-        //Todo register all packets
+        packets[0] = new HeartbeatPacket();
+        packets[1] = new HelloFromClientPacket();
+        packets[2] = new CoupaingServerPacket();
+        packets[3] = new AskForClientDataPacket();
+        packets[4] = new ByeFromClientPacket();
+        packets[5] = new MinecraftServerIssuePacket();
+        packets[6] = new MinecraftServerOrderPacket();
+        packets[7] = new MinecraftServerUpdatePacket();
 
         this.hydroangeas = hydroangeas;
 
@@ -56,25 +58,21 @@ public abstract class ConnectionManager {
         this.handler(Integer.valueOf(id), packet);
     }
 
-    protected int getPacketId(AbstractPacket packet)
+    protected int packetId(AbstractPacket p)
     {
-        //Binary search faster ?
-        for(int i = 0; i < 256; i++)
+        for (int i = 0; i < packets.length; i++)
         {
             if(packets[i] == null)
-            {
-                break;
-            }else if(packet.getClass().equals(packets[i]))
-            {
+                continue;
+            if(packets[i].getClass().equals(p.getClass()))
                 return i;
-            }
         }
         return -1;
     }
 
     protected void sendPacket(String channel, AbstractPacket data)
     {
-        int i = getPacketId(data);
+        int i = packetId(data);
         if(i < 0)
         {
             hydroangeas.log(Level.SEVERE, "Bad packet ID: " + i);
@@ -85,7 +83,7 @@ public abstract class ConnectionManager {
             return;
         }
         try{
-            hydroangeas.getRedisSubscriber().send(channel, gson.toJson(data));
+            hydroangeas.getRedisSubscriber().send(channel, i + ":" +gson.toJson(data));
         }catch (Exception e)
         {
             e.printStackTrace();

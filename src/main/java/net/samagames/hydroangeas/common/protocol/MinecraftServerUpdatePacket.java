@@ -34,6 +34,10 @@ public class MinecraftServerUpdatePacket extends AbstractPacket {
         this.action = action;
     }
 
+    public MinecraftServerUpdatePacket() {
+
+    }
+
     public UUID getUUID()
     {
         return uuid;

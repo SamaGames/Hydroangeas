@@ -74,7 +74,7 @@ public class RedisSubscriber extends JedisPubSub
     public void send(String channel, String packet)
     {
         Jedis jedis = this.instance.getDatabaseConnector().getJedisPool().getResource();
-        jedis.publish(channel, channel);
+        jedis.publish(channel, packet);
         jedis.close();
     }
 

@@ -2,10 +2,12 @@ package net.samagames.hydroangeas.server;
 
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.Hydroangeas;
+import net.samagames.hydroangeas.common.packets.PacketReceiver;
 import net.samagames.hydroangeas.server.packets.CoupaingServerReceiver;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
 
+import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -18,8 +20,7 @@ public class HydroangeasServer extends Hydroangeas
 
     private UUID serverUUID;
 
-    public HydroangeasServer(OptionSet options)
-    {
+    public HydroangeasServer(OptionSet options) throws IOException {
         super(options);
     }
 
@@ -32,7 +33,13 @@ public class HydroangeasServer extends Hydroangeas
 
         this.connectionManager = new ServerConnectionManager(this);
 
-        this.redisSubscriber.registerReceiver("global@hydroangeas-server", data -> connectionManager.getPacket(data));
+        this.redisSubscriber.registerReceiver("global@hydroangeas-server", new PacketReceiver() {
+            @Override
+            public void receive(String data) {
+                log(Level.INFO, data);
+                connectionManager.getPacket(data);
+            }
+        });
         this.redisSubscriber.registerReceiver("coupaing@hydroangeas-server", new CoupaingServerReceiver());
 
         this.clientManager = new ClientManager(this);

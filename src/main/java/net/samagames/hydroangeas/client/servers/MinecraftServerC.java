@@ -72,9 +72,9 @@ public class MinecraftServerC
             //this.instance.getLinuxBridge().mark2Start(this.serverFolder.getAbsolutePath()); //Old system
             serverThread = new ServerThread(this,
                     new String[]{"java",
-                            "--Xmx1152M",
-                            "--Xms512M",
-                            "--Xmn256M",
+                            "-Xmx1152M",
+                            "-Xms512M",
+                            "-Xmn256M",
                             "-XX:PermSize=64M",
                             "-XX:MaxPermSize=256M",
                             "-XX:-OmitStackTraceInFastThrow",
@@ -88,9 +88,10 @@ public class MinecraftServerC
                             "-XX:+UseCMSInitiatingOccupancyOnly",
                             "-XX:CMSInitiatingOccupancyFraction=63",
                             "-XX:+UseParNewGC",
-                            "--Xnoclassgc",
+                            "-Xnoclassgc",
                             "-jar", "spigot.jar", "nogui"},
                     new String[]{""}, serverFolder);
+            serverThread.start();
         }
         catch (Exception e)
         {
@@ -108,7 +109,7 @@ public class MinecraftServerC
         try
         {
             //this.instance.getLinuxBridge().mark2Stop(getServerName());
-            serverThread.stop();
+            serverThread.forceStop();
         }
         catch (Exception e)
         {

@@ -21,6 +21,11 @@ public class HelloFromClientPacket extends AbstractPacket{
     private int actualWeight;
     private Timestamp timestamp;
 
+    public HelloFromClientPacket()
+    {
+
+    }
+
     public HelloFromClientPacket(HydroangeasClient instance)
     {
         this(instance.getClientUUID(), instance.getIP(), instance.getMaxWeight(), instance.getActualWeight(), new Timestamp(System.currentTimeMillis()));

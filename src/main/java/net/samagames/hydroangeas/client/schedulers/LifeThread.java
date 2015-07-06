@@ -27,6 +27,7 @@ public class LifeThread
 
     public void start()
     {
+        sendData(true);
         instance.getScheduler().scheduleAtFixedRate(() -> check(), 2, 10, TimeUnit.SECONDS);
     }
 

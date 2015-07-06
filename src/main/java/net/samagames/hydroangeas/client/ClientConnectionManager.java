@@ -7,6 +7,8 @@ import net.samagames.hydroangeas.common.protocol.AskForClientDataPacket;
 import net.samagames.hydroangeas.common.protocol.HeartbeatPacket;
 import net.samagames.hydroangeas.common.protocol.MinecraftServerOrderPacket;
 
+import java.util.logging.Level;
+
 /**
  * This file is a part of the SamaGames Project CodeBase
  * This code is absolutely confidential.
@@ -16,8 +18,12 @@ import net.samagames.hydroangeas.common.protocol.MinecraftServerOrderPacket;
  */
 public class ClientConnectionManager extends ConnectionManager {
 
+    public HydroangeasClient instance;
+
     public ClientConnectionManager(Hydroangeas hydroangeas) {
         super(hydroangeas);
+
+        instance = hydroangeas.getAsClient();
     }
 
     public void sendPacket(AbstractPacket packet)
@@ -28,12 +34,13 @@ public class ClientConnectionManager extends ConnectionManager {
 
     @Override
     public void handler(int id, String data) {
-        Object spacket = gson.fromJson(data, packets[id]);
+        instance.log(Level.INFO, data);
+        Object spacket = gson.fromJson(data, packets[id].getClass());
 
         if(spacket instanceof HeartbeatPacket)
         {
             HeartbeatPacket heartbeatPacket = (HeartbeatPacket) spacket;
-            hydroangeas.getAsClient().getLifeThread().onServerHeartbeat(heartbeatPacket.getUUID());
+            instance.getLifeThread().onServerHeartbeat(heartbeatPacket.getUUID());
         }else if(spacket instanceof MinecraftServerOrderPacket)
         {
             MinecraftServerOrderPacket packet = (MinecraftServerOrderPacket) spacket;

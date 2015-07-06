@@ -1,5 +1,6 @@
 package net.samagames.hydroangeas.server;
 
+import net.samagames.hydroangeas.common.protocol.AskForClientDataPacket;
 import net.samagames.hydroangeas.common.protocol.CoupaingServerPacket;
 import net.samagames.hydroangeas.common.protocol.HelloFromClientPacket;
 import net.samagames.hydroangeas.server.client.HydroClient;
@@ -50,7 +51,7 @@ public class ClientManager
         if(client == null)
         {
             this.instance.log(Level.INFO, "Client " + uuid.toString() + " connected!");
-            //Todo ask for get data
+            instance.getConnectionManager().sendPacket(uuid, new AskForClientDataPacket());
             return;
         }
 
