@@ -13,7 +13,7 @@ import java.util.UUID;
  */
 public class ByeFromClientPacket extends AbstractPacket {
 
-    public UUID uuid;
+    private UUID uuid;
 
     public ByeFromClientPacket(UUID uuid)
     {

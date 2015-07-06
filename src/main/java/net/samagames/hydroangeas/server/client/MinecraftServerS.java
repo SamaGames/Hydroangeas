@@ -12,13 +12,15 @@ import java.util.UUID;
  */
 public class MinecraftServerS {
 
-    private final UUID uuid;
-    private final boolean coupaingServer;
+    private UUID uuid;
+    private boolean coupaingServer;
     private String game;
     private String map;
     private int minSlot;
     private int maxSlot;
     private HashMap<String, String> options;
+
+    private boolean started;
 
     public MinecraftServerS(String game, String map)
     {
@@ -42,6 +44,16 @@ public class MinecraftServerS {
         this.options = options;
 
         this.coupaingServer = true;
+    }
+
+    public void shutdown()
+    {
+        //If we need to save some data after shutdown
+    }
+
+    public void changeUUID()
+    {
+        this.uuid = UUID.randomUUID();
     }
 
     public UUID getUUID()
@@ -84,4 +96,17 @@ public class MinecraftServerS {
         return this.coupaingServer;
     }
 
+    public void setCoupaingServer(boolean isCoupaing)
+    {
+        this.coupaingServer = isCoupaing;
+    }
+
+    public boolean isStarted()
+    {
+        return started;
+    }
+
+    public void setStarted(boolean started) {
+        this.started = started;
+    }
 }

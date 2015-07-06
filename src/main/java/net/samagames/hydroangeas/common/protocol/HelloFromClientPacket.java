@@ -15,11 +15,11 @@ import java.util.UUID;
  */
 public class HelloFromClientPacket extends AbstractPacket{
 
-    public UUID uuid;
-    public String ip;
-    public int maxWeight;
-    public int actualWeight;
-    public Timestamp timestamp;
+    private UUID uuid;
+    private String ip;
+    private int maxWeight;
+    private int actualWeight;
+    private Timestamp timestamp;
 
     public HelloFromClientPacket(HydroangeasClient instance)
     {

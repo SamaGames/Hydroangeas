@@ -13,11 +13,16 @@ import java.util.UUID;
  */
 public class AskForClientDataPacket extends AbstractPacket {
 
-    public UUID uuid;
+    private UUID uuid;
 
     public AskForClientDataPacket(UUID uuid)
     {
         this.uuid = uuid;
+    }
+
+    public UUID getUUID()
+    {
+        return uuid;
     }
 
 }

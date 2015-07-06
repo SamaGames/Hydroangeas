@@ -1,6 +1,7 @@
 package net.samagames.hydroangeas.common.protocol;
 
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
+import net.samagames.hydroangeas.server.client.MinecraftServerS;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -14,21 +15,31 @@ import java.util.UUID;
  */
 public class MinecraftServerOrderPacket extends AbstractPacket{
 
-    public UUID uuid;
+    private UUID uuid;
 
-    public String game;
-    public String map;
+    private String game;
+    private String map;
 
-    public int minSlot;
-    public int maxSlot;
+    private int minSlot;
+    private int maxSlot;
 
-    public boolean isCoupaing = true;
+    private boolean isCoupaing = true;
 
-    public HashMap<String, String> options;
+    private HashMap<String, String> options;
 
-    public MinecraftServerOrderPacket()
+    public MinecraftServerOrderPacket(MinecraftServerS server)
     {
+        this(server.getUUID(), server.getGame(), server.getMap(), server.getMinSlot(), server.getMaxSlot(), server.getOptions());
+    }
 
+    public MinecraftServerOrderPacket(UUID uuid, String game, String map, int minSlot, int maxSlot, HashMap<String, String> options)
+    {
+        this.uuid = uuid;
+        this.game = game;
+        this.map = map;
+        this.minSlot = minSlot;
+        this.maxSlot = maxSlot;
+        this.options = options;
     }
 
     public UUID getUUID()

@@ -1,7 +1,9 @@
 package net.samagames.hydroangeas.server;
 
+import net.samagames.hydroangeas.common.protocol.CoupaingServerPacket;
 import net.samagames.hydroangeas.common.protocol.HelloFromClientPacket;
 import net.samagames.hydroangeas.server.client.HydroClient;
+import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.server.scheduler.KeepUpdatedThread;
 
 import java.sql.Timestamp;
@@ -25,12 +27,18 @@ public class ClientManager
         this.keepUpdatedThread.start();
     }
 
+    public void orderServerForCoupaing(CoupaingServerPacket packet)
+    {
+        //TODO select a client and send the order
+    }
+
     public void updateClient(HelloFromClientPacket packet)
     {
         HydroClient client = this.getClientByUUID(packet.getUUID());
         if(client == null)
         {
-            client = new HydroClient(packet.getUUID());
+            client = new HydroClient(instance, packet.getUUID());
+            this.instance.log(Level.INFO, "New client " + client.getUUID().toString() + " connected!");
             clients.add(client);
         }
         client.updateData(packet);
@@ -51,8 +59,9 @@ public class ClientManager
 
     public void onClientNoReachable(UUID clientUUID)
     {
-        if(this.getClientByUUID(clientUUID) == null)
-            this.clients.remove(clientUUID);
+        HydroClient client = this.getClientByUUID(clientUUID);
+        if(client != null)
+            this.clients.remove(client);
     }
 
     public KeepUpdatedThread getKeepUpdatedThread()
@@ -73,6 +82,19 @@ public class ClientManager
         {
             if(client.getUUID().equals(uuid)){
                 return client;
+            }
+        }
+        return null;
+    }
+
+    public MinecraftServerS getServerByName(String name)
+    {
+        for(HydroClient client : clients)
+        {
+            MinecraftServerS server = client.getServerManager().getServerByName(name);
+            if(server != null)
+            {
+                return server;
             }
         }
         return null;

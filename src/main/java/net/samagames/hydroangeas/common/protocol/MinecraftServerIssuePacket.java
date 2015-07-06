@@ -8,8 +8,9 @@ public class MinecraftServerIssuePacket extends AbstractPacket
 {
     private final Type issueType;
     private final String message;
-    public UUID uuid;
-    public String serverName;
+    private UUID uuid;
+    private String serverName;
+
     public MinecraftServerIssuePacket(UUID uuid, String serverName, Type issueType)
     {
         this.uuid = uuid;

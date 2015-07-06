@@ -5,6 +5,7 @@ import net.samagames.hydroangeas.common.packets.AbstractPacket;
 import net.samagames.hydroangeas.common.packets.ConnectionManager;
 import net.samagames.hydroangeas.common.protocol.*;
 import net.samagames.hydroangeas.server.client.HydroClient;
+import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
 
@@ -19,8 +20,11 @@ import java.util.logging.Level;
  */
 public class ServerConnectionManager extends ConnectionManager{
 
+    public HydroangeasServer instance;
+
     public ServerConnectionManager(Hydroangeas hydroangeas) {
         super(hydroangeas);
+        instance = hydroangeas.getAsServer();
     }
 
     public void sendPacket(HydroClient client, AbstractPacket packet)
@@ -36,7 +40,7 @@ public class ServerConnectionManager extends ConnectionManager{
         if(spacket instanceof HeartbeatPacket)
         {
             HeartbeatPacket heartbeatPacket = (HeartbeatPacket) spacket;
-            hydroangeas.getAsServer().getClientManager().onClientHeartbeat(heartbeatPacket.getUUID());
+            instance.getClientManager().onClientHeartbeat(heartbeatPacket.getUUID());
         }else if(spacket instanceof MinecraftServerIssuePacket)
         {
             MinecraftServerIssuePacket packet = (MinecraftServerIssuePacket) spacket;
@@ -47,23 +51,54 @@ public class ServerConnectionManager extends ConnectionManager{
         }else if(spacket instanceof MinecraftServerUpdatePacket)
         {
             MinecraftServerUpdatePacket packet = (MinecraftServerUpdatePacket) spacket;
-            //TODO handle update
+
+            HydroClient client = instance.getClientManager().getClientByUUID(packet.getUUID());
+            if(client == null)
+            {
+                return;
+            }
+
+            //Handle pour l'algo avant de prendre les action
+            try{
+                instance.getAlgorithmicMachine().onServerUpdate(packet);
+            }catch(Exception e)
+            {
+                e.printStackTrace();
+            }
+
+            MinecraftServerS server = client.getServerManager().getServerByName(packet.getServerName());
+
+            switch(packet.getAction())
+            {
+                case START:
+                    server.setStarted(true);
+                    //TODO add event ?
+                    break;
+                case INFO:
+                    if(server == null)
+                    {
+                        //TODO delete server on client
+                    }
+                    break;
+                case END:
+                    client.getServerManager().removeServer(packet.getServerName());
+                    break;
+            }
 
         }else if(spacket instanceof ByeFromClientPacket)
         {
             ByeFromClientPacket packet = (ByeFromClientPacket) spacket;
-            //TODO delete client
+            instance.getClientManager().onClientNoReachable(packet.getUUID());
 
         }else if(spacket instanceof CoupaingServerPacket)
         {
             CoupaingServerPacket packet = (CoupaingServerPacket) spacket;
-            //TODO handle the creation of coupaing server
+            instance.getClientManager().orderServerForCoupaing(packet);
 
         }else if(spacket instanceof HelloFromClientPacket)
         {
             HelloFromClientPacket packet = (HelloFromClientPacket) spacket;
-            //TODO add client
-
+            instance.getClientManager().updateClient(packet);
         }
     }
 }

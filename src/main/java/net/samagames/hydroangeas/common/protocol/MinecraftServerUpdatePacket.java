@@ -15,13 +15,13 @@ import java.util.UUID;
 
 public class MinecraftServerUpdatePacket extends AbstractPacket {
 
-    public UType action;
+    private UType action;
 
-    public UUID uuid;
-    public String serverName;
+    private UUID uuid;
+    private String serverName;
 
-    public int newWeight;
-    public int maxWeight;
+    private int newWeight;
+    private int maxWeight;
 
 
     public MinecraftServerUpdatePacket(HydroangeasClient instance, String serverName, UType action)
@@ -47,6 +47,15 @@ public class MinecraftServerUpdatePacket extends AbstractPacket {
     public UType getAction()
     {
         return action;
+    }
+
+    public int getNewWeight()
+    {
+        return newWeight;
+    }
+
+    public int getMaxWeight() {
+        return maxWeight;
     }
 
 

@@ -70,7 +70,27 @@ public class MinecraftServerC
         try
         {
             //this.instance.getLinuxBridge().mark2Start(this.serverFolder.getAbsolutePath()); //Old system
-            serverThread = new ServerThread(this, new String[]{"java"}, new String[]{""}, serverFolder);//TODO commande java
+            serverThread = new ServerThread(this,
+                    new String[]{"java",
+                            "--Xmx1152M",
+                            "--Xms512M",
+                            "--Xmn256M",
+                            "-XX:PermSize=64M",
+                            "-XX:MaxPermSize=256M",
+                            "-XX:-OmitStackTraceInFastThrow",
+                            "-XX:SurvivorRatio=2",
+                            "-XX:-UseAdaptiveSizePolicy",
+                            "-XX:+UseConcMarkSweepGC",
+                            "-XX:+CMSConcurrentMTEnabled",
+                            "-XX:+CMSParallelRemarkEnabled",
+                            "-XX:+CMSParallelSurvivorRemarkEnabled",
+                            "-XX:CMSMaxAbortablePrecleanTime=10000",
+                            "-XX:+UseCMSInitiatingOccupancyOnly",
+                            "-XX:CMSInitiatingOccupancyFraction=63",
+                            "-XX:+UseParNewGC",
+                            "--Xnoclassgc",
+                            "-jar", "spigot.jar", "nogui"},
+                    new String[]{""}, serverFolder);
         }
         catch (Exception e)
         {

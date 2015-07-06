@@ -1,10 +1,9 @@
 package net.samagames.hydroangeas.server.client;
 
 import net.samagames.hydroangeas.common.protocol.HelloFromClientPacket;
+import net.samagames.hydroangeas.server.HydroangeasServer;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -16,19 +15,23 @@ import java.util.UUID;
  */
 public class HydroClient {
 
+    private HydroangeasServer instancce;
     private UUID uuid;
     private String ip;
     private int maxWeight;
     private int actualWeight;
     private Timestamp timestamp;
 
-    private List<MinecraftServerS> servers = new ArrayList<>();
+    private MinecraftServerManager serverManager;
 
-    public HydroClient(UUID uuid)
+    public HydroClient(HydroangeasServer instancce, UUID uuid)
     {
+        this.instancce = instancce;
         this.uuid = uuid;
 
         this.timestamp = new Timestamp(System.currentTimeMillis());
+
+        serverManager = new MinecraftServerManager(instancce, this);
     }
 
     public void updateData(HelloFromClientPacket packet)
@@ -44,9 +47,6 @@ public class HydroClient {
 
         this.timestamp = new Timestamp(System.currentTimeMillis());
 
-        //Todo server manager
-        this.servers.clear();
-        this.servers.addAll(servers);
     }
 
     public UUID getUUID()
@@ -95,9 +95,9 @@ public class HydroClient {
         this.timestamp = timestamp;
     }
 
-    public List<MinecraftServerS> getServers()
+    public MinecraftServerManager getServerManager()
     {
-        return this.servers;
+        return this.serverManager;
     }
 
 

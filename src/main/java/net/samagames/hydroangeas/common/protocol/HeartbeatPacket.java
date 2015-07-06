@@ -13,8 +13,8 @@ import java.util.UUID;
  */
 public class HeartbeatPacket extends AbstractPacket {
 
-    public UUID uuid;
-    public boolean online = true;
+    private UUID uuid;
+    private boolean online = true;
 
     public HeartbeatPacket(UUID uuid)
     {
