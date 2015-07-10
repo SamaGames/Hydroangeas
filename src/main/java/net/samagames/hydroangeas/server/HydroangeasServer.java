@@ -2,8 +2,11 @@ package net.samagames.hydroangeas.server;
 
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.Hydroangeas;
-import net.samagames.hydroangeas.common.packets.PacketReceiver;
-import net.samagames.hydroangeas.server.packets.CoupaingServerReceiver;
+import net.samagames.hydroangeas.server.algo.AlgorithmicMachine;
+import net.samagames.hydroangeas.server.client.ClientManager;
+import net.samagames.hydroangeas.server.commands.ServerCommandManager;
+import net.samagames.hydroangeas.server.connection.CoupaingServerReceiver;
+import net.samagames.hydroangeas.server.connection.ServerConnectionManager;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
 
@@ -33,28 +36,23 @@ public class HydroangeasServer extends Hydroangeas
 
         this.connectionManager = new ServerConnectionManager(this);
 
-        this.redisSubscriber.registerReceiver("global@hydroangeas-server", new PacketReceiver() {
-            @Override
-            public void receive(String data) {
-                log(Level.INFO, data);
-                connectionManager.getPacket(data);
-            }
-        });
+        this.redisSubscriber.registerReceiver("global@hydroangeas-server", data -> connectionManager.getPacket(data));
         this.redisSubscriber.registerReceiver("coupaing@hydroangeas-server", new CoupaingServerReceiver());
 
         this.clientManager = new ClientManager(this);
         this.algorithmicMachine = new AlgorithmicMachine(this);
 
+        this.commandManager = new ServerCommandManager(this);
 
         ModMessage.sendMessage(InstanceType.SERVER, "Démarrage d'Hydroangeas Server...");
         ModMessage.sendMessage(InstanceType.SERVER, "> Récupération des données éxistantes (60 secondes)...");
 
-        this.scheduler.schedule(() -> Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().startMachinery(), 60, TimeUnit.SECONDS);
+        this.scheduler.schedule(() -> algorithmicMachine.startMachinery(), 60, TimeUnit.SECONDS);
     }
 
     public void disable()
     {
-        ModMessage.sendMessage(InstanceType.SERVER, "Arrêt demandé ! Attention, les serveurs ne seront plus automatiquement balancés !");
+        ModMessage.sendMessage(InstanceType.SERVER, "Arrêt demandé ! Attention, le network ne sera plus géré !");
     }
 
     public UUID getServerUUID()

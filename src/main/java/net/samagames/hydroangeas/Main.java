@@ -84,15 +84,12 @@ public class Main
                 String line = null;
                 try {
                     line = hydroangeas.getConsoleReader().readLine( ">" );
-                } catch (IOException e) {
+                } catch(IOException e){
                     e.printStackTrace();
                 }
-                if ( line != null )
+                if (line != null)
                 {
-                    if ( line.equals("stop") )
-                    {
-                        hydroangeas.shutdown();
-                    }
+                    hydroangeas.getCommandManager().inputCommand(line);
                 }
             }
         }

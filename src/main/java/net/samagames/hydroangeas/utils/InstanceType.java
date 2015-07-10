@@ -16,4 +16,4 @@ public enum InstanceType
     {
         return this.text;
     }
-};
+}

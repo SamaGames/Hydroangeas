@@ -7,8 +7,6 @@ import net.samagames.hydroangeas.common.protocol.AskForClientDataPacket;
 import net.samagames.hydroangeas.common.protocol.HeartbeatPacket;
 import net.samagames.hydroangeas.common.protocol.MinecraftServerOrderPacket;
 
-import java.util.logging.Level;
-
 /**
  * This file is a part of the SamaGames Project CodeBase
  * This code is absolutely confidential.
@@ -34,7 +32,6 @@ public class ClientConnectionManager extends ConnectionManager {
 
     @Override
     public void handler(int id, String data) {
-        instance.log(Level.INFO, data);
         Object spacket = gson.fromJson(data, packets[id].getClass());
 
         if(spacket instanceof HeartbeatPacket)

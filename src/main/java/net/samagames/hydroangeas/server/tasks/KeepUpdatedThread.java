@@ -1,9 +1,8 @@
-package net.samagames.hydroangeas.server.scheduler;
+package net.samagames.hydroangeas.server.tasks;
 
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.protocol.HeartbeatPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
-import net.samagames.hydroangeas.server.client.HydroClient;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
 
@@ -28,8 +27,7 @@ public class KeepUpdatedThread
 
     public void check()
     {
-        for(HydroClient client : this.instance.getClientManager().getClients())
-        {
+        this.instance.getClientManager().getClients().stream().forEachOrdered(client -> {
             try{
                 instance.getConnectionManager().sendPacket(client, new HeartbeatPacket(instance.getServerUUID()));
                 Timestamp actualTime = new Timestamp(System.currentTimeMillis());
@@ -38,12 +36,12 @@ public class KeepUpdatedThread
                     Hydroangeas.getInstance().log(Level.WARNING, "Lost connection with client " + client.getUUID().toString() + "!");
                     ModMessage.sendMessage(InstanceType.SERVER, "Connexion perdue avec le client " + client.getUUID().toString() + " !");
 
-                    this.instance.getClientManager().onClientNoReachable(client.getUUID());
+                    instance.getClientManager().onClientNoReachable(client.getUUID());
                 }
             }catch(Exception e)
             {
                 e.printStackTrace();
             }
-        }
+        });
     }
 }

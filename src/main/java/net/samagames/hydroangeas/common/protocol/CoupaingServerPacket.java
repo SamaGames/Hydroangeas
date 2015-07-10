@@ -13,16 +13,37 @@ import java.util.HashMap;
  */
 public class CoupaingServerPacket extends AbstractPacket{
 
-    public String game;
-    public String map;
+    private String game;
 
-    public int minSlot;
-    public int maxSlot;
+    private String map;
 
-    public HashMap<String, String> options;
+    private int minSlot;
+    private int maxSlot;
+
+    private HashMap<String, String> options;
 
     public CoupaingServerPacket()
     {
 
+    }
+
+    public String getGame() {
+        return game;
+    }
+
+    public String getMap() {
+        return map;
+    }
+
+    public int getMinSlot() {
+        return minSlot;
+    }
+
+    public int getMaxSlot() {
+        return maxSlot;
+    }
+
+    public HashMap<String, String> getOptions() {
+        return options;
     }
 }

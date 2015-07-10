@@ -1,24 +1,23 @@
-package net.samagames.hydroangeas.server;
+package net.samagames.hydroangeas.server.client;
 
 import net.samagames.hydroangeas.common.protocol.AskForClientDataPacket;
 import net.samagames.hydroangeas.common.protocol.CoupaingServerPacket;
 import net.samagames.hydroangeas.common.protocol.HelloFromClientPacket;
-import net.samagames.hydroangeas.server.client.HydroClient;
-import net.samagames.hydroangeas.server.client.MinecraftServerS;
-import net.samagames.hydroangeas.server.scheduler.KeepUpdatedThread;
+import net.samagames.hydroangeas.server.HydroangeasServer;
+import net.samagames.hydroangeas.server.games.BasicGameTemplate;
+import net.samagames.hydroangeas.server.tasks.KeepUpdatedThread;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 
 public class ClientManager
 {
     private final HydroangeasServer instance;
-    private final List<HydroClient> clients = new ArrayList<>();
-    //private final HashMap<UUID, ClientInfos> clients = new HashMap<>();
     private final KeepUpdatedThread keepUpdatedThread;
+    private CopyOnWriteArrayList<HydroClient> clientList = new CopyOnWriteArrayList<>();
 
     public ClientManager(HydroangeasServer instance)
     {
@@ -30,7 +29,16 @@ public class ClientManager
 
     public void orderServerForCoupaing(CoupaingServerPacket packet)
     {
-        //TODO select a client and send the order
+        BasicGameTemplate template = new BasicGameTemplate(
+                UUID.randomUUID().toString(),
+                packet.getGame(),
+                packet.getMap(),
+                packet.getMinSlot(),
+                packet.getMaxSlot(),
+                packet.getOptions(),
+                true);
+
+        instance.getAlgorithmicMachine().orderTemplate(template);
     }
 
     public void updateClient(HelloFromClientPacket packet)
@@ -40,7 +48,7 @@ public class ClientManager
         {
             client = new HydroClient(instance, packet.getUUID());
             this.instance.log(Level.INFO, "New client " + client.getUUID().toString() + " connected!");
-            clients.add(client);
+            if(!clientList.add(client)) instance.log(Level.INFO, "Not added !");
         }
         client.updateData(packet);
     }
@@ -61,8 +69,7 @@ public class ClientManager
     public void onClientNoReachable(UUID clientUUID)
     {
         HydroClient client = this.getClientByUUID(clientUUID);
-        if(client != null)
-            this.clients.remove(client);
+        if(!clientList.remove(client)) instance.log(Level.INFO, "Not deleted !");
     }
 
     public KeepUpdatedThread getKeepUpdatedThread()
@@ -72,14 +79,15 @@ public class ClientManager
 
     public List<HydroClient> getClients()
     {
-        List<HydroClient> data = new ArrayList<>();
-        data.addAll(clients);
-        return data;
+        return clientList;
     }
 
     public HydroClient getClientByUUID(UUID uuid)
     {
-        for(HydroClient client : clients)
+        if(uuid == null)
+            return null;
+
+        for(HydroClient client : clientList)
         {
             if(client.getUUID().equals(uuid)){
                 return client;
@@ -90,14 +98,15 @@ public class ClientManager
 
     public MinecraftServerS getServerByName(String name)
     {
-        for(HydroClient client : clients)
-        {
-            MinecraftServerS server = client.getServerManager().getServerByName(name);
-            if(server != null)
+
+            for(HydroClient client : clientList)
             {
-                return server;
+                MinecraftServerS server = client.getServerManager().getServerByName(name);
+                if(server != null)
+                {
+                    return server;
+                }
             }
-        }
-        return null;
+            return null;
     }
 }

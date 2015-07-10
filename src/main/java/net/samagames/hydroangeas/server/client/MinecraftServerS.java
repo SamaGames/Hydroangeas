@@ -22,6 +22,8 @@ public class MinecraftServerS {
 
     private boolean started;
 
+    private int weight;
+
     public MinecraftServerS(String game, String map)
     {
         this.uuid = UUID.randomUUID();
@@ -43,7 +45,7 @@ public class MinecraftServerS {
         this.maxSlot = maxSlot;
         this.options = options;
 
-        this.coupaingServer = true;
+        this.coupaingServer = false;
     }
 
     public void shutdown()
@@ -108,5 +110,13 @@ public class MinecraftServerS {
 
     public void setStarted(boolean started) {
         this.started = started;
+    }
+
+    public int getWeight() {
+        return weight;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
     }
 }

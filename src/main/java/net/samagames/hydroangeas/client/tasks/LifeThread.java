@@ -1,4 +1,4 @@
-package net.samagames.hydroangeas.client.schedulers;
+package net.samagames.hydroangeas.client.tasks;
 
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;

@@ -4,20 +4,20 @@ import jline.UnsupportedTerminal;
 import jline.console.ConsoleReader;
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.client.HydroangeasClient;
+import net.samagames.hydroangeas.common.commands.CommandManager;
 import net.samagames.hydroangeas.common.database.DatabaseConnector;
 import net.samagames.hydroangeas.common.database.RedisSubscriber;
+import net.samagames.hydroangeas.common.log.HydroLogger;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.utils.LinuxBridge;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class Hydroangeas
 {
@@ -31,8 +31,24 @@ public abstract class Hydroangeas
     protected RedisSubscriber redisSubscriber;
     protected LinuxBridge linuxBridge;
 
+    protected CommandManager commandManager;
+
+    protected Logger logger;
+
     public Hydroangeas(OptionSet options) throws IOException {
         instance = this;
+
+        AnsiConsole.systemInstall();
+        consoleReader = new ConsoleReader();
+        consoleReader.setExpandEvents(false);
+
+        logger = new HydroLogger(this);
+
+        if ( consoleReader.getTerminal() instanceof UnsupportedTerminal)
+        {
+            log(Level.INFO, "Unable to initialize fancy terminal. To fix this on Windows, install the correct Microsoft Visual C++ 2008 Runtime");
+            log(Level.INFO, "NOTE: This error is non crucial, and BungeeCord will still function correctly! Do not bug the author about it unless you are still unable to get it working");
+        }
 
         System.out.println("Hydroangeas version 1.0.0 by BlueSlime");
         System.out.println("----------------------------------------");
@@ -53,16 +69,6 @@ public abstract class Hydroangeas
             this.shutdown();
             this.log(Level.INFO, "Bye!");
         }));
-
-        AnsiConsole.systemInstall();
-        consoleReader = new ConsoleReader();
-        consoleReader.setExpandEvents(false);
-
-        if ( consoleReader.getTerminal() instanceof UnsupportedTerminal)
-        {
-            log(Level.INFO, "Unable to initialize fancy terminal. To fix this on Windows, install the correct Microsoft Visual C++ 2008 Runtime");
-            log(Level.INFO, "NOTE: This error is non crucial, and BungeeCord will still function correctly! Do not bug the author about it unless you are still unable to get it working");
-        }
 
         isRunning = true;
     }
@@ -92,20 +98,21 @@ public abstract class Hydroangeas
 
         disable();
 
-        scheduler.shutdown();
+        scheduler.shutdownNow();
 
         this.redisSubscriber.disable();
     }
 
     public void log(Level level, String message)
     {
-        DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        /*DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
         String finalMessage = "[" + dateFormat.format(new Date()) + "]" + " [" + level.getName().toUpperCase() + "] " + message;
 
         if(level == Level.SEVERE)
             System.err.println(finalMessage);
         else
-            System.out.println(finalMessage);
+            System.out.println(finalMessage);*/
+        logger.log(level, message);
     }
 
     public Configuration getConfiguration()
@@ -151,5 +158,14 @@ public abstract class Hydroangeas
 
     public ConsoleReader getConsoleReader() {
         return consoleReader;
+    }
+
+    public CommandManager getCommandManager()
+    {
+        return commandManager;
+    }
+
+    public Logger getLogger() {
+        return logger;
     }
 }

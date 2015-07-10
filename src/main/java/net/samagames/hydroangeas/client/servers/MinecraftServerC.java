@@ -1,7 +1,7 @@
 package net.samagames.hydroangeas.client.servers;
 
 import net.samagames.hydroangeas.client.HydroangeasClient;
-import net.samagames.hydroangeas.client.schedulers.ServerThread;
+import net.samagames.hydroangeas.client.tasks.ServerThread;
 import net.samagames.hydroangeas.common.protocol.MinecraftServerOrderPacket;
 
 import java.io.File;

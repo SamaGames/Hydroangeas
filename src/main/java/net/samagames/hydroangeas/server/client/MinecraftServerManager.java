@@ -2,6 +2,7 @@ package net.samagames.hydroangeas.server.client;
 
 import net.samagames.hydroangeas.common.protocol.MinecraftServerOrderPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
+import net.samagames.hydroangeas.utils.MiscUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,9 +28,11 @@ public class MinecraftServerManager {
         this.client = client;
     }
 
-    public void addServer(String game, String map, int minSlot, int maxSlot, HashMap<String, String> options)
+    public MinecraftServerS addServer(String game, String map, int minSlot, int maxSlot, HashMap<String, String> options, boolean isCoupaing)
     {
         MinecraftServerS server = new MinecraftServerS(game, map, minSlot, maxSlot, options);
+
+        server.setCoupaingServer(isCoupaing);
 
         //Comme on prend que la première partie de l'uuid on check si un serveur a déja un nom identique
         while(instance.getClientManager().getServerByName(server.getServerName()) != null)
@@ -37,9 +40,13 @@ public class MinecraftServerManager {
             server.changeUUID();
         }
 
+        server.setWeight(MiscUtils.calculServerWeight(server.getGame(), server.getMaxSlot(), server.isCoupaingServer()));
+
         servers.add(server);
 
         instance.getConnectionManager().sendPacket(client, new MinecraftServerOrderPacket(server));
+
+        return server;
     }
 
     public void removeServer(String serverName)
@@ -64,6 +71,16 @@ public class MinecraftServerManager {
             }
         }
         return null;
+    }
+
+    public int getTotalWeight()
+    {
+        int weight = 0;
+        for(MinecraftServerS serverS : servers)
+        {
+            weight += serverS.getWeight();
+        }
+        return weight;
     }
 
     public List<MinecraftServerS> getServers()

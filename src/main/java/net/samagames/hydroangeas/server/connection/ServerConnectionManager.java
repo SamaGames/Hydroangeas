@@ -1,9 +1,10 @@
-package net.samagames.hydroangeas.server;
+package net.samagames.hydroangeas.server.connection;
 
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
 import net.samagames.hydroangeas.common.packets.ConnectionManager;
 import net.samagames.hydroangeas.common.protocol.*;
+import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.HydroClient;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.utils.InstanceType;

@@ -49,4 +49,43 @@ public class MiscUtils
             return new File(url.getPath());
         }
     }
+
+    public static int calculServerWeight(String game, int maxSlot, boolean isCoupaing)
+    {
+        int weight = 0;
+
+        //GameType
+        switch (game)
+        {
+            case "uhc":
+                weight += 40;
+                break;
+            case "uhcrun":
+                weight += 60;
+                break;
+            case "quake":
+                weight += 20;
+                break;
+            case "uppervoid":
+                weight += 25;
+                break;
+            case "herobattle":
+                weight += 30;
+                break;
+            case "dimension":
+                weight += 30;
+                break;
+        }
+
+        //SlotNumber
+        weight += maxSlot * 1;
+
+        //Is coupaing
+        if(isCoupaing)
+        {
+            weight += 50;
+        }
+
+        return weight;
+    }
 }
