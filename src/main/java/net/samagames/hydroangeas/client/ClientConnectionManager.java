@@ -1,8 +1,10 @@
 package net.samagames.hydroangeas.client;
 
 import net.samagames.hydroangeas.Hydroangeas;
+import net.samagames.hydroangeas.client.servers.MinecraftServerC;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
 import net.samagames.hydroangeas.common.packets.ConnectionManager;
+import net.samagames.hydroangeas.common.protocol.AskForClientActionPacket;
 import net.samagames.hydroangeas.common.protocol.AskForClientDataPacket;
 import net.samagames.hydroangeas.common.protocol.HeartbeatPacket;
 import net.samagames.hydroangeas.common.protocol.MinecraftServerOrderPacket;
@@ -47,6 +49,23 @@ public class ClientConnectionManager extends ConnectionManager {
         {
             AskForClientDataPacket packet = (AskForClientDataPacket) spacket;
             Hydroangeas.getInstance().getAsClient().getLifeThread().sendData(true);
+        }else if(spacket instanceof AskForClientActionPacket)
+        {
+            AskForClientActionPacket packet = (AskForClientActionPacket) spacket;
+
+            switch (packet.getCommand())
+            {
+                case SERVEREND:
+                    MinecraftServerC server = instance.getServerManager().getServerByName(packet.getData());
+                    server.stopServer();
+                    break;
+                case CLIENTSHUTDOWN:
+                    System.exit(0);
+                    break;
+                case CONSOLECOMMAND:
+                    instance.getCommandManager().inputCommand(packet.getData());
+                    break;
+            }
         }
     }
 }

@@ -7,8 +7,11 @@ import com.google.gson.JsonParser;
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.common.protocol.MinecraftServerIssuePacket;
 import net.samagames.hydroangeas.utils.InternetUtils;
+import net.samagames.hydroangeas.utils.ZipUtils;
+import org.apache.commons.io.FileUtils;
 
 import java.io.*;
+import java.net.URL;
 import java.util.HashMap;
 
 public class ResourceManager
@@ -34,8 +37,9 @@ public class ResourceManager
                 throw new IllegalStateException("Server template don't exist!");
             }
 
-            this.instance.getLinuxBridge().wget(wgetURL, serverPath.getAbsolutePath());
-            this.instance.getLinuxBridge().gzipExtract(new File(serverPath, server.getGame() + ".tar.gz").getAbsolutePath(), serverPath.getAbsolutePath());
+            FileUtils.copyURLToFile(new URL(wgetURL), new File(serverPath, server.getGame() + ".tar.gz"));
+            ZipUtils.unGzip(new File(serverPath, server.getGame() + ".tar.gz"), serverPath.getAbsoluteFile());
+            ZipUtils.unTar(new File(serverPath, server.getGame() + ".tar"), serverPath.getAbsoluteFile());
         }
         catch (Exception e)
         {
@@ -58,9 +62,9 @@ public class ResourceManager
                 throw new IllegalStateException("Server's map don't exist!");
             }
 
-            this.instance.getLinuxBridge().wget(wgetURL, serverPath.getAbsolutePath());
-            this.instance.getLinuxBridge().gzipExtract(new File(serverPath, server.getGame() + "_" + server.getMap() + ".tar.gz").getAbsolutePath(), serverPath.getAbsolutePath());
-
+            FileUtils.copyURLToFile(new URL(wgetURL), new File(serverPath, server.getGame() + "_" + server.getMap() + ".tar.gz"));
+            ZipUtils.unGzip(new File(serverPath, server.getGame() + "_" + server.getMap() + ".tar.gz"), serverPath.getAbsoluteFile());
+            ZipUtils.unTar(new File(serverPath, server.getGame() + "_" + server.getMap() + ".tar"), serverPath.getAbsoluteFile());
         }
         catch (Exception e)
         {
@@ -110,8 +114,9 @@ public class ResourceManager
                 throw new IllegalStateException("Servers' dependency '" + dependency.getName() + "' don't exist!");
             }
 
-            this.instance.getLinuxBridge().wget(wgetURL, pluginsPath.getAbsolutePath());
-            this.instance.getLinuxBridge().gzipExtract(new File(pluginsPath, dependency.getName() + "_" + dependency.getVersion() + ".tar.gz").getAbsolutePath(), pluginsPath.getAbsolutePath());
+            FileUtils.copyURLToFile(new URL(wgetURL), new File(pluginsPath, dependency.getName() + "_" + dependency.getVersion() + ".tar.gz"));
+            ZipUtils.unGzip(new File(pluginsPath, dependency.getName() + "_" + dependency.getVersion() + ".tar.gz"), pluginsPath.getAbsoluteFile());
+            ZipUtils.unTar(new File(pluginsPath, dependency.getName() + "_" + dependency.getVersion() + ".tar"), pluginsPath.getAbsoluteFile());
         }
         catch (Exception e)
         {

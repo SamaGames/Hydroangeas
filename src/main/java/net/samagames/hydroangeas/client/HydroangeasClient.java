@@ -2,6 +2,7 @@ package net.samagames.hydroangeas.client;
 
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.Hydroangeas;
+import net.samagames.hydroangeas.client.commands.ClientCommandManager;
 import net.samagames.hydroangeas.client.servers.ResourceManager;
 import net.samagames.hydroangeas.client.servers.ServerManager;
 import net.samagames.hydroangeas.client.tasks.LifeThread;
@@ -16,7 +17,6 @@ import java.util.logging.Level;
 
 public class HydroangeasClient extends Hydroangeas
 {
-    private UUID clientUUID;
     private String templatesDomain;
     private int maxWeight;
     private File serverFolder;
@@ -35,7 +35,6 @@ public class HydroangeasClient extends Hydroangeas
     {
         this.log(Level.INFO, "Starting Hydroangeas client...");
 
-        this.clientUUID = UUID.randomUUID();
         this.templatesDomain = this.configuration.getJsonConfiguration().get("web-domain").getAsString() + "templates/";
         this.maxWeight = this.configuration.getJsonConfiguration().get("max-weight").getAsInt();
         this.serverFolder = new File(MiscUtils.getJarFolder(), "servers");
@@ -45,9 +44,9 @@ public class HydroangeasClient extends Hydroangeas
 
         connectionManager = new ClientConnectionManager(this);
 
-        //TODO add command manager
+        commandManager = new ClientCommandManager(this);
 
-        this.redisSubscriber.registerReceiver("global@" + this.clientUUID.toString() + "@hydroangeas-client", data -> connectionManager.getPacket(data));
+        this.redisSubscriber.registerReceiver("global@" + getUUID().toString() + "@hydroangeas-client", data -> connectionManager.getPacket(data));
 
         this.serverManager = new ServerManager(this);
         this.resourceManager = new ResourceManager(this);
@@ -58,13 +57,13 @@ public class HydroangeasClient extends Hydroangeas
 
     public void disable()
     {
-        connectionManager.sendPacket(new ByeFromClientPacket(clientUUID));
+        connectionManager.sendPacket(new ByeFromClientPacket(getUUID()));
         this.serverManager.stopAll();
     }
 
     public UUID getClientUUID()
     {
-        return this.clientUUID;
+        return getUUID();
     }
 
     public int getMaxWeight()

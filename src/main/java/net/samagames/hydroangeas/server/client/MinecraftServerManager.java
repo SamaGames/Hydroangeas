@@ -1,5 +1,7 @@
 package net.samagames.hydroangeas.server.client;
 
+import net.samagames.hydroangeas.common.protocol.AskForClientActionPacket;
+import net.samagames.hydroangeas.common.protocol.MinecraftServerInfoPacket;
 import net.samagames.hydroangeas.common.protocol.MinecraftServerOrderPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.utils.MiscUtils;
@@ -7,6 +9,7 @@ import net.samagames.hydroangeas.utils.MiscUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
@@ -30,7 +33,7 @@ public class MinecraftServerManager {
 
     public MinecraftServerS addServer(String game, String map, int minSlot, int maxSlot, HashMap<String, String> options, boolean isCoupaing)
     {
-        MinecraftServerS server = new MinecraftServerS(game, map, minSlot, maxSlot, options);
+        MinecraftServerS server = new MinecraftServerS(client, game, map, minSlot, maxSlot, options);
 
         server.setCoupaingServer(isCoupaing);
 
@@ -49,6 +52,41 @@ public class MinecraftServerManager {
         return server;
     }
 
+    public void handleServerData(MinecraftServerInfoPacket packet)
+    {
+        MinecraftServerS server = getServerByName(packet.getServerName());
+        //Server not in here so add it
+        if(server == null)
+        {
+            instance.getLogger().severe("Error sync! server: " + packet.getServerName() + " not know by Hydroserver!");
+
+            server = new MinecraftServerS(client, packet.getServerUUID(), packet.getGame(), packet.getMap(), packet.getMinSlot(), packet.getMaxSlot(), packet.getOptions());
+            server.setPort(packet.getPort());
+
+            if(getServerByUUID(server.getUUID()) != null)
+            {
+                instance.getLogger().severe("Error duplicated UUID ! Not saving server !");
+                instance.getConnectionManager().sendPacket(client,
+                        new AskForClientActionPacket(instance.getUUID(), AskForClientActionPacket.ActionCommand.SERVEREND, packet.getServerName()));
+                return;
+            }
+            server.setWeight(MiscUtils.calculServerWeight(server.getGame(), server.getMaxSlot(), server.isCoupaingServer()));
+            servers.add(server);
+            instance.getLogger().info("Added " + packet.getServerName());
+        }else{//Server here ! so update it !
+
+            //First check correspondance between uuid and serverName
+            if(!server.getUUID().equals(packet.getServerUUID()))
+            {
+                instance.getLogger().severe("Error server: " + server.getServerName() + " has not the same UUID");
+                instance.getConnectionManager().sendPacket(client,
+                        new AskForClientActionPacket(instance.getUUID(), AskForClientActionPacket.ActionCommand.SERVEREND, packet.getServerName()));
+                return;
+            }
+            server.setPort(packet.getPort());
+        }
+    }
+
     public void removeServer(String serverName)
     {
         MinecraftServerS server = getServerByName(serverName);
@@ -57,7 +95,7 @@ public class MinecraftServerManager {
             return;
         }
 
-        server.shutdown();
+        server.onShutdown();
         servers.remove(server);
     }
 
@@ -66,6 +104,18 @@ public class MinecraftServerManager {
         for(MinecraftServerS server : servers)
         {
             if(server.getServerName().equals(serverName))
+            {
+                return server;
+            }
+        }
+        return null;
+    }
+
+    public MinecraftServerS getServerByUUID(UUID uuid)
+    {
+        for(MinecraftServerS server : servers)
+        {
+            if(server.getUUID().equals(uuid))
             {
                 return server;
             }

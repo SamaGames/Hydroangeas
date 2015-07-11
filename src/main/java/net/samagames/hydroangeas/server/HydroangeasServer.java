@@ -5,7 +5,6 @@ import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.server.algo.AlgorithmicMachine;
 import net.samagames.hydroangeas.server.client.ClientManager;
 import net.samagames.hydroangeas.server.commands.ServerCommandManager;
-import net.samagames.hydroangeas.server.connection.CoupaingServerReceiver;
 import net.samagames.hydroangeas.server.connection.ServerConnectionManager;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
@@ -21,8 +20,6 @@ public class HydroangeasServer extends Hydroangeas
     private ClientManager clientManager;
     private AlgorithmicMachine algorithmicMachine;
 
-    private UUID serverUUID;
-
     public HydroangeasServer(OptionSet options) throws IOException {
         super(options);
     }
@@ -32,12 +29,9 @@ public class HydroangeasServer extends Hydroangeas
     {
         this.log(Level.INFO, "Starting Hydroangeas server...");
 
-        this.serverUUID = UUID.randomUUID();
-
         this.connectionManager = new ServerConnectionManager(this);
 
         this.redisSubscriber.registerReceiver("global@hydroangeas-server", data -> connectionManager.getPacket(data));
-        this.redisSubscriber.registerReceiver("coupaing@hydroangeas-server", new CoupaingServerReceiver());
 
         this.clientManager = new ClientManager(this);
         this.algorithmicMachine = new AlgorithmicMachine(this);
@@ -57,7 +51,7 @@ public class HydroangeasServer extends Hydroangeas
 
     public UUID getServerUUID()
     {
-        return serverUUID;
+        return getUUID();
     }
 
     public ServerConnectionManager getConnectionManager()

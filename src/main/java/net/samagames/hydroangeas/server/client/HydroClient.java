@@ -1,5 +1,6 @@
 package net.samagames.hydroangeas.server.client;
 
+import net.samagames.hydroangeas.common.protocol.AskForClientActionPacket;
 import net.samagames.hydroangeas.common.protocol.HelloFromClientPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 
@@ -16,7 +17,7 @@ import java.util.logging.Level;
  */
 public class HydroClient {
 
-    private HydroangeasServer instancce;
+    private HydroangeasServer instance;
     private UUID uuid;
     private String ip;
     private int maxWeight;
@@ -24,14 +25,14 @@ public class HydroClient {
 
     private MinecraftServerManager serverManager;
 
-    public HydroClient(HydroangeasServer instancce, UUID uuid)
+    public HydroClient(HydroangeasServer instance, UUID uuid)
     {
-        this.instancce = instancce;
+        this.instance = instance;
         this.uuid = uuid;
 
         this.timestamp = new Timestamp(System.currentTimeMillis());
 
-        serverManager = new MinecraftServerManager(instancce, this);
+        serverManager = new MinecraftServerManager(instance, this);
     }
 
     public void updateData(HelloFromClientPacket packet)
@@ -45,11 +46,16 @@ public class HydroClient {
 
         if(getActualWeight() != packet.getActualWeight())
         {
-            instancce.log(Level.SEVERE, "Error client and server not sync about weight! client:" + packet.getActualWeight() + " server:"+ getActualWeight());
+            instance.log(Level.SEVERE, "Error client and server not sync about weight! client:" + packet.getActualWeight() + " server:"+ getActualWeight());
         }
 
         this.timestamp = new Timestamp(System.currentTimeMillis());
 
+    }
+
+    public void shutdown()
+    {
+        instance.getConnectionManager().sendPacket(this, new AskForClientActionPacket(instance.getUUID(), AskForClientActionPacket.ActionCommand.CLIENTSHUTDOWN, ""));
     }
 
     public UUID getUUID()
@@ -102,6 +108,10 @@ public class HydroClient {
         return this.serverManager;
     }
 
+    public HydroangeasServer getInstance() {
+        return instance;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof HydroClient)
@@ -113,9 +123,4 @@ public class HydroClient {
         }
         return false;
     }
-
-
-
-
-
 }

@@ -1,6 +1,7 @@
 package net.samagames.hydroangeas.client.servers;
 
 import net.samagames.hydroangeas.client.HydroangeasClient;
+import net.samagames.hydroangeas.common.protocol.MinecraftServerInfoPacket;
 import net.samagames.hydroangeas.common.protocol.MinecraftServerIssuePacket;
 import net.samagames.hydroangeas.common.protocol.MinecraftServerOrderPacket;
 import net.samagames.hydroangeas.common.protocol.MinecraftServerUpdatePacket;
@@ -40,6 +41,8 @@ public class ServerManager
         this.instance.log(Level.INFO, "New server started -> Game (" + serverInfos.getGame() + ") & Map (" + serverInfos.getMap() + ")");
 
         instance.getConnectionManager().sendPacket(new MinecraftServerUpdatePacket(instance, server.getServerName(), MinecraftServerUpdatePacket.UType.START));
+        //Complete data of the server
+        instance.getConnectionManager().sendPacket(new MinecraftServerInfoPacket(instance, server));
     }
 
     public void stopAll()
@@ -61,6 +64,7 @@ public class ServerManager
     {
         instance.getConnectionManager().sendPacket(new MinecraftServerUpdatePacket(instance, server.getServerName(), MinecraftServerUpdatePacket.UType.END));
         this.servers.remove(server);
+        instance.getLogger().info("Stopped server " + server.getServerName());
     }
 
     public int getAvailablePort()
@@ -76,6 +80,18 @@ public class ServerManager
             w += server.getWeight();
         }
         return w;
+    }
+
+    public MinecraftServerC getServerByName(String name)
+    {
+        for(MinecraftServerC server : servers)
+        {
+            if(server.getServerName().equals(name))
+            {
+                return server;
+            }
+        }
+        return null;
     }
 
     public MinecraftServerC getServerByUUID(UUID uuid)

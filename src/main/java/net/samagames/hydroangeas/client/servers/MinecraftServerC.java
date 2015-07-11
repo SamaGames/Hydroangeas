@@ -3,6 +3,7 @@ package net.samagames.hydroangeas.client.servers;
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.tasks.ServerThread;
 import net.samagames.hydroangeas.common.protocol.MinecraftServerOrderPacket;
+import net.samagames.hydroangeas.utils.MiscUtils;
 
 import java.io.File;
 import java.util.HashMap;
@@ -23,6 +24,8 @@ public class MinecraftServerC
     private HashMap<String, String> options = new HashMap<>();
     private int port;
 
+    private int weight;
+
     private ServerThread serverThread;
 
     public MinecraftServerC(HydroangeasClient instance, MinecraftServerOrderPacket serverInfos, int port)
@@ -41,14 +44,15 @@ public class MinecraftServerC
 
         this.serverFolder = new File(this.instance.getServerFolder(), serverInfos.getServerName());
         this.port = port;
+
+        this.weight = MiscUtils.calculServerWeight(game, maxSlot, isCoupaingServer());
     }
 
     public boolean makeServer()
     {
         try
         {
-            this.instance.getLinuxBridge().mkdir(this.serverFolder.getAbsolutePath());
-
+            this.serverFolder.mkdir();
             this.instance.getResourceManager().downloadServer(this, this.serverFolder);
             this.instance.getResourceManager().downloadMap(this, this.serverFolder);
             this.instance.getResourceManager().downloadDependencies(this, this.serverFolder);
@@ -92,6 +96,7 @@ public class MinecraftServerC
                             "-jar", "spigot.jar", "nogui"},
                     new String[]{""}, serverFolder);
             serverThread.start();
+            instance.getLogger().info("Starting server "+ getServerName());
         }
         catch (Exception e)
         {
@@ -129,8 +134,7 @@ public class MinecraftServerC
 
     public int getWeight()
     {
-        //TODO CALCUL POID
-        return 1;
+        return weight;
     }
 
     public int getPort()
@@ -176,5 +180,9 @@ public class MinecraftServerC
     public boolean isCoupaingServer()
     {
         return this.coupaingServer;
+    }
+
+    public HydroangeasClient getInstance() {
+        return instance;
     }
 }

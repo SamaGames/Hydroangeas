@@ -22,7 +22,7 @@ public class HydroLogger extends Logger
 
         try
         {
-            FileHandler fileHandler = new FileHandler( "hyperVisor.log", 1 << 24, 8, true );
+            FileHandler fileHandler = new FileHandler( "Hydroangeas.log", 1 << 24, 8, true );
             fileHandler.setFormatter( formatter );
             addHandler( fileHandler );
 

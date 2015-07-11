@@ -1,5 +1,7 @@
 package net.samagames.hydroangeas.server.client;
 
+import net.samagames.hydroangeas.common.protocol.AskForClientActionPacket;
+
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -12,6 +14,7 @@ import java.util.UUID;
  */
 public class MinecraftServerS {
 
+    private HydroClient client;
     private UUID uuid;
     private boolean coupaingServer;
     private String game;
@@ -24,21 +27,22 @@ public class MinecraftServerS {
 
     private int weight;
 
-    public MinecraftServerS(String game, String map)
-    {
-        this.uuid = UUID.randomUUID();
-        this.game = game;
-        this.map = map;
-        this.minSlot = 0;
-        this.maxSlot = 0;
-        this.options = null;
+    private int port;
 
-        this.coupaingServer = false;
+    public MinecraftServerS(HydroClient client, String game, String map)
+    {
+        this(client, game, map, 0, 0, new HashMap<>());
     }
 
-    public MinecraftServerS(String game, String map, int minSlot, int maxSlot, HashMap<String, String> options)
+    public MinecraftServerS(HydroClient client, String game, String map, int minSlot, int maxSlot, HashMap<String, String> options)
     {
-        this.uuid = UUID.randomUUID();
+        this(client, UUID.randomUUID(), game, map, minSlot, maxSlot, options);
+    }
+
+    public MinecraftServerS(HydroClient client, UUID uuid, String game, String map, int minSlot, int maxSlot, HashMap<String, String> options)
+    {
+        this.client = client;
+        this.uuid = uuid;
         this.game = game;
         this.map = map;
         this.minSlot = minSlot;
@@ -49,6 +53,12 @@ public class MinecraftServerS {
     }
 
     public void shutdown()
+    {
+        client.getInstance().getConnectionManager().sendPacket(client,
+                new AskForClientActionPacket(client.getUUID(), AskForClientActionPacket.ActionCommand.SERVEREND, getServerName()));
+    }
+
+    public void onShutdown()
     {
         //If we need to save some data after shutdown
     }
@@ -118,5 +128,13 @@ public class MinecraftServerS {
 
     public void setWeight(int weight) {
         this.weight = weight;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 }

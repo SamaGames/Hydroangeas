@@ -14,6 +14,7 @@ import org.fusesource.jansi.AnsiConsole;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
@@ -21,10 +22,12 @@ import java.util.logging.Logger;
 
 public abstract class Hydroangeas
 {
+
     private static Hydroangeas instance;
     protected final ScheduledExecutorService scheduler;
     protected final ConsoleReader consoleReader;
     public boolean isRunning;
+    protected UUID uuid;
     protected OptionSet options;
     protected Configuration configuration;
     protected DatabaseConnector databaseConnector;
@@ -38,6 +41,8 @@ public abstract class Hydroangeas
     public Hydroangeas(OptionSet options) throws IOException {
         instance = this;
 
+        uuid = UUID.randomUUID();
+
         AnsiConsole.systemInstall();
         consoleReader = new ConsoleReader();
         consoleReader.setExpandEvents(false);
@@ -50,8 +55,8 @@ public abstract class Hydroangeas
             log(Level.INFO, "NOTE: This error is non crucial, and BungeeCord will still function correctly! Do not bug the author about it unless you are still unable to get it working");
         }
 
-        System.out.println("Hydroangeas version 1.0.0 by BlueSlime");
-        System.out.println("----------------------------------------");
+        logger.info("Hydroangeas version 1.0.0 by BlueSlime");
+        logger.info("----------------------------------------");
 
         this.scheduler = Executors.newScheduledThreadPool(16);
 
@@ -167,5 +172,9 @@ public abstract class Hydroangeas
 
     public Logger getLogger() {
         return logger;
+    }
+
+    public UUID getUUID() {
+        return uuid;
     }
 }

@@ -5,6 +5,7 @@ import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.HydroClient;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 
+import java.util.TreeSet;
 import java.util.logging.Level;
 
 /**
@@ -40,6 +41,22 @@ public class InfosCommand extends AbstractCommand{
             }
         }else if (args.length == 1)
         {
+            if(args[0].equals("sorted"))
+            {
+                TreeSet<HydroClient> sortedClient = new TreeSet<>((o1, o2) -> (o1.getAvailableWeight() < o2.getAvailableWeight())? -1:1);
+                sortedClient.addAll(instance.getClientManager().getClients());
+
+                for(HydroClient client : sortedClient)
+                {
+                    instance.log(Level.INFO, "# " + client.getUUID() + ": ");
+                    instance.log(Level.INFO, "   ip:         " + client.getIp());
+                    instance.log(Level.INFO, "   weight:     " + client.getActualWeight());
+                    instance.log(Level.INFO, "   maxWeight:  " + client.getMaxWeight());
+                    instance.log(Level.INFO, "   Nb server:  " + client.getServerManager().getServers().size());
+                    instance.log(Level.INFO, "   Last Ping:  " + client.getTimestamp().toString());
+                }
+                return true;
+            }
             int id;
             try{
                 id = Integer.valueOf(args[0]);

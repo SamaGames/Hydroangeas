@@ -26,10 +26,12 @@ public abstract class ConnectionManager {
         packets[1] = new HelloFromClientPacket();
         packets[2] = new CoupaingServerPacket();
         packets[3] = new AskForClientDataPacket();
-        packets[4] = new ByeFromClientPacket();
-        packets[5] = new MinecraftServerIssuePacket();
-        packets[6] = new MinecraftServerOrderPacket();
-        packets[7] = new MinecraftServerUpdatePacket();
+        packets[4] = new AskForClientActionPacket();
+        packets[5] = new ByeFromClientPacket();
+        packets[6] = new MinecraftServerIssuePacket();
+        packets[7] = new MinecraftServerOrderPacket();
+        packets[8] = new MinecraftServerUpdatePacket();
+        packets[9] = new MinecraftServerInfoPacket();
 
         this.hydroangeas = hydroangeas;
 

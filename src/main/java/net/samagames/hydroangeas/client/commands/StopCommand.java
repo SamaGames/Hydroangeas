@@ -1,9 +1,7 @@
-package net.samagames.hydroangeas.server.commands;
+package net.samagames.hydroangeas.client.commands;
 
+import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.common.commands.AbstractCommand;
-import net.samagames.hydroangeas.server.HydroangeasServer;
-
-import java.util.logging.Level;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
@@ -14,17 +12,17 @@ import java.util.logging.Level;
  */
 public class StopCommand extends AbstractCommand {
 
-    public HydroangeasServer instance;
+    public HydroangeasClient instance;
 
-    public StopCommand(HydroangeasServer hydroangeasServer) {
+    public StopCommand(HydroangeasClient hydroangeasClient) {
         super("stop");
-        this.instance = hydroangeasServer;
+        this.instance = hydroangeasClient;
     }
 
     @Override
     public boolean execute(String[] args) {
 
-        instance.log(Level.INFO, "Stopping the server..");
+        instance.getLogger().info("Stopping the server..");
         System.exit(0);
 
         return true;

@@ -30,6 +30,8 @@ public class ServerThread extends Thread {
         try {
             this.directory = directory;
 
+            Thread.sleep(5);
+
             server = Runtime.getRuntime().exec(command, env, directory);
             isServerProcessAlive = true;
 
@@ -53,6 +55,8 @@ public class ServerThread extends Thread {
             errorThread.start();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -61,22 +65,26 @@ public class ServerThread extends Thread {
     {
         try {
             server.waitFor();
-            normalStop();
-            Hydroangeas.getInstance().getAsClient().getServerManager().onServerStop(instance);
+
         } catch (InterruptedException e) {
             e.printStackTrace();
-            isServerProcessAlive = false;
         }
+        normalStop();
+        Hydroangeas.getInstance().getAsClient().getServerManager().onServerStop(instance);
+        server.destroy();
     }
 
     public void normalStop()
     {
         isServerProcessAlive = false;
-        try {
-            FileUtils.deleteDirectory(directory);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        instance.getInstance().getScheduler().execute(() -> {
+            try {
+                FileUtils.deleteDirectory(directory);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
         errorThread.interrupt();
     }
 

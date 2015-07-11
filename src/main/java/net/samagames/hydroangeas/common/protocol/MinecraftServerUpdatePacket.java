@@ -62,6 +62,5 @@ public class MinecraftServerUpdatePacket extends AbstractPacket {
         return maxWeight;
     }
 
-
-    public enum UType {START, INFO, END}
+    public enum UType {START, END}
 }

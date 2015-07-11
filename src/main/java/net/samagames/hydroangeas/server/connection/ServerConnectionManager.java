@@ -56,6 +56,18 @@ public class ServerConnectionManager extends ConnectionManager{
             hydroangeas.log(Level.SEVERE, "> Category: Server issue (" + packet.getIssueType().name() + ")");
 
             ModMessage.sendError(InstanceType.SERVER, packet.getMessage());
+        }else if(spacket instanceof MinecraftServerInfoPacket)
+        {
+            MinecraftServerInfoPacket packet = (MinecraftServerInfoPacket) spacket;
+
+            HydroClient client = instance.getClientManager().getClientByUUID(packet.getUUID());
+            if(client == null)
+            {
+                return;
+            }
+
+            client.getServerManager().handleServerData(packet);
+
         }else if(spacket instanceof MinecraftServerUpdatePacket)
         {
             MinecraftServerUpdatePacket packet = (MinecraftServerUpdatePacket) spacket;
@@ -81,12 +93,6 @@ public class ServerConnectionManager extends ConnectionManager{
                 case START:
                     server.setStarted(true);
                     //TODO add event ?
-                    break;
-                case INFO:
-                    if(server == null)
-                    {
-                        //TODO delete server on client
-                    }
                     break;
                 case END:
                     client.getServerManager().removeServer(packet.getServerName());
