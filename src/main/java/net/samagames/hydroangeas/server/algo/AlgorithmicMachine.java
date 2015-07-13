@@ -63,7 +63,8 @@ public class AlgorithmicMachine
                 template.getMinSlot(),
                 template.getMaxSlot(),
                 template.getOptions(),
-                template.isCoupaing());
+                template.isCoupaing(),
+                template.getId());
         instance.log(Level.INFO, template.toString() + " created on " + client.getIp());
         return true;
     }

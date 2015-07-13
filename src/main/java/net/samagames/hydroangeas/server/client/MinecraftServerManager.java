@@ -31,9 +31,10 @@ public class MinecraftServerManager {
         this.client = client;
     }
 
-    public MinecraftServerS addServer(String game, String map, int minSlot, int maxSlot, HashMap<String, String> options, boolean isCoupaing)
+    public MinecraftServerS addServer(String game, String map, int minSlot, int maxSlot, HashMap<String, String> options, boolean isCoupaing, String templateID)
     {
         MinecraftServerS server = new MinecraftServerS(client, game, map, minSlot, maxSlot, options);
+        server.setTemplateID(templateID);
 
         server.setCoupaingServer(isCoupaing);
 

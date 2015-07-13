@@ -1,6 +1,7 @@
 package net.samagames.hydroangeas.server.client;
 
 import net.samagames.hydroangeas.common.protocol.AskForClientActionPacket;
+import net.samagames.hydroangeas.server.data.Status;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -25,9 +26,13 @@ public class MinecraftServerS {
 
     private boolean started;
 
+    private String templateID;
+
     private int weight;
 
     private int port;
+
+    private Status status;
 
     public MinecraftServerS(HydroClient client, String game, String map)
     {
@@ -136,5 +141,21 @@ public class MinecraftServerS {
 
     public void setPort(int port) {
         this.port = port;
+    }
+
+    public String getTemplateID() {
+        return templateID;
+    }
+
+    public void setTemplateID(String templateID) {
+        this.templateID = templateID;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }
