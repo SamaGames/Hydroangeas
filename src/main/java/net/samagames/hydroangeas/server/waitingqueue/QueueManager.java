@@ -23,6 +23,28 @@ public class QueueManager {
         this.instance = instance;
     }
 
+    public Queue addQueue(String nameQueue)
+    {
+        Queue queue = new Queue(nameQueue, Integer.MAX_VALUE);
+        queues.add(queue);
+        return queue;
+    }
+
+    public boolean removeQueue(String name)
+    {
+        Queue queue = getQueueByName(name);
+        if(queue == null)
+        {
+            return false;
+        }
+        return removeQueue(queue);
+    }
+
+    public boolean removeQueue(Queue queue)
+    {
+        return queues.remove(queue);
+    }
+
     public Queue getQueueByName(String name)
     {
         for(Queue queue : queues)
@@ -32,7 +54,7 @@ public class QueueManager {
                 return queue;
             }
         }
-        return null;
+        return addQueue(name);
     }
 
 }

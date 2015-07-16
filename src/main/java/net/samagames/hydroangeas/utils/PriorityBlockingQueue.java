@@ -734,8 +734,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
         }
     }
 
-    ///////////////////// START EDITED BY GEEKPOWER14
-
     public String toString() {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -756,8 +754,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
-    ///////////////////// END EDITED BY GEEKPOWER14
 
     /**
      * @throws UnsupportedOperationException {@inheritDoc}
@@ -796,6 +792,8 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
         }
     }
 
+    ///////////////////// START EDITED BY GEEKPOWER14
+
     /**
      * @throws UnsupportedOperationException {@inheritDoc}
      * @throws ClassCastException            {@inheritDoc}
@@ -810,22 +808,30 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            int n = Math.min(size, maxElements);
             int check = maxElements;
-            for (int i = 0; i < n; i++) {
-                QGroup group = (QGroup) queue[0];
+
+            for(int i = 0;i < size; i++)
+            {
+                QGroup group = (QGroup) queue[i];
+
                 if(check-group.getSize() >= 0)
                 {
                     c.add(group); // In this order, in case add() throws.
-                    dequeue();
+                    this.removeAt(i);
                     check -= group.getSize();
                 }
+
+                if(check <= 0)
+                    break;
+
             }
-            return n;
+            return maxElements - check;
         } finally {
             lock.unlock();
         }
     }
+
+    ///////////////////// END EDITED BY GEEKPOWER14
 
     /**
      * Atomically removes all of the elements from this queue.

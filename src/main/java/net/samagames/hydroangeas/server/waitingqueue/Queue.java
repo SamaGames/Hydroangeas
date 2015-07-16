@@ -20,12 +20,17 @@ public class Queue {
 
     private PriorityBlockingQueue<QGroup> queue;
 
-    public Queue(String queueName)
+    public Queue(String queueName, int size)
     {
         this.queueName = queueName;
 
         //Si priority plus grande alors tu passe devant.
-        this.queue = new PriorityBlockingQueue<>(Integer.MAX_VALUE, (o1, o2) -> -Integer.compare(o1.getPriority(), o2.getPriority()));
+        this.queue = new PriorityBlockingQueue<>(size, (o1, o2) -> -Integer.compare(o1.getPriority(), o2.getPriority()));
+    }
+
+    public boolean addPlayers(List<QPlayer> players)
+    {
+        return addPlayer(new QGroup(players));
     }
 
     public boolean addPlayer(QGroup qGroup)
@@ -101,9 +106,9 @@ public class Queue {
         return false;
     }
 
-    public int remainSlots()
+    public int getSize()
     {
-        return queue.remainingCapacity();
+        return queue.size();
     }
 
     public String getName() {
