@@ -7,6 +7,7 @@ import net.samagames.hydroangeas.server.client.ClientManager;
 import net.samagames.hydroangeas.server.commands.ServerCommandManager;
 import net.samagames.hydroangeas.server.connection.ServerConnectionManager;
 import net.samagames.hydroangeas.server.receiver.ServerStatusReceiver;
+import net.samagames.hydroangeas.server.waitingqueue.QueueManager;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
 
@@ -21,6 +22,8 @@ public class HydroangeasServer extends Hydroangeas
     private ClientManager clientManager;
     private AlgorithmicMachine algorithmicMachine;
 
+    private QueueManager queueManager;
+
     public HydroangeasServer(OptionSet options) throws IOException {
         super(options);
     }
@@ -34,6 +37,8 @@ public class HydroangeasServer extends Hydroangeas
 
         this.redisSubscriber.registerReceiver("global@hydroangeas-server", data -> connectionManager.getPacket(data));
         this.redisSubscriber.registerReceiver("hubsChannel", data -> new ServerStatusReceiver(this));
+
+        this.queueManager = new QueueManager(this);
 
         this.clientManager = new ClientManager(this);
         this.algorithmicMachine = new AlgorithmicMachine(this);

@@ -25,7 +25,7 @@ public class QueueManager {
 
     public Queue addQueue(String nameQueue)
     {
-        Queue queue = new Queue(nameQueue, Integer.MAX_VALUE);
+        Queue queue = new Queue(this, nameQueue, Integer.MAX_VALUE);
         queues.add(queue);
         return queue;
     }

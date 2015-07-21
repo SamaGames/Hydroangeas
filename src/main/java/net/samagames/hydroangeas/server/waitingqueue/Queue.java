@@ -16,12 +16,14 @@ import java.util.UUID;
  */
 public class Queue {
 
+    private QueueManager manager;
     private String queueName;
 
     private PriorityBlockingQueue<QGroup> queue;
 
-    public Queue(String queueName, int size)
+    public Queue(QueueManager manager, String queueName, int size)
     {
+        this.manager = manager;
         this.queueName = queueName;
 
         //Si priority plus grande alors tu passe devant.
@@ -48,21 +50,16 @@ public class Queue {
     {
         List<QGroup> data = new ArrayList<>();
         queue.drainTo(data, number);
+
         return data;
     }
 
     //No idea for the name ..
     public List<QPlayer> getUserListFormatted(int number)
     {
-        List<QGroup> data = new ArrayList<>();
-        queue.drainTo(data, number);
-
         List<QPlayer> players = new ArrayList<>();
-        for (QGroup qGroup : data)
-        {
-            players.addAll(qGroup.getQPlayers());
-        }
 
+        getGroupsListFormatted(number).stream().forEachOrdered(qGroup -> players.addAll(qGroup.getQPlayers()));
         return players;
     }
 
@@ -71,8 +68,8 @@ public class Queue {
     {
         HashMap<UUID, Integer> data = new HashMap<>();
         int i = 0;
-        for(QGroup qGroup : queue) {
-            for(QPlayer qPlayer : qGroup.getQPlayers())
+        for (QGroup qGroup : queue) {
+            for (QPlayer qPlayer : qGroup.getQPlayers())
             {
                 data.put(qPlayer.getUUID(), i);
             }
@@ -83,9 +80,9 @@ public class Queue {
     public int getRank(UUID uuid)
     {
         int i = 0;
-        for(QGroup qGroup : queue)
+        for (QGroup qGroup : queue)
         {
-            if(qGroup.contains(uuid))
+            if (qGroup.contains(uuid))
             {
                 break;
             }
