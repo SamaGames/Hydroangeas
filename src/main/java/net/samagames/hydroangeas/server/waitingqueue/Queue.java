@@ -17,32 +17,51 @@ import java.util.UUID;
 public class Queue {
 
     private QueueManager manager;
-    private String queueName;
+
+    private String game;
+    private String map;
 
     private PriorityBlockingQueue<QGroup> queue;
 
-    public Queue(QueueManager manager, String queueName, int size)
+    public Queue(QueueManager manager, String name)
+    {
+        this(manager, name.split("_")[0], name.split("_")[1]);
+    }
+
+    public Queue(QueueManager manager, String game, String map)
     {
         this.manager = manager;
-        this.queueName = queueName;
+        this.game = game;
+        this.map = map;
 
         //Si priority plus grande alors tu passe devant.
-        this.queue = new PriorityBlockingQueue<>(size, (o1, o2) -> -Integer.compare(o1.getPriority(), o2.getPriority()));
+        this.queue = new PriorityBlockingQueue<>(Integer.MAX_VALUE, (o1, o2) -> -Integer.compare(o1.getPriority(), o2.getPriority()));
     }
 
-    public boolean addPlayers(List<QPlayer> players)
+    public boolean addPlayersInNewGroup(QPlayer leader, List<QPlayer> players)
     {
-        return addPlayer(new QGroup(players));
+        return addGroup(new QGroup(leader, players));
     }
 
-    public boolean addPlayer(QGroup qGroup)
+    public boolean addGroup(QGroup qGroup)
     {
         return queue.add(qGroup);
     }
 
-    public boolean removePlayer(QGroup qGroup)
+    public boolean removeGroup(QGroup qGroup)
     {
         return queue.remove(qGroup);
+    }
+
+    public boolean removeQPlayer(QPlayer player)
+    {
+        QGroup group = getGroupByPlayer(player.getUUID());
+        boolean result = group.removeQPlayer(player);
+        if(group.getLeader() == null)
+        {
+            removeGroup(group);
+        }
+        return result;
     }
 
     //No idea for the name ..
@@ -77,6 +96,30 @@ public class Queue {
         return data;
     }
 
+    public QGroup getGroupByLeader(UUID leader)
+    {
+        for(QGroup group : queue)
+        {
+            if(group.getLeader().getUUID().equals(leader))
+            {
+                return group;
+            }
+        }
+        return null;
+    }
+
+    public QGroup getGroupByPlayer(UUID player)
+    {
+        for(QGroup group : queue)
+        {
+            if(group.contains(player))
+            {
+                return group;
+            }
+        }
+        return null;
+    }
+
     public int getRank(UUID uuid)
     {
         int i = 0;
@@ -89,6 +132,14 @@ public class Queue {
             i++;
         }
         return i;
+    }
+
+    public boolean removeUUID(UUID uuid)
+    {
+        QGroup group = getGroupByPlayer(uuid);
+        if(group == null)
+            return false;
+        return group.removeQPlayer(uuid);
     }
 
     public boolean containsUUID(UUID uuid)
@@ -105,10 +156,24 @@ public class Queue {
 
     public int getSize()
     {
-        return queue.size();
+        int i = 0;
+        for(QGroup group : queue)
+        {
+            i += group.getSize();
+        }
+        return i;
     }
 
-    public String getName() {
-        return queueName;
+    public String getName()
+    {
+        return game + "_" + map;
+    }
+
+    public String getGame() {
+        return game;
+    }
+
+    public String getMap() {
+        return map;
     }
 }

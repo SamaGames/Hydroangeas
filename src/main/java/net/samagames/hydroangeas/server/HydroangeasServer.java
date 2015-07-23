@@ -75,4 +75,8 @@ public class HydroangeasServer extends Hydroangeas
     {
         return this.algorithmicMachine;
     }
+
+    public QueueManager getQueueManager() {
+        return queueManager;
+    }
 }

@@ -113,6 +113,10 @@ public class ServerConnectionManager extends ConnectionManager{
         {
             HelloFromClientPacket packet = (HelloFromClientPacket) spacket;
             instance.getClientManager().updateClient(packet);
+        }else if(spacket instanceof QueueUpdateFromHub)
+        {
+            QueueUpdateFromHub packet = (QueueUpdateFromHub) spacket;
+            instance.getQueueManager().handlepacket(packet);
         }
     }
 }

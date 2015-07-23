@@ -9,6 +9,8 @@ import net.samagames.hydroangeas.common.packets.AbstractPacket;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class QueueUpdateToHub extends AbstractPacket {
+public class QueueUpdateToHub extends AbstractPacket
+{
+
 
 }

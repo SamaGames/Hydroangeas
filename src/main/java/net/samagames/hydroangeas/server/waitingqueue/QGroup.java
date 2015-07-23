@@ -14,19 +14,33 @@ import java.util.stream.Collectors;
  */
 public class QGroup {
 
+    private QPlayer leader;
+
     private List<QPlayer> players = new ArrayList<>();
 
     private int priority;
 
     public QGroup(QPlayer player)
     {
+        this.leader = player;
         players.add(player);
-        priority = player.getPriority();
+        calculatePriority();
     }
 
     public QGroup(List<QPlayer> players)
     {
+        this(players.get(0), players);
+    }
+
+    public QGroup(QPlayer leader, List<QPlayer> players)
+    {
+        this.leader = leader;
         this.players.addAll(players);
+        calculatePriority();
+    }
+
+    public void calculatePriority()
+    {
         //Celui qui a la plus grosse prioritée la donne au groupe
         for(QPlayer qPlayer : players)
         {
@@ -56,6 +70,46 @@ public class QGroup {
         return players.contains(qp);
     }
 
+    public QPlayer getPlayerByUUID(UUID player)
+    {
+        for(QPlayer p : players)
+        {
+            if(p.getUUID().equals(player))
+            {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    public boolean addPlayer(QPlayer player)
+    {
+        if(contains(player.getUUID()))
+            return false;
+        try{
+            return players.add(player);
+        }finally{
+            calculatePriority();
+        }
+    }
+
+    public boolean removeQPlayer(UUID player)
+    {
+        return removeQPlayer(getPlayerByUUID(player));
+    }
+
+    public boolean removeQPlayer(QPlayer player)
+    {
+        if(player.getUUID().equals(leader.getUUID()))
+            leader = null;
+
+        try{
+            return players.remove(player);
+        }finally {
+            calculatePriority();
+        }
+    }
+
     public List<UUID> getPlayers()
     {
         return players.stream().map(QPlayer::getUUID).collect(Collectors.toList());
@@ -69,5 +123,9 @@ public class QGroup {
     public int getSize()
     {
         return players.size();
+    }
+
+    public QPlayer getLeader() {
+        return leader;
     }
 }
