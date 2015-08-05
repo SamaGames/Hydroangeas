@@ -15,7 +15,6 @@ import java.util.List;
  */
 public class QueueUpdateFromHub extends AbstractPacket
 {
-
     private String game;
 
     private String map;
@@ -39,7 +38,8 @@ public class QueueUpdateFromHub extends AbstractPacket
         this.action = action;
         this.game = game;
         this.typeQueue = typeQueue;
-        this.players = players;
+        this.groupLeader = leader;
+        this.players.addAll(players);
         this.groupLeader = leader;
         this.map = map;
     }

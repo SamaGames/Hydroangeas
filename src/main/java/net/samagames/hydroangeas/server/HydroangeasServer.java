@@ -35,8 +35,15 @@ public class HydroangeasServer extends Hydroangeas
 
         this.connectionManager = new ServerConnectionManager(this);
 
-        this.redisSubscriber.registerReceiver("global@hydroangeas-server", data -> connectionManager.getPacket(data));
-        this.redisSubscriber.registerReceiver("hubsChannel", data -> new ServerStatusReceiver(this));
+        this.redisSubscriber.registerReceiver("global@hydroangeas-server", data -> {
+            try{
+                connectionManager.getPacket(data);
+            }catch(Exception e)
+            {
+                e.printStackTrace();
+            }
+        });
+        this.redisSubscriber.registerReceiver("serverUpdateChannel", data -> new ServerStatusReceiver(this));
 
         this.queueManager = new QueueManager(this);
 
@@ -53,6 +60,7 @@ public class HydroangeasServer extends Hydroangeas
 
     public void disable()
     {
+        queueManager.disable();
         ModMessage.sendMessage(InstanceType.SERVER, "Arrêt demandé ! Attention, le network ne sera plus géré !");
     }
 

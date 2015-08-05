@@ -33,6 +33,7 @@ public class MinecraftServerS {
     private int port;
 
     private Status status;
+    private int actualSlots;
 
     public MinecraftServerS(HydroClient client, String game, String map)
     {
@@ -157,5 +158,13 @@ public class MinecraftServerS {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public int getActualSlots() {
+        return actualSlots;
+    }
+
+    public void setActualSlots(int actualSlots) {
+        this.actualSlots = actualSlots;
     }
 }

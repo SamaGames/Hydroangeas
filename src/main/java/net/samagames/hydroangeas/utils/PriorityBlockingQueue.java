@@ -133,7 +133,7 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
      */
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
     // Unsafe mechanics
-    private static final sun.misc.Unsafe UNSAFE;
+    /*private static final sun.misc.Unsafe UNSAFE;
     private static final long allocationSpinLockOffset;
 
     static {
@@ -145,7 +145,7 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
         } catch (Exception e) {
             throw new Error(e);
         }
-    }
+    }*/
 
     /**
      * Lock used for all public operations
@@ -383,9 +383,9 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
     private void tryGrow(Object[] array, int oldCap) {
         lock.unlock(); // must release and then re-acquire main lock
         Object[] newArray = null;
-        if (allocationSpinLock == 0 &&
+        if (allocationSpinLock == 0 /*&&
                 UNSAFE.compareAndSwapInt(this, allocationSpinLockOffset,
-                        0, 1)) {
+                        0, 1)*/) {
             try {
                 int newCap = oldCap + ((oldCap < 64) ?
                         (oldCap + 2) : // grow faster if small

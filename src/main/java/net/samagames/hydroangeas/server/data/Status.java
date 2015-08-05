@@ -22,7 +22,7 @@ public enum Status {
 	private final String id;
 	private final boolean allowJoin;
 
-	private Status(String id, boolean allowJoin) {
+	Status(String id, boolean allowJoin) {
 		this.id = id;
 		this.allowJoin = allowJoin;
 	}

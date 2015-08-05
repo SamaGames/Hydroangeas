@@ -2,6 +2,8 @@ package net.samagames.hydroangeas.server.waitingqueue;
 
 import net.samagames.hydroangeas.common.protocol.QueueUpdateFromHub;
 import net.samagames.hydroangeas.server.HydroangeasServer;
+import net.samagames.hydroangeas.utils.ChatColor;
+import net.samagames.hydroangeas.utils.PlayerMessager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,40 +36,57 @@ public class QueueManager {
             instance.getLogger().info("Received queue modify packet with no leader !");
         }else if(packet.getAction().equals(QueueUpdateFromHub.ActionQueue.ADD))
         {
-            Queue queue = getQueueByPlayer(packet.getGroupLeader().getUUID());
-            if(queue != null)
-            {
-                if(!queue.getGame().equals(packet.getGame()) || !queue.getMap().equals(packet.getMap()))
-                {
-                    //Error already in queue
-                    //TODO notify player
-                    return;
-                }
-            }
-            else if(packet.getTypeQueue().equals(QueueUpdateFromHub.TypeQueue.NAMED))
+            Queue queue = null;
+
+            if(packet.getTypeQueue().equals(QueueUpdateFromHub.TypeQueue.NAMED))
             {
                 queue = instance.getQueueManager().getQueueByName(packet.getGame() + "_" + packet.getMap());
-            }else if(packet.getTypeQueue().equals(QueueUpdateFromHub.TypeQueue.RANDOM))
-            {
-                List<Queue> queuesByGame = instance.getQueueManager().getQueuesByGame(packet.getGame());
-                queue = queuesByGame.get(new Random().nextInt(queuesByGame.size()));
+                if(queue == null)
+                {
+                    queue = addQueue(packet.getGame(), packet.getMap());
+                }
+
             }else if(packet.getTypeQueue().equals(QueueUpdateFromHub.TypeQueue.FAST))
             {
                 //TODO select best queue
+            }else
+            {
+                //RANDOM
+                List<Queue> queuesByGame = instance.getQueueManager().getQueuesByGame(packet.getGame());
+                queue = queuesByGame.get(new Random().nextInt(queuesByGame.size()));
             }
+
+            Queue leaderQueue = getQueueByLeader(packet.getGroupLeader().getUUID());
+            if(leaderQueue != null)
+            {
+                if(!leaderQueue.getGame().equals(packet.getGame()) || !leaderQueue.getMap().equals(packet.getMap()))
+                {
+                    //Error already in queue
+                    PlayerMessager.sendMessage(packet.getGroupLeader().getUUID(), ChatColor.RED + "Vous êtes déja dans une queue!");
+                    return;
+                }
+            }
+
 
             QGroup group = queue.getGroupByLeader(packet.getGroupLeader().getUUID());
             if(group == null)
             {
                 queue.addPlayersInNewGroup(packet.getGroupLeader(), packet.getPlayers());
 
-                //TODO notify players
+                for(QPlayer qPlayer : packet.getPlayers())
+                {
+                    PlayerMessager.sendMessage(qPlayer.getUUID(), ChatColor.GREEN + "Vous avez été ajouté à la queue " + ChatColor.RED + queue.getMap());
+                }
             }else{
                 for(QPlayer player : packet.getPlayers())
                 {
+                    if(getQueueByPlayer(player.getUUID()) != null)
+                    {
+                        PlayerMessager.sendMessage(packet.getGroupLeader().getUUID(), ChatColor.RED + "Vous êtes déja dans une queue!");
+                        continue;
+                    }
                     group.addPlayer(player);
-                    //TODO Check if present in an other queue
-                    //TODO notify players
+                    PlayerMessager.sendMessage(player.getUUID(), ChatColor.GREEN + "Vous avez été ajouté à la queue " + ChatColor.RED + queue.getMap());
                 }
             }
         }else if(packet.getAction().equals(QueueUpdateFromHub.ActionQueue.REMOVE))
@@ -85,9 +104,16 @@ public class QueueManager {
             for(QPlayer player : packet.getPlayers())
             {
                 queue.removeQPlayer(player);
+
+                PlayerMessager.sendMessage(player.getUUID(), "Vous avez été retiré de la queue " + queue.getMap());
                 //TODO notify removed from queue
             }
         }
+    }
+
+    public Queue addQueue(String game, String map)
+    {
+        return this.addQueue(game + "_" + map);
     }
 
     public Queue addQueue(String name)
@@ -109,7 +135,13 @@ public class QueueManager {
 
     public boolean removeQueue(Queue queue)
     {
+        queue.remove();
         return queues.remove(queue);
+    }
+
+    public void disable()
+    {
+        queues.forEach(net.samagames.hydroangeas.server.waitingqueue.Queue::remove);
     }
 
     public Queue getQueueByName(String name)
@@ -134,6 +166,18 @@ public class QueueManager {
         for(Queue queue : queues)
         {
             if(queue.containsUUID(player))
+            {
+                return queue;
+            }
+        }
+        return null;
+    }
+
+    public Queue getQueueByLeader(UUID player)
+    {
+        for(Queue queue : queues)
+        {
+            if(queue.containsLeader(player))
             {
                 return queue;
             }

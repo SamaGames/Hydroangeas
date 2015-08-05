@@ -38,7 +38,7 @@ public class TemplateCommand extends AbstractCommand {
             instance.log(Level.INFO, message);
         }else if(args.length >= 1)
         {
-            BasicGameTemplate template = instance.getAlgorithmicMachine().getTemplateByname(args[0]);
+            BasicGameTemplate template = instance.getAlgorithmicMachine().getTemplateByID(args[0]);
             if(template == null)
             {
                 instance.log(Level.INFO, "Template not found!");

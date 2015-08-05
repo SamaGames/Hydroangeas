@@ -32,6 +32,7 @@ public abstract class ConnectionManager {
         packets[7] = new MinecraftServerOrderPacket();
         packets[8] = new MinecraftServerUpdatePacket();
         packets[9] = new MinecraftServerInfoPacket();
+        packets[10] = new QueueUpdateFromHub();
 
         this.hydroangeas = hydroangeas;
 
@@ -57,7 +58,17 @@ public abstract class ConnectionManager {
 
         packet = packet.substring(id.length()+1, packet.length());
 
-        this.handler(Integer.valueOf(id), packet);
+        final String finalPacket = packet;
+        final String finalID = id;
+        final ConnectionManager manager = this;
+        new Thread(() -> {
+            try {
+                manager.handler(Integer.valueOf(finalID), finalPacket);
+            }catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     protected int packetId(AbstractPacket p)

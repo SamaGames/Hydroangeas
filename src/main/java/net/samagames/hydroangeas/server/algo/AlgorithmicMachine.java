@@ -3,6 +3,7 @@ package net.samagames.hydroangeas.server.algo;
 import net.samagames.hydroangeas.common.protocol.MinecraftServerUpdatePacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.HydroClient;
+import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.server.games.BasicGameTemplate;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
@@ -12,18 +13,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class AlgorithmicMachine
 {
     private static final int FREE_SPACE = 5;
     private final HydroangeasServer instance;
-    private HashMap<String, BasicGameTemplate> templates = new HashMap<>();
+    private List<BasicGameTemplate> templates = new ArrayList<>();
 
     public AlgorithmicMachine(HydroangeasServer instance)
     {
         this.instance = instance;
 
-        templates.put("quake", new BasicGameTemplate("quake", "quake", "babylon", 2, 10, new HashMap<>()));
+        templates.add(new BasicGameTemplate("quake_babylon", "quake", "babylon", 0, 0, new HashMap<>()));
     }
 
     public void startMachinery()
@@ -47,17 +49,28 @@ public class AlgorithmicMachine
         return null;
     }
 
-    public boolean orderTemplate(BasicGameTemplate template)
+    public MinecraftServerS orderBasic(String game, String map)
+    {
+        BasicGameTemplate template = getTemplateByGameAndMap(game, map);
+        if(template == null)
+        {
+            instance.getLogger().warning("Error template " + game + " " + map + " doesn't exist!");
+            return null;
+        }
+        return orderTemplate(template);
+    }
+
+    public MinecraftServerS orderTemplate(BasicGameTemplate template)
     {
         HydroClient client = selectGoodHydroClient(template);
 
         if(client == null)
         {
             instance.log(Level.SEVERE, "Major error ! No Hydroclient available !");
-            return false;
+            return null;
         }
 
-        client.getServerManager().addServer(
+        MinecraftServerS server = client.getServerManager().addServer(
                 template.getGameName(),
                 template.getMapName(),
                 template.getMinSlot(),
@@ -66,7 +79,12 @@ public class AlgorithmicMachine
                 template.isCoupaing(),
                 template.getId());
         instance.log(Level.INFO, template.toString() + " created on " + client.getIp());
-        return true;
+        return server;
+    }
+
+    public MinecraftServerS getServerFor(BasicGameTemplate template)
+    {
+        return null;
     }
 
     public void onServerUpdate(MinecraftServerUpdatePacket serverStatus)
@@ -86,19 +104,47 @@ public class AlgorithmicMachine
         }
     }
 
-    public BasicGameTemplate getTemplateByname(String name)
+    public BasicGameTemplate getTemplateByID(String id)
     {
-        return templates.get(name);
+        for(BasicGameTemplate template : templates)
+        {
+            if(template.getId().equals(id))
+            {
+                return template;
+            }
+        }
+        return null;
     }
 
-    public HashMap<String, BasicGameTemplate> getTemplates() {
+    public BasicGameTemplate getTemplateByGameAndMap(String game, String map)
+    {
+        for(BasicGameTemplate template : templates)
+        {
+            if(template.getGameName().equals(game) && template.getMapName().equals(map))
+            {
+                return template;
+            }
+        }
+        return null;
+    }
+
+    public List<BasicGameTemplate> getTemplatesByGame(String game)
+    {
+        return templates.stream().filter(template -> template.getGameName().equals(game)).collect(Collectors.toList());
+    }
+
+    public List<BasicGameTemplate> getTemplates()
+    {
         return templates;
     }
 
     public List<String> getListTemplate()
     {
         ArrayList<String> tmp = new ArrayList<>();
-        tmp.addAll(templates.keySet());
+        for(BasicGameTemplate template : templates)
+        {
+            tmp.add(template.getId());
+        }
         return tmp;
     }
 }

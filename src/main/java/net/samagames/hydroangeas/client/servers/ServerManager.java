@@ -23,26 +23,34 @@ public class ServerManager
 
     public void newServer(MinecraftServerOrderPacket serverInfos)
     {
-        int port = getAvailablePort();
-        MinecraftServerC server = new MinecraftServerC(this.instance, serverInfos, port);
+        try{
+            int port = getAvailablePort();
+            MinecraftServerC server = new MinecraftServerC(this.instance, serverInfos, port);
 
-        if(!server.makeServer())
+            instance.getLogger().info("Server creation !");
+
+            if(!server.makeServer())
+            {
+                instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), serverInfos.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
+                return;
+            }
+            if(!server.startServer())
+            {
+                instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), serverInfos.getServerName(), MinecraftServerIssuePacket.Type.START));
+                return;
+            }
+            this.servers.add(server);
+
+            this.instance.log(Level.INFO, "New server started -> Game (" + serverInfos.getGame() + ") & Map (" + serverInfos.getMap() + ")");
+
+            instance.getConnectionManager().sendPacket(new MinecraftServerUpdatePacket(instance, server.getServerName(), MinecraftServerUpdatePacket.UType.START));
+            //Complete data of the server
+            instance.getConnectionManager().sendPacket(new MinecraftServerInfoPacket(instance, server));
+        }catch(Exception e)
         {
+            e.printStackTrace();
             instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), serverInfos.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
-            return;
         }
-        if(!server.startServer())
-        {
-            instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), serverInfos.getServerName(), MinecraftServerIssuePacket.Type.START));
-            return;
-        }
-        this.servers.add(server);
-
-        this.instance.log(Level.INFO, "New server started -> Game (" + serverInfos.getGame() + ") & Map (" + serverInfos.getMap() + ")");
-
-        instance.getConnectionManager().sendPacket(new MinecraftServerUpdatePacket(instance, server.getServerName(), MinecraftServerUpdatePacket.UType.START));
-        //Complete data of the server
-        instance.getConnectionManager().sendPacket(new MinecraftServerInfoPacket(instance, server));
     }
 
     public void stopAll()

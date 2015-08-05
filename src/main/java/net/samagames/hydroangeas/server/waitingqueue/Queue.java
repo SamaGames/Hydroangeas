@@ -1,11 +1,16 @@
 package net.samagames.hydroangeas.server.waitingqueue;
 
+import net.samagames.hydroangeas.Hydroangeas;
+import net.samagames.hydroangeas.server.client.MinecraftServerS;
+import net.samagames.hydroangeas.server.data.Status;
+import net.samagames.hydroangeas.server.games.BasicGameTemplate;
 import net.samagames.hydroangeas.utils.PriorityBlockingQueue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
@@ -23,6 +28,11 @@ public class Queue {
 
     private PriorityBlockingQueue<QGroup> queue;
 
+    private CopyOnWriteArrayList<MinecraftServerS> waitingServers;
+
+    private Thread worker;
+    private boolean working = true;
+
     public Queue(QueueManager manager, String name)
     {
         this(manager, name.split("_")[0], name.split("_")[1]);
@@ -34,8 +44,58 @@ public class Queue {
         this.game = game;
         this.map = map;
 
+        this.waitingServers = new CopyOnWriteArrayList<>();
+
         //Si priority plus grande alors tu passe devant.
-        this.queue = new PriorityBlockingQueue<>(Integer.MAX_VALUE, (o1, o2) -> -Integer.compare(o1.getPriority(), o2.getPriority()));
+        this.queue = new PriorityBlockingQueue<>(10000, (o1, o2) -> -Integer.compare(o1.getPriority(), o2.getPriority()));
+
+        worker = new Thread(() -> {
+            while (working)
+            {
+                BasicGameTemplate template = getTemplate();
+                if(template == null)
+                {
+                    Hydroangeas.getInstance().getLogger().info("Template null!");
+                    continue;
+                }
+
+                for(MinecraftServerS serverS : waitingServers)
+                {
+                    if(serverS.getStatus().isAllowJoin())
+                    {
+                        List<QGroup> groups = new ArrayList<>();
+                        queue.drainTo(groups, serverS.getMaxSlot());
+                        for(QGroup group : groups)
+                        {
+                            group.sendTo(serverS.getServerName());
+                        }
+                    }
+                    if(serverS.getStatus().equals(Status.IN_GAME) || serverS.getActualSlots() >= serverS.getMaxSlot() * 0.90)
+                    {
+                        waitingServers.remove(serverS);
+                    }
+                }
+
+                if(waitingServers.size() <= 0 && queue.size() >= template.getMaxSlot() * 0.7)
+                {
+                    MinecraftServerS serverS = Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
+                    waitingServers.add(serverS);
+                }
+
+                try {
+                    Thread.sleep(500L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, game + map + " Worker");
+        worker.start();
+    }
+
+    public void remove()
+    {
+        working = false;
+        worker.interrupt();
     }
 
     public boolean addPlayersInNewGroup(QPlayer leader, List<QPlayer> players)
@@ -98,11 +158,13 @@ public class Queue {
 
     public QGroup getGroupByLeader(UUID leader)
     {
-        for(QGroup group : queue)
+        for(QGroup qGroup : queue)
         {
-            if(group.getLeader().getUUID().equals(leader))
+            if(qGroup == null)
+                continue;
+            if(qGroup.getLeader().getUUID().equals(leader))
             {
-                return group;
+                return qGroup;
             }
         }
         return null;
@@ -110,11 +172,13 @@ public class Queue {
 
     public QGroup getGroupByPlayer(UUID player)
     {
-        for(QGroup group : queue)
+        for(QGroup qGroup : queue)
         {
-            if(group.contains(player))
+            if(qGroup == null)
+                continue;
+            if(qGroup.contains(player))
             {
-                return group;
+                return qGroup;
             }
         }
         return null;
@@ -125,6 +189,8 @@ public class Queue {
         int i = 0;
         for (QGroup qGroup : queue)
         {
+            if(qGroup == null)
+                continue;
             if (qGroup.contains(uuid))
             {
                 break;
@@ -146,7 +212,23 @@ public class Queue {
     {
         for(QGroup qGroup : queue)
         {
+            if(qGroup == null)
+                continue;
             if(qGroup.contains(uuid))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean containsLeader(UUID uuid)
+    {
+        for(QGroup qGroup : queue)
+        {
+            if(qGroup == null)
+                continue;
+            if(qGroup.getLeader().getUUID().equals(uuid))
             {
                 return true;
             }
@@ -175,5 +257,10 @@ public class Queue {
 
     public String getMap() {
         return map;
+    }
+
+    public BasicGameTemplate getTemplate()
+    {
+        return Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().getTemplateByGameAndMap(game, map);
     }
 }

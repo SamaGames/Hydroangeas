@@ -1,5 +1,7 @@
 package net.samagames.hydroangeas.server.waitingqueue;
 
+import net.samagames.hydroangeas.common.samapi.GameConnector;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -127,5 +129,13 @@ public class QGroup {
 
     public QPlayer getLeader() {
         return leader;
+    }
+
+    public void sendTo(String serverName)
+    {
+        for(QPlayer player : players)
+        {
+            GameConnector.sendPlayerToServer(serverName, player.getUUID());
+        }
     }
 }
