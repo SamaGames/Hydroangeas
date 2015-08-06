@@ -52,6 +52,9 @@ public class QueueManager {
             }else if(packet.getTypeQueue().equals(QueueUpdateFromHub.TypeQueue.FAST))
             {
                 //TODO select best queue
+            }else if(packet.getTypeQueue().equals(QueueUpdateFromHub.TypeQueue.PARTY))
+            {
+                //on fait rien
             }else
             {
                 //RANDOM
@@ -68,27 +71,29 @@ public class QueueManager {
                     leaderQueue.removeQPlayer(packet.getGroupLeader());
                     PlayerMessager.sendMessage(packet.getGroupLeader().getUUID(), ChatColor.YELLOW + "Vous quittez la queue " + leaderQueue.getName());
                     //PlayerMessager.sendMessage(packet.getGroupLeader().getUUID(), ChatColor.RED + "Vous êtes déja dans une queue!");
+                    if(queue != null)
+                    {
+                        addPlayerToQueue(queue, packet.getGroupLeader(), packet.getPlayers());
+                    }
                     return;
+                }else{
+                    queue = leaderQueue;
                 }
             }
-
 
             QGroup group = queue.getGroupByLeader(packet.getGroupLeader().getUUID());
             if(group == null)
             {
-                queue.addPlayersInNewGroup(packet.getGroupLeader(), packet.getPlayers());
-
-                for(QPlayer qPlayer : packet.getPlayers())
-                {
-                    PlayerMessager.sendMessage(qPlayer.getUUID(), ChatColor.GREEN + "Vous avez été ajouté à la queue " + ChatColor.RED + queue.getMap());
-                }
+                addPlayerToQueue(queue, packet.getGroupLeader(), packet.getPlayers());
             }else{
                 for(QPlayer player : packet.getPlayers())
                 {
-                    if(getQueueByPlayer(player.getUUID()) != null)
+                    Queue queue1 = null;
+                    if((queue1 = getQueueByPlayer(player.getUUID())) != null)
                     {
-                        PlayerMessager.sendMessage(packet.getGroupLeader().getUUID(), ChatColor.RED + "Vous êtes déja dans une queue!");
-                        continue;
+                        queue1.removeQPlayer(player);
+                        //PlayerMessager.sendMessage(packet.getGroupLeader().getUUID(), ChatColor.RED + "Vous êtes déja dans une queue!");
+                        //continue;
                     }
                     group.addPlayer(player);
                     PlayerMessager.sendMessage(player.getUUID(), ChatColor.GREEN + "Vous avez été ajouté à la queue " + ChatColor.RED + queue.getMap());
@@ -120,6 +125,21 @@ public class QueueManager {
     {
         return this.addQueue(game + "_" + map);
     }*/
+
+    public void addPlayerToQueue(Queue queue, QPlayer leader, List<QPlayer> players)
+    {
+        queue.addPlayersInNewGroup(leader, players);
+
+        for(QPlayer qPlayer : players)
+        {
+            PlayerMessager.sendMessage(qPlayer.getUUID(), ChatColor.GREEN + "Vous avez été ajouté à la queue " + ChatColor.RED + queue.getMap());
+        }
+    }
+
+    public void removePlayerFromQueue(Queue queue, QPlayer leader, List<QPlayer> players)
+    {
+        //TODO just do it !!!!!
+    }
 
     public Queue addQueue(BasicGameTemplate template)
     {

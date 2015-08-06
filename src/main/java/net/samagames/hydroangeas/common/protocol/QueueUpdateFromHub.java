@@ -70,5 +70,5 @@ public class QueueUpdateFromHub extends AbstractPacket
     }
 
     public enum ActionQueue{ADD, REMOVE}
-    public enum TypeQueue{NAMED, RANDOM, FAST}
+    public enum TypeQueue{NAMED, RANDOM, FAST, PARTY}
 }
