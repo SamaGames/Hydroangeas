@@ -1,10 +1,10 @@
 package net.samagames.hydroangeas.common.protocol;
 
+import com.google.gson.JsonElement;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
 
-import java.util.HashMap;
 import java.util.UUID;
 
 /**
@@ -27,7 +27,7 @@ public class MinecraftServerInfoPacket extends AbstractPacket {
     private String map;
     private int minSlot;
     private int maxSlot;
-    private HashMap<String, String> options = new HashMap<>();
+    private JsonElement options;
 
     private int weight;
 
@@ -49,7 +49,7 @@ public class MinecraftServerInfoPacket extends AbstractPacket {
                 server.getWeight());
     }
 
-    public MinecraftServerInfoPacket(UUID uuid, String serverName, UUID serverUUID, String game, String map, int minSlot, int maxSlot, boolean coupaingServer, HashMap<String, String> options, int port, int weight) {
+    public MinecraftServerInfoPacket(UUID uuid, String serverName, UUID serverUUID, String game, String map, int minSlot, int maxSlot, boolean coupaingServer, JsonElement options, int port, int weight) {
         this.uuid = uuid;
         this.serverName = serverName;
         this.serverUUID = serverUUID;
@@ -61,7 +61,7 @@ public class MinecraftServerInfoPacket extends AbstractPacket {
         this.port = port;
         this.weight = weight;
 
-        this.options.putAll(options);
+        this.options = options;
     }
 
     public UUID getUUID() {
@@ -88,7 +88,7 @@ public class MinecraftServerInfoPacket extends AbstractPacket {
         return maxSlot;
     }
 
-    public HashMap<String, String> getOptions() {
+    public JsonElement getOptions() {
         return options;
     }
 

@@ -1,9 +1,9 @@
 package net.samagames.hydroangeas.common.protocol;
 
+import com.google.gson.JsonElement;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 
-import java.util.HashMap;
 import java.util.UUID;
 
 /**
@@ -25,14 +25,14 @@ public class MinecraftServerOrderPacket extends AbstractPacket{
 
     private boolean isCoupaing = true;
 
-    private HashMap<String, String> options;
+    private JsonElement options;
 
     public MinecraftServerOrderPacket(MinecraftServerS server)
     {
         this(server.getUUID(), server.getGame(), server.getMap(), server.getMinSlot(), server.getMaxSlot(), server.getOptions());
     }
 
-    public MinecraftServerOrderPacket(UUID uuid, String game, String map, int minSlot, int maxSlot, HashMap<String, String> options)
+    public MinecraftServerOrderPacket(UUID uuid, String game, String map, int minSlot, int maxSlot, JsonElement options)
     {
         this.uuid = uuid;
         this.game = game;
@@ -76,7 +76,7 @@ public class MinecraftServerOrderPacket extends AbstractPacket{
         return this.maxSlot;
     }
 
-    public HashMap<String, String> getOptions()
+    public JsonElement getOptions()
     {
         return this.options;
     }

@@ -1,9 +1,12 @@
 package net.samagames.hydroangeas.utils;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.security.CodeSource;
 
 public class MiscUtils
 {
@@ -48,6 +51,28 @@ public class MiscUtils
         {
             return new File(url.getPath());
         }
+    }
+
+    public static String getApplicationDirectory()
+    {
+        String jarDir = null;
+
+        try
+        {
+            CodeSource codeSource = MiscUtils.class.getProtectionDomain().getCodeSource();
+            File jarFile = new File(URLDecoder.decode(codeSource.getLocation().toURI().getPath(), "UTF-8"));
+            jarDir = jarFile.getParentFile().getPath();
+        }
+        catch (URISyntaxException ex)
+        {
+            ex.printStackTrace();
+        }
+        catch (UnsupportedEncodingException ex)
+        {
+            ex.printStackTrace();
+        }
+
+        return jarDir + "/";
     }
 
     public static int calculServerWeight(String game, int maxSlot, boolean isCoupaing)

@@ -1,8 +1,8 @@
 package net.samagames.hydroangeas.server.games;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.samagames.hydroangeas.utils.MiscUtils;
-
-import java.util.HashMap;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
@@ -19,17 +19,32 @@ public class BasicGameTemplate {
     private String mapName;
     private int minSlot;
     private int maxSlot;
-    private HashMap<String, String> options;
+    private JsonElement options;
     private boolean isCoupaing;
 
     private int weight;
 
-    public BasicGameTemplate(String id, String gameName, String mapName, int minSlot, int maxSlot, HashMap<String, String> options)
+    public BasicGameTemplate(String id, JsonElement data)
+    {
+
+        JsonObject formated = data.getAsJsonObject();
+        this.id = id;
+        this.gameName = formated.get("game-name").getAsString();
+        this.mapName = formated.get("map-name").getAsString();
+        this.minSlot = formated.get("min-slots").getAsInt();
+        this.maxSlot = formated.get("max-slots").getAsInt();
+        this.options = formated.get("options");
+        this.isCoupaing = formated.get("isCoupaing").getAsBoolean();
+
+        calculateWeight();
+    }
+
+    public BasicGameTemplate(String id, String gameName, String mapName, int minSlot, int maxSlot, JsonElement options)
     {
         this(id, gameName, mapName, minSlot, maxSlot, options, false);
     }
 
-    public BasicGameTemplate(String id, String gameName, String mapName, int minSlot, int maxSlot, HashMap<String, String> options, boolean isCoupaing)
+    public BasicGameTemplate(String id, String gameName, String mapName, int minSlot, int maxSlot, JsonElement options, boolean isCoupaing)
     {
 
         this.id = id;
@@ -79,11 +94,11 @@ public class BasicGameTemplate {
         this.maxSlot = maxSlot;
     }
 
-    public HashMap<String, String> getOptions() {
+    public JsonElement getOptions() {
         return options;
     }
 
-    public void setOptions(HashMap<String, String> options) {
+    public void setOptions(JsonElement options) {
         this.options = options;
     }
 

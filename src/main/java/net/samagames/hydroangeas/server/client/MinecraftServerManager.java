@@ -1,5 +1,6 @@
 package net.samagames.hydroangeas.server.client;
 
+import com.google.gson.JsonElement;
 import net.samagames.hydroangeas.common.protocol.AskForClientActionPacket;
 import net.samagames.hydroangeas.common.protocol.MinecraftServerInfoPacket;
 import net.samagames.hydroangeas.common.protocol.MinecraftServerOrderPacket;
@@ -7,7 +8,6 @@ import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.utils.MiscUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,7 +31,7 @@ public class MinecraftServerManager {
         this.client = client;
     }
 
-    public MinecraftServerS addServer(String game, String map, int minSlot, int maxSlot, HashMap<String, String> options, boolean isCoupaing, String templateID)
+    public MinecraftServerS addServer(String game, String map, int minSlot, int maxSlot, JsonElement options, boolean isCoupaing, String templateID)
     {
         MinecraftServerS server = new MinecraftServerS(client, game, map, minSlot, maxSlot, options);
         server.setTemplateID(templateID);

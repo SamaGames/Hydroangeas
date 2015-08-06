@@ -103,7 +103,7 @@ public abstract class Hydroangeas
 
         disable();
 
-        scheduler.shutdownNow();
+        scheduler.shutdown();
 
         this.redisSubscriber.disable();
     }

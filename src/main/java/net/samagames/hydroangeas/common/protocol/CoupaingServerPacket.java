@@ -1,8 +1,7 @@
 package net.samagames.hydroangeas.common.protocol;
 
+import com.google.gson.JsonElement;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
-
-import java.util.HashMap;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
@@ -20,7 +19,7 @@ public class CoupaingServerPacket extends AbstractPacket{
     private int minSlot;
     private int maxSlot;
 
-    private HashMap<String, String> options;
+    private JsonElement options;
 
     public CoupaingServerPacket()
     {
@@ -43,7 +42,7 @@ public class CoupaingServerPacket extends AbstractPacket{
         return maxSlot;
     }
 
-    public HashMap<String, String> getOptions() {
+    public JsonElement getOptions() {
         return options;
     }
 }

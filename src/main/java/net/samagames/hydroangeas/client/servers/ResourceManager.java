@@ -12,7 +12,6 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 import java.net.URL;
-import java.util.HashMap;
 
 public class ResourceManager
 {
@@ -134,26 +133,22 @@ public class ResourceManager
             this.instance.getLinuxBridge().sed("%serverIp%", InternetUtils.getExternalIp(), new File(serverPath, "server.properties").getAbsolutePath());
             this.instance.getLinuxBridge().sed("%serverName%", server.getServerName(), new File(serverPath, "scripts.txt").getAbsolutePath());
 
-            if(isCoupaingServer)
-            {
-                File coupaingFile = new File(serverPath, "plugins/coupaing.json");
-                coupaingFile.createNewFile();
+            File coupaingFile = new File(serverPath, "game.json");
+            coupaingFile.createNewFile();
 
-                JsonObject rootJson = new JsonObject();
-                rootJson.addProperty("min-slot", server.getMinSlot());
-                rootJson.addProperty("max-slot", server.getMaxSlot());
+            JsonObject rootJson = new JsonObject();
+            rootJson.addProperty("map-name", server.getMap());
+            rootJson.addProperty("min-slots", server.getMinSlot());
+            rootJson.addProperty("max-slots", server.getMaxSlot());
 
-                HashMap<String, String> options = server.getOptions();
+            rootJson.add("options", server.getOptions());
 
-                for(String key : options.keySet())
-                    rootJson.addProperty(key, options.get(key));
 
-                FileOutputStream fOut = new FileOutputStream(coupaingFile);
-                OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
-                myOutWriter.append(new Gson().toJson(rootJson));
-                myOutWriter.close();
-                fOut.close();
-            }
+            FileOutputStream fOut = new FileOutputStream(coupaingFile);
+            OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
+            myOutWriter.append(new Gson().toJson(rootJson));
+            myOutWriter.close();
+            fOut.close();
         }
         catch (Exception e)
         {

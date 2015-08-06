@@ -92,5 +92,6 @@ public class ServerThread extends Thread {
     {
         normalStop();
         server.destroy();
+        errorThread.interrupt();
     }
 }

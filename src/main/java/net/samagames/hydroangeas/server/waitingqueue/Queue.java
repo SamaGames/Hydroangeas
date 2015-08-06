@@ -33,16 +33,19 @@ public class Queue {
     private Thread worker;
     private boolean working = true;
 
-    public Queue(QueueManager manager, String name)
+    private BasicGameTemplate template;
+
+    /*public Queue(QueueManager manager, String name)
     {
         this(manager, name.split("_")[0], name.split("_")[1]);
-    }
+    }*/
 
-    public Queue(QueueManager manager, String game, String map)
+    public Queue(QueueManager manager, BasicGameTemplate template)
     {
         this.manager = manager;
-        this.game = game;
-        this.map = map;
+        this.template = template;
+        this.game = template.getGameName();
+        this.map = template.getMapName();
 
         this.waitingServers = new CopyOnWriteArrayList<>();
 
@@ -52,11 +55,10 @@ public class Queue {
         worker = new Thread(() -> {
             while (working)
             {
-                BasicGameTemplate template = getTemplate();
                 if(template == null)
                 {
                     Hydroangeas.getInstance().getLogger().info("Template null!");
-                    continue;
+                    return;
                 }
 
                 for(MinecraftServerS serverS : waitingServers)
@@ -261,6 +263,6 @@ public class Queue {
 
     public BasicGameTemplate getTemplate()
     {
-        return Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().getTemplateByGameAndMap(game, map);
+        return Hydroangeas.getInstance().getAsServer().getTemplateManager().getTemplateByGameAndMap(game, map);
     }
 }

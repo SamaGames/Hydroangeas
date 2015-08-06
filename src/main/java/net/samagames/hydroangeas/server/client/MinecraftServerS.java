@@ -1,9 +1,10 @@
 package net.samagames.hydroangeas.server.client;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import net.samagames.hydroangeas.common.protocol.AskForClientActionPacket;
 import net.samagames.hydroangeas.server.data.Status;
 
-import java.util.HashMap;
 import java.util.UUID;
 
 /**
@@ -22,7 +23,7 @@ public class MinecraftServerS {
     private String map;
     private int minSlot;
     private int maxSlot;
-    private HashMap<String, String> options;
+    private JsonElement options;
 
     private boolean started;
 
@@ -32,20 +33,20 @@ public class MinecraftServerS {
 
     private int port;
 
-    private Status status;
+    private Status status = Status.REBOOTING;
     private int actualSlots;
 
     public MinecraftServerS(HydroClient client, String game, String map)
     {
-        this(client, game, map, 0, 0, new HashMap<>());
+        this(client, game, map, 0, 0, new JsonPrimitive(""));
     }
 
-    public MinecraftServerS(HydroClient client, String game, String map, int minSlot, int maxSlot, HashMap<String, String> options)
+    public MinecraftServerS(HydroClient client, String game, String map, int minSlot, int maxSlot, JsonElement options)
     {
         this(client, UUID.randomUUID(), game, map, minSlot, maxSlot, options);
     }
 
-    public MinecraftServerS(HydroClient client, UUID uuid, String game, String map, int minSlot, int maxSlot, HashMap<String, String> options)
+    public MinecraftServerS(HydroClient client, UUID uuid, String game, String map, int minSlot, int maxSlot, JsonElement options)
     {
         this.client = client;
         this.uuid = uuid;
@@ -104,7 +105,7 @@ public class MinecraftServerS {
         return this.maxSlot;
     }
 
-    public HashMap<String, String> getOptions()
+    public JsonElement getOptions()
     {
         return this.options;
     }

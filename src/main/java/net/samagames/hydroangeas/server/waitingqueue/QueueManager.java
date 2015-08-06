@@ -2,6 +2,7 @@ package net.samagames.hydroangeas.server.waitingqueue;
 
 import net.samagames.hydroangeas.common.protocol.QueueUpdateFromHub;
 import net.samagames.hydroangeas.server.HydroangeasServer;
+import net.samagames.hydroangeas.server.games.BasicGameTemplate;
 import net.samagames.hydroangeas.utils.ChatColor;
 import net.samagames.hydroangeas.utils.PlayerMessager;
 
@@ -43,7 +44,9 @@ public class QueueManager {
                 queue = instance.getQueueManager().getQueueByName(packet.getGame() + "_" + packet.getMap());
                 if(queue == null)
                 {
-                    queue = addQueue(packet.getGame(), packet.getMap());
+                    //error no queue
+                    PlayerMessager.sendMessage(packet.getGroupLeader().getUUID(), ChatColor.RED + "Aucun template disponible pour ce jeu!");
+                    return;
                 }
 
             }else if(packet.getTypeQueue().equals(QueueUpdateFromHub.TypeQueue.FAST))
@@ -62,7 +65,9 @@ public class QueueManager {
                 if(!leaderQueue.getGame().equals(packet.getGame()) || !leaderQueue.getMap().equals(packet.getMap()))
                 {
                     //Error already in queue
-                    PlayerMessager.sendMessage(packet.getGroupLeader().getUUID(), ChatColor.RED + "Vous êtes déja dans une queue!");
+                    leaderQueue.removeQPlayer(packet.getGroupLeader());
+                    PlayerMessager.sendMessage(packet.getGroupLeader().getUUID(), ChatColor.YELLOW + "Vous quittez la queue " + leaderQueue.getName());
+                    //PlayerMessager.sendMessage(packet.getGroupLeader().getUUID(), ChatColor.RED + "Vous êtes déja dans une queue!");
                     return;
                 }
             }
@@ -111,14 +116,14 @@ public class QueueManager {
         }
     }
 
-    public Queue addQueue(String game, String map)
+    /*public Queue addQueue(String game, String map)
     {
         return this.addQueue(game + "_" + map);
-    }
+    }*/
 
-    public Queue addQueue(String name)
+    public Queue addQueue(BasicGameTemplate template)
     {
-        Queue queue = new Queue(this, name);
+        Queue queue = new Queue(this, template);
         queues.add(queue);
         return queue;
     }
@@ -148,7 +153,7 @@ public class QueueManager {
     {
         for(Queue queue : queues)
         {
-            if(queue.getName().equals(name))
+            if(queue.getName().equalsIgnoreCase(name))
             {
                 return queue;
             }
@@ -158,7 +163,7 @@ public class QueueManager {
 
     public List<Queue> getQueuesByGame(String game)
     {
-        return queues.stream().filter(queue -> queue.getGame().equals(game)).collect(Collectors.toList());
+        return queues.stream().filter(queue -> queue.getGame().equalsIgnoreCase(game)).collect(Collectors.toList());
     }
 
     public Queue getQueueByPlayer(UUID player)

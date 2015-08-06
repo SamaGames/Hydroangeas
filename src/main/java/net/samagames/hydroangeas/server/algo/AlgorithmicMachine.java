@@ -8,24 +8,17 @@ import net.samagames.hydroangeas.server.games.BasicGameTemplate;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.TreeSet;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 public class AlgorithmicMachine
 {
     private static final int FREE_SPACE = 5;
     private final HydroangeasServer instance;
-    private List<BasicGameTemplate> templates = new ArrayList<>();
 
     public AlgorithmicMachine(HydroangeasServer instance)
     {
         this.instance = instance;
-
-        templates.add(new BasicGameTemplate("quake_babylon", "quake", "babylon", 0, 0, new HashMap<>()));
     }
 
     public void startMachinery()
@@ -51,7 +44,7 @@ public class AlgorithmicMachine
 
     public MinecraftServerS orderBasic(String game, String map)
     {
-        BasicGameTemplate template = getTemplateByGameAndMap(game, map);
+        BasicGameTemplate template = instance.getTemplateManager().getTemplateByGameAndMap(game, map);
         if(template == null)
         {
             instance.getLogger().warning("Error template " + game + " " + map + " doesn't exist!");
@@ -102,49 +95,5 @@ public class AlgorithmicMachine
 
             instance.log(Level.INFO, "Server ended on " + client.getIp() + " servername: " + serverStatus.getServerName());
         }
-    }
-
-    public BasicGameTemplate getTemplateByID(String id)
-    {
-        for(BasicGameTemplate template : templates)
-        {
-            if(template.getId().equals(id))
-            {
-                return template;
-            }
-        }
-        return null;
-    }
-
-    public BasicGameTemplate getTemplateByGameAndMap(String game, String map)
-    {
-        for(BasicGameTemplate template : templates)
-        {
-            if(template.getGameName().equals(game) && template.getMapName().equals(map))
-            {
-                return template;
-            }
-        }
-        return null;
-    }
-
-    public List<BasicGameTemplate> getTemplatesByGame(String game)
-    {
-        return templates.stream().filter(template -> template.getGameName().equals(game)).collect(Collectors.toList());
-    }
-
-    public List<BasicGameTemplate> getTemplates()
-    {
-        return templates;
-    }
-
-    public List<String> getListTemplate()
-    {
-        ArrayList<String> tmp = new ArrayList<>();
-        for(BasicGameTemplate template : templates)
-        {
-            tmp.add(template.getId());
-        }
-        return tmp;
     }
 }

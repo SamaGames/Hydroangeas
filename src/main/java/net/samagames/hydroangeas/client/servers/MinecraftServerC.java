@@ -1,12 +1,12 @@
 package net.samagames.hydroangeas.client.servers;
 
+import com.google.gson.JsonElement;
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.tasks.ServerThread;
 import net.samagames.hydroangeas.common.protocol.MinecraftServerOrderPacket;
 import net.samagames.hydroangeas.utils.MiscUtils;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -21,7 +21,7 @@ public class MinecraftServerC
     private String map;
     private int minSlot;
     private int maxSlot;
-    private HashMap<String, String> options = new HashMap<>();
+    private JsonElement options;
     private int port;
 
     private int weight;
@@ -40,7 +40,7 @@ public class MinecraftServerC
         this.minSlot = serverInfos.getMinSlot();
         this.maxSlot = serverInfos.getMaxSlot();
 
-        this.options.putAll(serverInfos.getOptions());
+        options = serverInfos.getOptions();
 
         this.serverFolder = new File(this.instance.getServerFolder(), serverInfos.getServerName());
         this.port = port;
@@ -172,7 +172,7 @@ public class MinecraftServerC
         return this.maxSlot;
     }
 
-    public HashMap<String, String> getOptions()
+    public JsonElement getOptions()
     {
         return this.options;
     }

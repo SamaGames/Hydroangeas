@@ -3,6 +3,7 @@ package net.samagames.hydroangeas.server;
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.server.algo.AlgorithmicMachine;
+import net.samagames.hydroangeas.server.algo.TemplateManager;
 import net.samagames.hydroangeas.server.client.ClientManager;
 import net.samagames.hydroangeas.server.commands.ServerCommandManager;
 import net.samagames.hydroangeas.server.connection.ServerConnectionManager;
@@ -21,6 +22,8 @@ public class HydroangeasServer extends Hydroangeas
     public ServerConnectionManager connectionManager;
     private ClientManager clientManager;
     private AlgorithmicMachine algorithmicMachine;
+
+    private TemplateManager templateManager;
 
     private QueueManager queueManager;
 
@@ -43,9 +46,12 @@ public class HydroangeasServer extends Hydroangeas
                 e.printStackTrace();
             }
         });
-        this.redisSubscriber.registerReceiver("serverUpdateChannel", data -> new ServerStatusReceiver(this));
+        this.redisSubscriber.registerReceiver("serverUpdateChannel", new ServerStatusReceiver(this));
+        this.redisSubscriber.registerReceiver("hubsChannel", new ServerStatusReceiver(this));
 
         this.queueManager = new QueueManager(this);
+
+        this.templateManager = new TemplateManager(this);
 
         this.clientManager = new ClientManager(this);
         this.algorithmicMachine = new AlgorithmicMachine(this);
@@ -86,5 +92,9 @@ public class HydroangeasServer extends Hydroangeas
 
     public QueueManager getQueueManager() {
         return queueManager;
+    }
+
+    public TemplateManager getTemplateManager() {
+        return templateManager;
     }
 }
