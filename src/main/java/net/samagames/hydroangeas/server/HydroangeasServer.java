@@ -49,12 +49,13 @@ public class HydroangeasServer extends Hydroangeas
         this.redisSubscriber.registerReceiver("serverUpdateChannel", new ServerStatusReceiver(this));
         this.redisSubscriber.registerReceiver("hubsChannel", new ServerStatusReceiver(this));
 
+        this.clientManager = new ClientManager(this);
+
+        this.algorithmicMachine = new AlgorithmicMachine(this);
+
         this.queueManager = new QueueManager(this);
 
         this.templateManager = new TemplateManager(this);
-
-        this.clientManager = new ClientManager(this);
-        this.algorithmicMachine = new AlgorithmicMachine(this);
 
         this.commandManager = new ServerCommandManager(this);
 

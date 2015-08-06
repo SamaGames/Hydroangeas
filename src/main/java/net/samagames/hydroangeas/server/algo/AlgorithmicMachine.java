@@ -4,10 +4,13 @@ import net.samagames.hydroangeas.common.protocol.MinecraftServerUpdatePacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.HydroClient;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
+import net.samagames.hydroangeas.server.data.Status;
 import net.samagames.hydroangeas.server.games.BasicGameTemplate;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.logging.Level;
 
@@ -95,5 +98,21 @@ public class AlgorithmicMachine
 
             instance.log(Level.INFO, "Server ended on " + client.getIp() + " servername: " + serverStatus.getServerName());
         }
+    }
+
+    public List<MinecraftServerS> getServerByTemplatesAndAvailable(String templateID)
+    {
+        List<MinecraftServerS> servers = new ArrayList<>();
+        for(HydroClient client : instance.getClientManager().getClients())
+        {
+            for (MinecraftServerS server : client.getServerManager().getServers())
+            {
+                if(server.getTemplateID().equalsIgnoreCase(templateID) && (server.getStatus().isAllowJoin() || server.getStatus().equals(Status.STARTING)) && server.getActualSlots() < server.getMaxSlot() * 0.90)
+                {
+                    servers.add(server);
+                }
+            }
+        }
+        return servers;
     }
 }

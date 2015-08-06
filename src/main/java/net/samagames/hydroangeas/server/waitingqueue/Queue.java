@@ -1,6 +1,7 @@
 package net.samagames.hydroangeas.server.waitingqueue;
 
 import net.samagames.hydroangeas.Hydroangeas;
+import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.server.data.Status;
 import net.samagames.hydroangeas.server.games.BasicGameTemplate;
@@ -10,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
@@ -23,12 +23,12 @@ public class Queue {
 
     private QueueManager manager;
 
+    private HydroangeasServer instance;
+
     private String game;
     private String map;
 
     private PriorityBlockingQueue<QGroup> queue;
-
-    private CopyOnWriteArrayList<MinecraftServerS> waitingServers;
 
     private Thread worker;
     private boolean working = true;
@@ -42,15 +42,14 @@ public class Queue {
 
     public Queue(QueueManager manager, BasicGameTemplate template)
     {
+        this.instance = Hydroangeas.getInstance().getAsServer();
         this.manager = manager;
         this.template = template;
         this.game = template.getGameName();
         this.map = template.getMapName();
 
-        this.waitingServers = new CopyOnWriteArrayList<>();
-
         //Si priority plus grande alors tu passe devant.
-        this.queue = new PriorityBlockingQueue<>(10000, (o1, o2) -> -Integer.compare(o1.getPriority(), o2.getPriority()));
+        this.queue = new PriorityBlockingQueue<>(100000, (o1, o2) -> -Integer.compare(o1.getPriority(), o2.getPriority()));
 
         worker = new Thread(() -> {
             while (working)
@@ -61,36 +60,37 @@ public class Queue {
                     return;
                 }
 
-                for(MinecraftServerS serverS : waitingServers)
+                List<MinecraftServerS> servers = instance.getAlgorithmicMachine().getServerByTemplatesAndAvailable(template.getId());
+
+                for(MinecraftServerS server : servers)
                 {
-                    if(serverS.getStatus().isAllowJoin())
+                    if(server.getStatus().isAllowJoin())
                     {
                         List<QGroup> groups = new ArrayList<>();
-                        queue.drainTo(groups, serverS.getMaxSlot());
+                        queue.drainTo(groups, server.getMaxSlot());
                         for(QGroup group : groups)
                         {
-                            group.sendTo(serverS.getServerName());
+                            group.sendTo(server.getServerName());
                         }
-                    }
-                    if(serverS.getStatus().equals(Status.IN_GAME) || serverS.getActualSlots() >= serverS.getMaxSlot() * 0.90)
+                    }else if(!server.getStatus().equals(Status.STARTING))
                     {
-                        waitingServers.remove(serverS);
+                        //ne devrait jamais arrriver (peut etre à delete)
+                        servers.remove(server);
                     }
                 }
 
-                if(waitingServers.size() <= 0 && queue.size() >= template.getMaxSlot() * 0.7)
+                if(servers.size() <= 0 && queue.size() >= template.getMaxSlot() * 0.7)
                 {
-                    MinecraftServerS serverS = Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
-                    waitingServers.add(serverS);
+                    Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
                 }
 
                 try {
-                    Thread.sleep(500L);
+                    Thread.sleep(1000L);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-        }, game + map + " Worker");
+        }, game + " " + map + " Worker");
         worker.start();
     }
 

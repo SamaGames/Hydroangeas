@@ -33,7 +33,7 @@ public class MinecraftServerS {
 
     private int port;
 
-    private Status status = Status.REBOOTING;
+    private Status status = Status.STARTING;
     private int actualSlots;
 
     public MinecraftServerS(HydroClient client, String game, String map)
