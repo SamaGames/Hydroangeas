@@ -28,10 +28,17 @@ public class TemplateManager {
     {
 
         this.instance = instance;
+
+        File directory = new File(MiscUtils.getApplicationDirectory(), "templates");
+
         try {
-            templates.add(
-                    new BasicGameTemplate("quake_babylone",
-                            new JsonParser().parse(new FileReader(new File(MiscUtils.getApplicationDirectory(), "templates/quake_babylone.json"))).getAsJsonObject()));
+            for(File file : directory.listFiles()) {
+                if(file.isFile()) {
+                    templates.add(
+                            new BasicGameTemplate(file.getName(),
+                                    new JsonParser().parse(new FileReader(file)).getAsJsonObject()));
+                }
+            }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
