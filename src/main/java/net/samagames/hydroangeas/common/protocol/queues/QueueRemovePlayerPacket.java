@@ -17,17 +17,8 @@ public class QueueRemovePlayerPacket extends QueuePacket {
     {
     }
 
-    public QueueRemovePlayerPacket(TypeQueue typeQueue, String game, String map, QPlayer player)
+    public QueueRemovePlayerPacket(QPlayer player)
     {
-        super(typeQueue, game, map);
-
-        this.player = player;
-    }
-
-    public QueueRemovePlayerPacket(TypeQueue typeQueue, String templateID, QPlayer player)
-    {
-        super(typeQueue, templateID);
-
         this.player = player;
     }
 
