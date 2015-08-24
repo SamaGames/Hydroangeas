@@ -3,7 +3,12 @@ package net.samagames.hydroangeas.server.connection;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
 import net.samagames.hydroangeas.common.packets.ConnectionManager;
-import net.samagames.hydroangeas.common.protocol.*;
+import net.samagames.hydroangeas.common.protocol.coupaings.CoupaingServerPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.*;
+import net.samagames.hydroangeas.common.protocol.queues.QueueAddPlayerPacket;
+import net.samagames.hydroangeas.common.protocol.queues.QueueAttachPlayerPacket;
+import net.samagames.hydroangeas.common.protocol.queues.QueueDetachPlayerPacket;
+import net.samagames.hydroangeas.common.protocol.queues.QueueRemovePlayerPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.HydroClient;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
@@ -113,9 +118,21 @@ public class ServerConnectionManager extends ConnectionManager{
         {
             HelloFromClientPacket packet = (HelloFromClientPacket) spacket;
             instance.getClientManager().updateClient(packet);
-        }else if(spacket instanceof QueueUpdateFromHub)
+        }else if(spacket instanceof QueueAddPlayerPacket)
         {
-            QueueUpdateFromHub packet = (QueueUpdateFromHub) spacket;
+            QueueAddPlayerPacket packet = (QueueAddPlayerPacket) spacket;
+            instance.getQueueManager().handlepacket(packet);
+        }else if(spacket instanceof QueueRemovePlayerPacket)
+        {
+            QueueRemovePlayerPacket packet = (QueueRemovePlayerPacket) spacket;
+            instance.getQueueManager().handlepacket(packet);
+        }else if(spacket instanceof QueueAttachPlayerPacket)
+        {
+            QueueAttachPlayerPacket packet = (QueueAttachPlayerPacket) spacket;
+            instance.getQueueManager().handlepacket(packet);
+        }else if(spacket instanceof QueueDetachPlayerPacket)
+        {
+            QueueDetachPlayerPacket packet = (QueueDetachPlayerPacket) spacket;
             instance.getQueueManager().handlepacket(packet);
         }
     }

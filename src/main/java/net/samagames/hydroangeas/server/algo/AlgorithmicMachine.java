@@ -1,6 +1,6 @@
 package net.samagames.hydroangeas.server.algo;
 
-import net.samagames.hydroangeas.common.protocol.MinecraftServerUpdatePacket;
+import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerUpdatePacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.HydroClient;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;

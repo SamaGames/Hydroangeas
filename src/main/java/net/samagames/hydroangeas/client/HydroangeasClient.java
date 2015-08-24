@@ -3,10 +3,10 @@ package net.samagames.hydroangeas.client;
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.client.commands.ClientCommandManager;
-import net.samagames.hydroangeas.client.servers.ResourceManager;
+import net.samagames.hydroangeas.client.resources.ResourceManager;
 import net.samagames.hydroangeas.client.servers.ServerManager;
 import net.samagames.hydroangeas.client.tasks.LifeThread;
-import net.samagames.hydroangeas.common.protocol.ByeFromClientPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.ByeFromClientPacket;
 import net.samagames.hydroangeas.utils.InternetUtils;
 import net.samagames.hydroangeas.utils.MiscUtils;
 

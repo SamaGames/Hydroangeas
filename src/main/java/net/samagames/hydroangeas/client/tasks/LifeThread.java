@@ -2,9 +2,9 @@ package net.samagames.hydroangeas.client.tasks;
 
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;
-import net.samagames.hydroangeas.common.protocol.HeartbeatPacket;
-import net.samagames.hydroangeas.common.protocol.HelloFromClientPacket;
-import net.samagames.hydroangeas.common.protocol.MinecraftServerInfoPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.HeartbeatPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.HelloFromClientPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerInfoPacket;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
 

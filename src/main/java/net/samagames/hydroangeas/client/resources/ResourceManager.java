@@ -1,14 +1,17 @@
-package net.samagames.hydroangeas.client.servers;
+package net.samagames.hydroangeas.client.resources;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.samagames.hydroangeas.client.HydroangeasClient;
-import net.samagames.hydroangeas.common.protocol.MinecraftServerIssuePacket;
+import net.samagames.hydroangeas.client.servers.MinecraftServerC;
+import net.samagames.hydroangeas.client.servers.ServerDependency;
+import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerIssuePacket;
 import net.samagames.hydroangeas.utils.InternetUtils;
-import net.samagames.hydroangeas.utils.ZipUtils;
 import org.apache.commons.io.FileUtils;
+import org.rauschig.jarchivelib.Archiver;
+import org.rauschig.jarchivelib.ArchiverFactory;
 
 import java.io.*;
 import java.net.URL;
@@ -27,18 +30,16 @@ public class ResourceManager
         try
         {
             String existURL = this.instance.getTemplatesDomain() + "servers/exist.php?game=" + server.getGame();
-            String wgetURL = this.instance.getTemplatesDomain() + "servers/" + server.getGame() + ".tar.gz";
             boolean exist = Boolean.valueOf(InternetUtils.readURL(existURL));
 
             if (!exist)
             {
-                instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
                 throw new IllegalStateException("Server template don't exist!");
             }
 
-            FileUtils.copyURLToFile(new URL(wgetURL), new File(serverPath, server.getGame() + ".tar.gz"));
-            ZipUtils.unGzip(new File(serverPath, server.getGame() + ".tar.gz"), serverPath.getAbsoluteFile());
-            ZipUtils.unTar(new File(serverPath, server.getGame() + ".tar"), serverPath.getAbsoluteFile());
+            //FileUtils.copyURLToFile(new URL(wgetURL), new File(serverPath, server.getGame() + ".tar.gz"));
+            Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
+            archiver.extract(new File(serverPath, server.getGame() + ".tar.gz"), serverPath.getAbsoluteFile());
         }
         catch (Exception e)
         {
@@ -57,13 +58,13 @@ public class ResourceManager
 
             if (!exist)
             {
-                new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.MAKE);
                 throw new IllegalStateException("Server's map don't exist!");
             }
 
             FileUtils.copyURLToFile(new URL(wgetURL), new File(serverPath, server.getGame() + "_" + server.getMap() + ".tar.gz"));
-            ZipUtils.unGzip(new File(serverPath, server.getGame() + "_" + server.getMap() + ".tar.gz"), serverPath.getAbsoluteFile());
-            ZipUtils.unTar(new File(serverPath, server.getGame() + "_" + server.getMap() + ".tar"), serverPath.getAbsoluteFile());
+
+            Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
+            archiver.extract(new File(serverPath, server.getGame() + "_" + server.getMap() + ".tar.gz"), serverPath.getAbsoluteFile());
         }
         catch (Exception e)
         {
@@ -109,13 +110,13 @@ public class ResourceManager
 
             if (!exist)
             {
-                instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
                 throw new IllegalStateException("Servers' dependency '" + dependency.getName() + "' don't exist!");
             }
 
             FileUtils.copyURLToFile(new URL(wgetURL), new File(pluginsPath, dependency.getName() + "_" + dependency.getVersion() + ".tar.gz"));
-            ZipUtils.unGzip(new File(pluginsPath, dependency.getName() + "_" + dependency.getVersion() + ".tar.gz"), pluginsPath.getAbsoluteFile());
-            ZipUtils.unTar(new File(pluginsPath, dependency.getName() + "_" + dependency.getVersion() + ".tar"), pluginsPath.getAbsoluteFile());
+
+            Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
+            archiver.extract(new File(pluginsPath, dependency.getName() + "_" + dependency.getVersion() + ".tar.gz"), pluginsPath.getAbsoluteFile());
         }
         catch (Exception e)
         {

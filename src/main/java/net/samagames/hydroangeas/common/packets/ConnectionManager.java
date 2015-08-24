@@ -2,7 +2,12 @@ package net.samagames.hydroangeas.common.packets;
 
 import com.google.gson.Gson;
 import net.samagames.hydroangeas.Hydroangeas;
-import net.samagames.hydroangeas.common.protocol.*;
+import net.samagames.hydroangeas.common.protocol.coupaings.CoupaingServerPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.*;
+import net.samagames.hydroangeas.common.protocol.queues.QueueAddPlayerPacket;
+import net.samagames.hydroangeas.common.protocol.queues.QueueAttachPlayerPacket;
+import net.samagames.hydroangeas.common.protocol.queues.QueueDetachPlayerPacket;
+import net.samagames.hydroangeas.common.protocol.queues.QueueRemovePlayerPacket;
 
 import java.util.logging.Level;
 
@@ -22,6 +27,7 @@ public abstract class ConnectionManager {
 
     protected ConnectionManager(Hydroangeas hydroangeas)
     {
+        //Intranet
         packets[0] = new HeartbeatPacket();
         packets[1] = new HelloFromClientPacket();
         packets[2] = new CoupaingServerPacket();
@@ -32,7 +38,13 @@ public abstract class ConnectionManager {
         packets[7] = new MinecraftServerOrderPacket();
         packets[8] = new MinecraftServerUpdatePacket();
         packets[9] = new MinecraftServerInfoPacket();
-        packets[10] = new QueueUpdateFromHub();
+
+
+        //Queues Packets
+        packets[100] = new QueueAddPlayerPacket();
+        packets[101] = new QueueRemovePlayerPacket();
+        packets[102] = new QueueAttachPlayerPacket();
+        packets[103] = new QueueDetachPlayerPacket();
 
         this.hydroangeas = hydroangeas;
 

@@ -2,7 +2,7 @@ package net.samagames.hydroangeas.server.client;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import net.samagames.hydroangeas.common.protocol.AskForClientActionPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.AskForClientActionPacket;
 import net.samagames.hydroangeas.server.data.Status;
 
 import java.util.UUID;

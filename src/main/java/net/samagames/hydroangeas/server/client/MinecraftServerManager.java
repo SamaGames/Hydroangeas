@@ -1,9 +1,9 @@
 package net.samagames.hydroangeas.server.client;
 
 import com.google.gson.JsonElement;
-import net.samagames.hydroangeas.common.protocol.AskForClientActionPacket;
-import net.samagames.hydroangeas.common.protocol.MinecraftServerInfoPacket;
-import net.samagames.hydroangeas.common.protocol.MinecraftServerOrderPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.AskForClientActionPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerInfoPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerOrderPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.utils.MiscUtils;
 

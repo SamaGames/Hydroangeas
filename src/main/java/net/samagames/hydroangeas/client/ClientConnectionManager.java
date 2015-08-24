@@ -4,10 +4,10 @@ import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
 import net.samagames.hydroangeas.common.packets.ConnectionManager;
-import net.samagames.hydroangeas.common.protocol.AskForClientActionPacket;
-import net.samagames.hydroangeas.common.protocol.AskForClientDataPacket;
-import net.samagames.hydroangeas.common.protocol.HeartbeatPacket;
-import net.samagames.hydroangeas.common.protocol.MinecraftServerOrderPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.AskForClientActionPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.AskForClientDataPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.HeartbeatPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerOrderPacket;
 
 /**
  * This file is a part of the SamaGames Project CodeBase

@@ -3,7 +3,7 @@ package net.samagames.hydroangeas.client.servers;
 import com.google.gson.JsonElement;
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.tasks.ServerThread;
-import net.samagames.hydroangeas.common.protocol.MinecraftServerOrderPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerOrderPacket;
 import net.samagames.hydroangeas.utils.MiscUtils;
 
 import java.io.File;

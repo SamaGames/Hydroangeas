@@ -73,5 +73,10 @@
             <version>LATEST</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.rauschig</groupId>
+            <artifactId>jarchivelib</artifactId>
+            <version>0.7.0</version>
+        </dependency>
     </dependencies>
 </project>

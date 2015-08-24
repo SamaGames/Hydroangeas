@@ -1,4 +1,4 @@
-package net.samagames.hydroangeas.common.protocol;
+package net.samagames.hydroangeas.common.protocol.intranet;
 
 import com.google.gson.JsonElement;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;

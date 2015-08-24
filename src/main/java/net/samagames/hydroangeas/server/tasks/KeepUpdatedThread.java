@@ -1,7 +1,7 @@
 package net.samagames.hydroangeas.server.tasks;
 
 import net.samagames.hydroangeas.Hydroangeas;
-import net.samagames.hydroangeas.common.protocol.HeartbeatPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.HeartbeatPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;

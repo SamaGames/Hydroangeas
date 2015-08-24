@@ -1,6 +1,6 @@
 package net.samagames.hydroangeas.server.waitingqueue;
 
-import net.samagames.hydroangeas.common.protocol.QueueUpdateFromHub;
+import net.samagames.hydroangeas.common.protocol.queues.*;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.games.BasicGameTemplate;
 import net.samagames.hydroangeas.utils.ChatColor;
@@ -30,37 +30,143 @@ public class QueueManager {
         this.instance = instance;
     }
 
-    public void handlepacket(QueueUpdateFromHub packet)
+    public void handlepacket(QueueAddPlayerPacket packet)
     {
-        if(packet.getGroupLeader() == null)
-        {
-            instance.getLogger().info("Received queue modify packet with no leader !");
-        }else if(packet.getAction().equals(QueueUpdateFromHub.ActionQueue.ADD))
-        {
-            Queue queue = null;
 
-            if(packet.getTypeQueue().equals(QueueUpdateFromHub.TypeQueue.NAMED))
+        QPlayer player = packet.getPlayer();
+        Queue designedQueue = getQueue(packet);
+        Queue currentQueue = getQueueByPlayer(player.getUUID());
+
+        if(designedQueue == null)
+        {
+            //No queue to add get out !
+            PlayerMessager.sendMessage(player.getUUID(), ChatColor.RED + "Aucun template disponible pour ce jeu!");
+            return;
+        }
+
+        if(designedQueue.getName().equals(currentQueue.getName()))
+            return;
+
+
+        if(currentQueue != null)
+        {
+            currentQueue.removeQPlayer(player);
+        }
+        ArrayList<QPlayer> players = new ArrayList<>();
+        players.add(player);
+        addPlayerToQueue(designedQueue, player, players);
+    }
+
+    public void handlepacket(QueueRemovePlayerPacket packet)
+    {
+        QPlayer player = packet.getPlayer();
+        //Queue designedQueue = getQueue(packet);
+        Queue currentQueue = getQueueByPlayer(player.getUUID());
+
+        /*if(designedQueue == null)
+        {
+            //No queue maybe not known ?
+            //PlayerMessager.sendMessage(player.getUUID(), ChatColor.RED + "Aucun queue définis!");
+        }*/
+        if(currentQueue == null)
+        {
+            //No queue, security remove ?
+            PlayerMessager.sendMessage(player.getUUID(), ChatColor.RED + "Vous n'êtes dans aucune queue!");
+            return;
+        }
+
+        currentQueue.removeQPlayer(player);
+        PlayerMessager.sendMessage(player.getUUID(), ChatColor.YELLOW + "Vous quittez la queue " + currentQueue.getName());
+    }
+
+    public void handlepacket(QueueAttachPlayerPacket packet)
+    {
+        QPlayer leader = packet.getLeader();
+        Queue designedQueue = getQueueByLeader(leader.getUUID());
+
+        if(designedQueue == null)
+        {
+            /*for(QPlayer qPlayer : packet.getPlayers())
+            {
+                PlayerMessager.sendMessage(qPlayer.getUUID(), ChatColor.RED + "Le leader de votre party n'a pas choisit de queue !");
+            }*/
+            return;
+        }
+
+        QGroup group = designedQueue.getGroupByLeader(leader.getUUID());
+
+        if(group == null)
+        {
+            //Logically not possible but.. #MOJANG
+
+            for(QPlayer qPlayer : packet.getPlayers())
+            {
+                PlayerMessager.sendMessage(qPlayer.getUUID(), ChatColor.RED + "Le leader de votre party n'a pas choisit de queue !");
+            }
+            return;
+        }
+        designedQueue.removeGroup(group);
+        packet.getPlayers().forEach(group::addPlayer);
+        designedQueue.addGroup(group);
+    }
+
+    public void handlepacket(QueueDetachPlayerPacket packet)
+    {
+        for(QPlayer player : packet.getPlayers())
+        {
+            Queue designedQueue = getQueueByPlayer(player.getUUID());
+            if(designedQueue != null)
+            {
+                designedQueue.removeQPlayer(player);
+
+                PlayerMessager.sendMessage(player.getUUID(), "Vous avez été retiré de la queue " + designedQueue.getMap());
+            }
+        }
+    }
+
+    public Queue getQueue(QueuePacket packet)
+    {
+        Queue queue = null;
+        QueuePacket.TypeQueue typeQueue = packet.getTypeQueue();
+
+        try{
+            if(typeQueue.equals(QueuePacket.TypeQueue.NAMED))
             {
                 queue = instance.getQueueManager().getQueueByName(packet.getGame() + "_" + packet.getMap());
-                if(queue == null)
-                {
-                    //error no queue
-                    PlayerMessager.sendMessage(packet.getGroupLeader().getUUID(), ChatColor.RED + "Aucun template disponible pour ce jeu!");
-                    return;
-                }
-
-            }else if(packet.getTypeQueue().equals(QueueUpdateFromHub.TypeQueue.FAST))
+            }else if(typeQueue.equals(QueuePacket.TypeQueue.NAMEDID))
+            {
+                queue = instance.getQueueManager().getQueueByName(packet.getTemplateID());
+            }else if(typeQueue.equals(QueuePacket.TypeQueue.FAST))
             {
                 //TODO select best queue
-            }else if(packet.getTypeQueue().equals(QueueUpdateFromHub.TypeQueue.PARTY))
-            {
-                //on fait rien
             }else
             {
                 //RANDOM
                 List<Queue> queuesByGame = instance.getQueueManager().getQueuesByGame(packet.getGame());
                 queue = queuesByGame.get(new Random().nextInt(queuesByGame.size()));
             }
+
+            /*if(queue == null)
+            {
+                //error no queue
+                //PlayerMessager.sendMessage(, ChatColor.RED + "Aucun template disponible pour ce jeu!");
+                return null;
+            }*/
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return queue;
+    }
+
+   /* public void handlepacket(QueueUpdateFromHub packet)
+    {
+        if(packet.getGroupLeader() == null)
+        {
+            instance.getLogger().info("Received queue modify packet with no leader !");
+        }else if(packet.getAction().equals(QueueUpdateFromHub.ActionQueue.ADD))
+        {
 
             Queue leaderQueue = getQueueByLeader(packet.getGroupLeader().getUUID());
             if(leaderQueue != null)
@@ -110,7 +216,7 @@ public class QueueManager {
             /*if(!queue.getGame().equals(packet.getGame()) || !queue.getMap().equals(packet.getMap()))
             {
                 instance.getLogger().info("Problem in queues. Tried to delete players in queue but queue .");
-            }*/
+            }*/ /*
             for(QPlayer player : packet.getPlayers())
             {
                 queue.removeQPlayer(player);
@@ -119,7 +225,7 @@ public class QueueManager {
                 //TODO notify removed from queue
             }
         }
-    }
+    }*/
 
     /*public Queue addQueue(String game, String map)
     {

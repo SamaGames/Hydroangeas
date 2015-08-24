@@ -1,8 +1,8 @@
 package net.samagames.hydroangeas.server.client;
 
-import net.samagames.hydroangeas.common.protocol.AskForClientDataPacket;
-import net.samagames.hydroangeas.common.protocol.CoupaingServerPacket;
-import net.samagames.hydroangeas.common.protocol.HelloFromClientPacket;
+import net.samagames.hydroangeas.common.protocol.coupaings.CoupaingServerPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.AskForClientDataPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.HelloFromClientPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.games.BasicGameTemplate;
 import net.samagames.hydroangeas.server.tasks.KeepUpdatedThread;

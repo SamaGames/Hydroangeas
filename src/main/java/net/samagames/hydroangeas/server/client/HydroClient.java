@@ -1,7 +1,7 @@
 package net.samagames.hydroangeas.server.client;
 
-import net.samagames.hydroangeas.common.protocol.AskForClientActionPacket;
-import net.samagames.hydroangeas.common.protocol.HelloFromClientPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.AskForClientActionPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.HelloFromClientPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 
 import java.sql.Timestamp;
