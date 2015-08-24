@@ -14,15 +14,18 @@ import org.rauschig.jarchivelib.Archiver;
 import org.rauschig.jarchivelib.ArchiverFactory;
 
 import java.io.*;
-import java.net.URL;
 
 public class ResourceManager
 {
     private final HydroangeasClient instance;
 
+    private CacheManager cacheManager;
+
     public ResourceManager(HydroangeasClient instance)
     {
         this.instance = instance;
+
+        this.cacheManager = new CacheManager(instance);
     }
 
     public void downloadServer(MinecraftServerC server, File serverPath)
@@ -37,9 +40,12 @@ public class ResourceManager
                 throw new IllegalStateException("Server template don't exist!");
             }
 
-            //FileUtils.copyURLToFile(new URL(wgetURL), new File(serverPath, server.getGame() + ".tar.gz"));
+            File dest = new File(serverPath, server.getGame() + ".tar.gz");
+
+            FileUtils.copyFile(cacheManager.getServerFiles(server.getGame()), dest);
+
             Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
-            archiver.extract(new File(serverPath, server.getGame() + ".tar.gz"), serverPath.getAbsoluteFile());
+            archiver.extract(dest, serverPath.getAbsoluteFile());
         }
         catch (Exception e)
         {
@@ -53,7 +59,6 @@ public class ResourceManager
         try
         {
             String existURL = this.instance.getTemplatesDomain() + "maps/exist.php?game=" + server.getGame() + "&map=" + server.getMap();
-            String wgetURL = this.instance.getTemplatesDomain() + "maps/" + server.getGame() + "_" + server.getMap() + ".tar.gz";
             boolean exist = Boolean.valueOf(InternetUtils.readURL(existURL));
 
             if (!exist)
@@ -61,10 +66,12 @@ public class ResourceManager
                 throw new IllegalStateException("Server's map don't exist!");
             }
 
-            FileUtils.copyURLToFile(new URL(wgetURL), new File(serverPath, server.getGame() + "_" + server.getMap() + ".tar.gz"));
+            File dest = new File(serverPath, server.getGame() + "_" + server.getMap() + ".tar.gz");
+
+            FileUtils.copyFile(cacheManager.getMapFiles(server.getGame(), server.getMap()), dest);
 
             Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
-            archiver.extract(new File(serverPath, server.getGame() + "_" + server.getMap() + ".tar.gz"), serverPath.getAbsoluteFile());
+            archiver.extract(dest, serverPath.getAbsoluteFile());
         }
         catch (Exception e)
         {
@@ -100,7 +107,6 @@ public class ResourceManager
         try
         {
             String existURL = this.instance.getTemplatesDomain() + "dependencies/exist.php?name=" + dependency.getName() + "&version=" + dependency.getVersion();
-            String wgetURL = this.instance.getTemplatesDomain() + "dependencies/" + dependency.getName() + "_" + dependency.getVersion() + ".tar.gz";
             File pluginsPath = new File(serverPath, "plugins/");
 
             if(!pluginsPath.exists())
@@ -113,10 +119,12 @@ public class ResourceManager
                 throw new IllegalStateException("Servers' dependency '" + dependency.getName() + "' don't exist!");
             }
 
-            FileUtils.copyURLToFile(new URL(wgetURL), new File(pluginsPath, dependency.getName() + "_" + dependency.getVersion() + ".tar.gz"));
+            File dest = new File(pluginsPath, dependency.getName() + "_" + dependency.getVersion() + ".tar.gz");
+
+            FileUtils.copyFile(cacheManager.getDebFiles(dependency.getName(), dependency.getVersion()), dest);
 
             Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
-            archiver.extract(new File(pluginsPath, dependency.getName() + "_" + dependency.getVersion() + ".tar.gz"), pluginsPath.getAbsoluteFile());
+            archiver.extract(dest, pluginsPath.getAbsoluteFile());
         }
         catch (Exception e)
         {
@@ -156,5 +164,9 @@ public class ResourceManager
             e.printStackTrace();
             instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.PATCH));
         }
+    }
+
+    public CacheManager getCacheManager() {
+        return cacheManager;
     }
 }

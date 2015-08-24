@@ -1,7 +1,6 @@
 package net.samagames.hydroangeas.client.servers;
 
 import net.samagames.hydroangeas.client.HydroangeasClient;
-import net.samagames.hydroangeas.client.resources.CacheManager;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerInfoPacket;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerIssuePacket;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerOrderPacket;
@@ -16,12 +15,11 @@ public class ServerManager
 {
     private final HydroangeasClient instance;
     private final List<MinecraftServerC> servers = new ArrayList<>();
-    private CacheManager cacheManager;
 
     public ServerManager(HydroangeasClient instance)
     {
         this.instance = instance;
-        this.cacheManager = new CacheManager(instance);
+
     }
 
     public void newServer(MinecraftServerOrderPacket serverInfos)
@@ -122,7 +120,4 @@ public class ServerManager
         return this.servers;
     }
 
-    public CacheManager getCacheManager() {
-        return cacheManager;
-    }
 }

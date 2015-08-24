@@ -1,6 +1,8 @@
 package net.samagames.hydroangeas.client.resources;
 
 import net.samagames.hydroangeas.client.HydroangeasClient;
+import net.samagames.hydroangeas.utils.InternetUtils;
+import net.samagames.hydroangeas.utils.MiscUtils;
 import org.apache.commons.io.FileUtils;
 import org.rauschig.jarchivelib.Archiver;
 import org.rauschig.jarchivelib.ArchiverFactory;
@@ -8,6 +10,7 @@ import org.rauschig.jarchivelib.ArchiverFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
@@ -25,12 +28,67 @@ public class CacheManager {
         this.instance = instance;
     }
 
-    public boolean getServerFiles(String game)
+    public File getServerFiles(String game)
     {
-        String checksumURL = this.instance.getTemplatesDomain() + "servers/?file=" + game;
-        String wgetURL = this.instance.getTemplatesDomain() + "servers/" + game + ".tar.gz";
+        String fileName = game;
 
-        return true;
+        String checksumURL = this.instance.getTemplatesDomain() + "servers/checksum.php?file=" + fileName;
+        String wgetURL = this.instance.getTemplatesDomain() + "servers/" + fileName + ".tar.gz";
+        File cache = new File(this.instance.getServerFolder(), "cache/servers/" + fileName + ".tar.gz");
+
+        return getCache(wgetURL, checksumURL, cache);
+    }
+
+    public File getMapFiles(String game, String map)
+    {
+        String fileName = game + "_" + map;
+
+        String checksumURL = this.instance.getTemplatesDomain() + "maps/checksum.php?file=" + fileName;
+        String wgetURL = this.instance.getTemplatesDomain() + "maps/" + fileName + ".tar.gz";
+        File cache = new File(this.instance.getServerFolder(), "cache/maps/" + fileName + ".tar.gz");
+
+        return getCache(wgetURL, checksumURL, cache);
+    }
+
+    public File getDebFiles(String debName, String debVersion)
+    {
+        String fileName = debName + "_" + debVersion;
+
+        String checksumURL = this.instance.getTemplatesDomain() + "dependencies/checksum.php?file=" + fileName;
+        String wgetURL = this.instance.getTemplatesDomain() + "dependencies/" + fileName + ".tar.gz";
+        File cache = new File(this.instance.getServerFolder(), "cache/dependencies/" + fileName + ".tar.gz");
+
+        return getCache(wgetURL, checksumURL, cache);
+    }
+
+    public File getCache(String wgetURL, String checksumURL, File cache)
+    {
+        if(!cache.exists())
+        {
+            try {
+                FileUtils.copyURLToFile(new URL(wgetURL), cache);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }else{
+            String remoteChecksum = InternetUtils.readURL(checksumURL);
+
+            try {
+                if(!remoteChecksum.equals(MiscUtils.getSHA1(cache)))
+                {
+                    try {
+                        FileUtils.copyURLToFile(new URL(wgetURL), cache);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return cache;
     }
 
     public long getChecksum(File file) throws IOException {

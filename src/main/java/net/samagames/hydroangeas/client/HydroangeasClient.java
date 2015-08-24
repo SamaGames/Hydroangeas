@@ -39,8 +39,8 @@ public class HydroangeasClient extends Hydroangeas
         this.maxWeight = this.configuration.getJsonConfiguration().get("max-weight").getAsInt();
         this.serverFolder = new File(MiscUtils.getJarFolder(), "servers");
 
-        if(!this.serverFolder.exists())
-            this.serverFolder.mkdirs();
+        this.serverFolder.delete();
+        this.serverFolder.mkdirs();
 
         connectionManager = new ClientConnectionManager(this);
 

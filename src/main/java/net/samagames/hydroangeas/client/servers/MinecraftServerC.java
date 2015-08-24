@@ -62,7 +62,7 @@ public class MinecraftServerC
         {
             this.instance.log(Level.SEVERE, "Can't make the server " + getServerName() + "!");
             e.printStackTrace();
-
+            serverFolder.delete();
             return false;
         }
 
@@ -102,6 +102,7 @@ public class MinecraftServerC
         {
             this.instance.log(Level.SEVERE, "Can't start the server " + getServerName() + "!");
             e.printStackTrace();
+            serverFolder.delete();
 
             return false;
         }
@@ -120,6 +121,7 @@ public class MinecraftServerC
         {
             this.instance.log(Level.SEVERE, "Can't stop the server " + getServerName() + "!");
             e.printStackTrace();
+            serverFolder.delete();
 
             return false;
         }

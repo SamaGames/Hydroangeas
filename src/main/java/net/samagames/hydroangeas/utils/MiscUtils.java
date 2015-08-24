@@ -1,12 +1,16 @@
 package net.samagames.hydroangeas.utils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.security.CodeSource;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class MiscUtils
 {
@@ -73,6 +77,24 @@ public class MiscUtils
         }
 
         return jarDir + "/";
+    }
+
+    public static String getSHA1(File f) throws NoSuchAlgorithmException, IOException {
+        MessageDigest sha1 = MessageDigest.getInstance("SHA1");
+        FileInputStream fis = new FileInputStream(f);
+
+        byte[] data = new byte[1024];
+        int read = 0;
+        while ((read = fis.read(data)) != -1) {
+            sha1.update(data, 0, read);
+        };
+        byte[] hashBytes = sha1.digest();
+
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < hashBytes.length; i++) {
+            sb.append(Integer.toString((hashBytes[i] & 0xff) + 0x100, 16).substring(1));
+        }
+        return sb.toString();
     }
 
     public static int calculServerWeight(String game, int maxSlot, boolean isCoupaing)
