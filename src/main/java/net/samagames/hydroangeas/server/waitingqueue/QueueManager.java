@@ -35,7 +35,7 @@ public class QueueManager {
 
         QPlayer player = packet.getPlayer();
         Queue designedQueue = getQueue(packet);
-        Queue currentQueue = getQueueByPlayer(player.getUUID());
+        Queue currentQueue = getQueueByLeader(player.getUUID());
 
         if(designedQueue == null)
         {
@@ -44,14 +44,18 @@ public class QueueManager {
             return;
         }
 
-        if(designedQueue.getName().equals(currentQueue.getName()))
+        if(designedQueue.equals(currentQueue))
+        {
+            PlayerMessager.sendMessage(player.getUUID(), player.getUUID().toString());
+            PlayerMessager.sendMessage(player.getUUID(), ChatColor.GREEN + "Tu es déjà dans la queue!");
             return;
-
+        }
 
         if(currentQueue != null)
         {
             currentQueue.removeQPlayer(player);
         }
+
         ArrayList<QPlayer> players = new ArrayList<>();
         players.add(player);
         addPlayerToQueue(designedQueue, player, players);

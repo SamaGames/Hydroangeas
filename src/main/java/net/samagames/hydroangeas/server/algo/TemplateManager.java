@@ -4,6 +4,7 @@ import com.google.gson.JsonParser;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.games.BasicGameTemplate;
 import net.samagames.hydroangeas.utils.MiscUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,7 +36,7 @@ public class TemplateManager {
             for(File file : directory.listFiles()) {
                 if(file.isFile()) {
                     templates.add(
-                            new BasicGameTemplate(file.getName(),
+                            new BasicGameTemplate(FilenameUtils.removeExtension(file.getName()),
                                     new JsonParser().parse(new FileReader(file)).getAsJsonObject()));
                 }
             }

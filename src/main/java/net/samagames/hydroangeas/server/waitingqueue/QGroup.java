@@ -59,7 +59,7 @@ public class QGroup {
     {
         for(QPlayer qp : players)
         {
-            if(qp.getUUID().equals(qp.getUUID()))
+            if(qp.getUUID().equals(uuid))
             {
                 return true;
             }

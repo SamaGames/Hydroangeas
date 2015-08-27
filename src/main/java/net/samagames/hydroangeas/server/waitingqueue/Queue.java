@@ -216,6 +216,7 @@ public class Queue {
         {
             if(qGroup == null)
                 continue;
+
             if(qGroup.contains(uuid))
             {
                 return true;
@@ -250,7 +251,7 @@ public class Queue {
 
     public String getName()
     {
-        return game + "_" + map;
+        return template.getId();
     }
 
     public String getGame() {
