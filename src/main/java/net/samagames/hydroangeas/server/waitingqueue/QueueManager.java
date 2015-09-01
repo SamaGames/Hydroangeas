@@ -1,5 +1,6 @@
 package net.samagames.hydroangeas.server.waitingqueue;
 
+import net.samagames.hydroangeas.common.packets.AbstractPacket;
 import net.samagames.hydroangeas.common.protocol.queues.*;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.games.BasicGameTemplate;
@@ -40,14 +41,15 @@ public class QueueManager {
         if(designedQueue == null)
         {
             //No queue to add get out !
-            PlayerMessager.sendMessage(player.getUUID(), ChatColor.RED + "Aucun template disponible pour ce jeu!");
+            //PlayerMessager.sendMessage(player.getUUID(), ChatColor.RED + "Aucun template disponible pour ce jeu!");
+            sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, false, ChatColor.RED + "Aucun template disponible pour ce jeu!"));
             return;
         }
 
         if(designedQueue.equals(currentQueue))
         {
-            PlayerMessager.sendMessage(player.getUUID(), player.getUUID().toString());
-            PlayerMessager.sendMessage(player.getUUID(), ChatColor.GREEN + "Tu es déjà dans la queue!");
+            //PlayerMessager.sendMessage(player.getUUID(), ChatColor.GREEN + "Tu es déjà dans la queue!");
+            sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, false, ChatColor.GREEN +"Vous êtes déjà dans la queue!"));
             return;
         }
 
@@ -75,12 +77,15 @@ public class QueueManager {
         if(currentQueue == null)
         {
             //No queue, security remove ?
-            PlayerMessager.sendMessage(player.getUUID(), ChatColor.RED + "Vous n'êtes dans aucune queue!");
+            sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, false, "Vous n\'avez aucune queue!"));
+            //PlayerMessager.sendMessage(player.getUUID(), ChatColor.RED + "Vous n'êtes dans aucune queue!");
             return;
         }
 
         currentQueue.removeQPlayer(player);
-        PlayerMessager.sendMessage(player.getUUID(), ChatColor.YELLOW + "Vous quittez la queue " + currentQueue.getName());
+
+        //PlayerMessager.sendMessage(player.getUUID(), ChatColor.YELLOW + "Vous quittez la queue " + currentQueue.getName());
+        sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, currentQueue.getTemplate().getId()));
     }
 
     public void handlepacket(QueueAttachPlayerPacket packet)
@@ -105,7 +110,8 @@ public class QueueManager {
 
             for(QPlayer qPlayer : packet.getPlayers())
             {
-                PlayerMessager.sendMessage(qPlayer.getUUID(), ChatColor.RED + "Le leader de votre party n'a pas choisit de queue !");
+                sendPacketHub(new QueueInfosUpdatePacket(qPlayer, QueueInfosUpdatePacket.Type.REMOVE, false, "Vous n'êtes pas leader de party!"));
+                //PlayerMessager.sendMessage(qPlayer.getUUID(), ChatColor.RED + "Le leader de votre party n'a pas choisit de queue !");
             }
             return;
         }
@@ -123,7 +129,8 @@ public class QueueManager {
             {
                 designedQueue.removeQPlayer(player);
 
-                PlayerMessager.sendMessage(player.getUUID(), "Vous avez été retiré de la queue " + designedQueue.getMap());
+                sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, designedQueue.getTemplate().getId()));
+                //PlayerMessager.sendMessage(player.getUUID(), "Vous avez été retiré de la queue " + designedQueue.getMap());
             }
         }
     }
@@ -318,6 +325,11 @@ public class QueueManager {
             }
         }
         return null;
+    }
+
+    public void sendPacketHub(AbstractPacket packet)
+    {
+        instance.getConnectionManager().sendPacket("hydroHubReceiver", packet);
     }
 
 }

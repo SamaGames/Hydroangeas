@@ -8,6 +8,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
@@ -20,39 +22,72 @@ public class ServerThread extends Thread {
 
     public boolean isServerProcessAlive;
     public Process server;
-    public Thread errorThread;
     public File directory;
+    private long lastHeartbeat = System.currentTimeMillis();
+    private ExecutorService executor;
     private MinecraftServerC instance;
 
     public ServerThread(MinecraftServerC instance, String[] command, String[] env, File directory)
     {
         this.instance = instance;
+        this.executor = Executors.newFixedThreadPool(5);
         try {
             this.directory = directory;
 
-            Thread.sleep(5);
+            Thread.sleep(10);
 
             server = Runtime.getRuntime().exec(command, env, directory);
             isServerProcessAlive = true;
 
-            errorThread = new Thread() {
-                public void run() {
+            executor.execute(() -> {
+                try {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(server.getErrorStream()));
+                    String line = null;
                     try {
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(server.getErrorStream()));
-                        String line = null;
-                        try {
-                            while(isServerProcessAlive && (line = reader.readLine()) != null) {
-                                //TODO handle errors
-                            }
-                        } finally {
-                            reader.close();
+                        while(isServerProcessAlive && (line = reader.readLine()) != null) {
+                            //TODO handle errors
                         }
-                    } catch(IOException ioe) {
-                        ioe.printStackTrace();
+                    } finally {
+                        reader.close();
+                    }
+                } catch(IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            });
+
+            executor.execute(() -> {
+                try {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(server.getInputStream()));
+                    String line = null;
+                    try {
+                        while(isServerProcessAlive && (line = reader.readLine()) != null) {
+                            lastHeartbeat = System.currentTimeMillis();
+                            //TODO: best crash detection
+                        }
+                    } finally {
+                        reader.close();
+                    }
+                } catch(IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            });
+
+            executor.execute(() -> {
+                while(true)
+                {
+                    try{
+
+                        if(System.currentTimeMillis() - lastHeartbeat > 10 * 1000)
+                        {
+                            instance.stopServer();
+                        }
+                        Thread.sleep(15 * 1000);
+                    }catch(Exception e)
+                    {
+                        e.printStackTrace();
                     }
                 }
-            };
-            errorThread.start();
+            });
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -65,7 +100,6 @@ public class ServerThread extends Thread {
     {
         try {
             server.waitFor();
-
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -84,14 +118,14 @@ public class ServerThread extends Thread {
                 e.printStackTrace();
             }
         });
-
-        errorThread.interrupt();
+        executor.shutdownNow();
     }
 
     public void forceStop()
     {
+        isServerProcessAlive = false;
         normalStop();
         server.destroy();
-        errorThread.interrupt();
+        executor.shutdownNow();
     }
 }

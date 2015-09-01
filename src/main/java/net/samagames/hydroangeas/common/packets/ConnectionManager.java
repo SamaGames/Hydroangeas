@@ -3,11 +3,9 @@ package net.samagames.hydroangeas.common.packets;
 import com.google.gson.Gson;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.protocol.coupaings.CoupaingServerPacket;
+import net.samagames.hydroangeas.common.protocol.hubinfo.GameInfosToHubPacket;
 import net.samagames.hydroangeas.common.protocol.intranet.*;
-import net.samagames.hydroangeas.common.protocol.queues.QueueAddPlayerPacket;
-import net.samagames.hydroangeas.common.protocol.queues.QueueAttachPlayerPacket;
-import net.samagames.hydroangeas.common.protocol.queues.QueueDetachPlayerPacket;
-import net.samagames.hydroangeas.common.protocol.queues.QueueRemovePlayerPacket;
+import net.samagames.hydroangeas.common.protocol.queues.*;
 
 import java.util.logging.Level;
 
@@ -45,6 +43,10 @@ public abstract class ConnectionManager {
         packets[101] = new QueueRemovePlayerPacket();
         packets[102] = new QueueAttachPlayerPacket();
         packets[103] = new QueueDetachPlayerPacket();
+        packets[104] = new QueueInfosUpdatePacket();
+
+        //HubInfos
+        packets[110] = new GameInfosToHubPacket();
 
         this.hydroangeas = hydroangeas;
 
@@ -95,7 +97,7 @@ public abstract class ConnectionManager {
         return -1;
     }
 
-    protected void sendPacket(String channel, AbstractPacket data)
+    public void sendPacket(String channel, AbstractPacket data)
     {
         int i = packetId(data);
         if(i < 0)
