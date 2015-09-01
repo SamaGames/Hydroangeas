@@ -1,6 +1,7 @@
 package net.samagames.hydroangeas.server.waitingqueue;
 
 import net.samagames.hydroangeas.Hydroangeas;
+import net.samagames.hydroangeas.common.protocol.hubinfo.GameInfosToHubPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.server.data.Status;
@@ -29,6 +30,8 @@ public class Queue {
     private String map;
 
     private PriorityBlockingQueue<QGroup> queue;
+
+    private Thread updater;
 
     private Thread worker;
     private boolean working = true;
@@ -85,19 +88,47 @@ public class Queue {
                 }
 
                 try {
-                    Thread.sleep(1000L);
+                    Thread.sleep(900L);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-        }, game + " " + map + " Worker");
+        }, template.getId() + " Worker");
         worker.start();
+
+        updater = new Thread(() -> {
+            while(true)
+            {
+                try{
+                    GameInfosToHubPacket packet = new GameInfosToHubPacket(template.getId());
+                    packet.setPlayerMaxForMap(template.getMaxSlot());
+                    packet.setPlayerWaitFor(getSize());
+                    List<MinecraftServerS> serverSList = instance.getClientManager().getServersByTemplate(template);
+                    int nb = 0;
+                    for(MinecraftServerS serverS : serverSList)
+                    {
+                        nb += serverS.getActualSlots();
+                    }
+                    packet.setTotalPlayerOnServers(nb);
+
+                    manager.sendPacketHub(packet);
+
+                    Thread.sleep(700);
+                }catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }, template.getId() + " Updater");
+        updater.start();
+
     }
 
     public void remove()
     {
         working = false;
         worker.interrupt();
+        updater.interrupt();
     }
 
     public boolean addPlayersInNewGroup(QPlayer leader, List<QPlayer> players)

@@ -5,6 +5,7 @@ import net.samagames.hydroangeas.common.protocol.intranet.AskForClientActionPack
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerInfoPacket;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerOrderPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
+import net.samagames.hydroangeas.server.games.BasicGameTemplate;
 import net.samagames.hydroangeas.utils.MiscUtils;
 
 import java.util.ArrayList;
@@ -122,6 +123,21 @@ public class MinecraftServerManager {
             }
         }
         return null;
+    }
+
+    public List<MinecraftServerS> getServersByTemplate(BasicGameTemplate template)
+    {
+        List<MinecraftServerS> servers = new ArrayList<>();
+
+        for(MinecraftServerS server : servers)
+        {
+            if(server.getTemplateID().equals(template.getId()))
+            {
+                servers.add(server);
+            }
+        }
+
+        return servers;
     }
 
     public int getTotalWeight()

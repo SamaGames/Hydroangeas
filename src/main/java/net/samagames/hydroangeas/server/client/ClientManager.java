@@ -8,6 +8,7 @@ import net.samagames.hydroangeas.server.games.BasicGameTemplate;
 import net.samagames.hydroangeas.server.tasks.KeepUpdatedThread;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -108,5 +109,17 @@ public class ClientManager
                 }
             }
             return null;
+    }
+
+    public List<MinecraftServerS> getServersByTemplate(BasicGameTemplate template)
+    {
+        List<MinecraftServerS> servers = new ArrayList<>();
+
+        for(HydroClient client : clientList)
+        {
+            servers.addAll(client.getServerManager().getServersByTemplate(template));
+        }
+
+        return servers;
     }
 }
