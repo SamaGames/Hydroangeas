@@ -32,6 +32,7 @@ public class Queue {
     private PriorityBlockingQueue<QGroup> queue;
 
     private Thread updater;
+    private boolean sendInfo = true;
 
     private Thread worker;
     private boolean working = true;
@@ -97,21 +98,15 @@ public class Queue {
         worker.start();
 
         updater = new Thread(() -> {
+            long lastSend = System.currentTimeMillis();
             while(true)
             {
                 try{
-                    GameInfosToHubPacket packet = new GameInfosToHubPacket(template.getId());
-                    packet.setPlayerMaxForMap(template.getMaxSlot());
-                    packet.setPlayerWaitFor(getSize());
-                    List<MinecraftServerS> serverSList = instance.getClientManager().getServersByTemplate(template);
-                    int nb = 0;
-                    for(MinecraftServerS serverS : serverSList)
+                    if(System.currentTimeMillis() - lastSend > 1 * 60 * 1000 || sendInfo)
                     {
-                        nb += serverS.getActualSlots();
+                        sendInfoToHub();
+                        sendInfo = false;
                     }
-                    packet.setTotalPlayerOnServers(nb);
-
-                    manager.sendPacketHub(packet);
 
                     Thread.sleep(700);
                 }catch (Exception e)
@@ -138,23 +133,35 @@ public class Queue {
 
     public boolean addGroup(QGroup qGroup)
     {
-        return queue.add(qGroup);
+        try{
+            return queue.add(qGroup);
+        }finally{
+            sendInfo = true;
+        }
     }
 
     public boolean removeGroup(QGroup qGroup)
     {
-        return queue.remove(qGroup);
+        try{
+            return queue.remove(qGroup);
+        }finally{
+            sendInfo = true;
+        }
     }
 
     public boolean removeQPlayer(QPlayer player)
     {
-        QGroup group = getGroupByPlayer(player.getUUID());
-        boolean result = group.removeQPlayer(player);
-        if(group.getLeader() == null)
-        {
+        try {
+            QGroup group = getGroupByPlayer(player.getUUID());
+            boolean result = group.removeQPlayer(player);
             removeGroup(group);
+            if (group.getLeader() != null) {
+                addGroup(group);
+            }
+            return result;
+        }finally{
+            sendInfo = true;
         }
-        return result;
     }
 
     //No idea for the name ..
@@ -170,7 +177,6 @@ public class Queue {
     public List<QPlayer> getUserListFormatted(int number)
     {
         List<QPlayer> players = new ArrayList<>();
-
         getGroupsListFormatted(number).stream().forEachOrdered(qGroup -> players.addAll(qGroup.getQPlayers()));
         return players;
     }
@@ -278,6 +284,24 @@ public class Queue {
             i += group.getSize();
         }
         return i;
+    }
+
+    public void sendInfoToHub()
+    {
+        instance.getScheduler().execute(() -> {
+            GameInfosToHubPacket packet = new GameInfosToHubPacket(template.getId());
+            packet.setPlayerMaxForMap(template.getMaxSlot());
+            packet.setPlayerWaitFor(getSize());
+            List<MinecraftServerS> serverSList = instance.getClientManager().getServersByTemplate(template);
+            int nb = 0;
+            for(MinecraftServerS serverS : serverSList)
+            {
+                nb += serverS.getActualSlots();
+            }
+            packet.setTotalPlayerOnServers(nb);
+
+            manager.sendPacketHub(packet);
+        });
     }
 
     public String getName()

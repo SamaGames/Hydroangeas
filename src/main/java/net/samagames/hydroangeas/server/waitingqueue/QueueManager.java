@@ -5,7 +5,6 @@ import net.samagames.hydroangeas.common.protocol.queues.*;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.games.BasicGameTemplate;
 import net.samagames.hydroangeas.utils.ChatColor;
-import net.samagames.hydroangeas.utils.PlayerMessager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -249,7 +248,8 @@ public class QueueManager {
 
         for(QPlayer qPlayer : players)
         {
-            PlayerMessager.sendMessage(qPlayer.getUUID(), ChatColor.GREEN + "Vous avez été ajouté à la queue " + ChatColor.RED + queue.getMap());
+            sendPacketHub(new QueueInfosUpdatePacket(qPlayer, QueueInfosUpdatePacket.Type.ADD, queue.getTemplate().getId()));
+            //PlayerMessager.sendMessage(qPlayer.getUUID(), ChatColor.GREEN + "Vous avez été ajouté à la queue " + ChatColor.RED + queue.getMap());
         }
     }
 
