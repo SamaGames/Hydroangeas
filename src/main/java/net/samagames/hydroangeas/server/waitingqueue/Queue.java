@@ -5,7 +5,8 @@ import net.samagames.hydroangeas.common.protocol.hubinfo.GameInfosToHubPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.server.data.Status;
-import net.samagames.hydroangeas.server.games.BasicGameTemplate;
+import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
+import net.samagames.hydroangeas.server.games.PackageGameTemplate;
 import net.samagames.hydroangeas.utils.PriorityBlockingQueue;
 
 import java.util.ArrayList;
@@ -27,7 +28,6 @@ public class Queue {
     private HydroangeasServer instance;
 
     private String game;
-    private String map;
 
     private PriorityBlockingQueue<QGroup> queue;
 
@@ -37,20 +37,24 @@ public class Queue {
     private Thread worker;
     private boolean working = true;
 
-    private BasicGameTemplate template;
+    private AbstractGameTemplate template;
 
     /*public Queue(QueueManager manager, String name)
     {
         this(manager, name.split("_")[0], name.split("_")[1]);
     }*/
 
-    public Queue(QueueManager manager, BasicGameTemplate template)
+    public Queue(QueueManager manager, AbstractGameTemplate template)
     {
         this.instance = Hydroangeas.getInstance().getAsServer();
         this.manager = manager;
         this.template = template;
         this.game = template.getGameName();
-        this.map = template.getMapName();
+
+        if(template instanceof PackageGameTemplate)//Assuming that the package template have not selected a template we force it
+        {
+            ((PackageGameTemplate) template).selectTemplate();
+        }
 
         //Si priority plus grande alors tu passe devant.
         this.queue = new PriorityBlockingQueue<>(100000, (o1, o2) -> -Integer.compare(o1.getPriority(), o2.getPriority()));
@@ -86,6 +90,10 @@ public class Queue {
                 if(servers.size() <= 0 && queue.size() >= template.getMaxSlot() * 0.7)
                 {
                     Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
+                    if(template instanceof PackageGameTemplate)//If it's a package template we change it now
+                    {
+                        ((PackageGameTemplate) template).selectTemplate();
+                    }
                 }
 
                 try {
@@ -104,8 +112,8 @@ public class Queue {
                 try{
                     if(System.currentTimeMillis() - lastSend > 1 * 60 * 1000 || sendInfo)
                     {
-                        sendInfoToHub();
                         sendInfo = false;
+                        sendInfoToHub();
                     }
 
                     Thread.sleep(700);
@@ -313,12 +321,8 @@ public class Queue {
         return game;
     }
 
-    public String getMap() {
-        return map;
-    }
-
-    public BasicGameTemplate getTemplate()
+    public AbstractGameTemplate getTemplate()
     {
-        return Hydroangeas.getInstance().getAsServer().getTemplateManager().getTemplateByGameAndMap(game, map);
+        return template;
     }
 }

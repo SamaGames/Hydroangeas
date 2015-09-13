@@ -4,7 +4,8 @@ import net.samagames.hydroangeas.common.protocol.coupaings.CoupaingServerPacket;
 import net.samagames.hydroangeas.common.protocol.intranet.AskForClientDataPacket;
 import net.samagames.hydroangeas.common.protocol.intranet.HelloFromClientPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
-import net.samagames.hydroangeas.server.games.BasicGameTemplate;
+import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
+import net.samagames.hydroangeas.server.games.SimpleGameTemplate;
 import net.samagames.hydroangeas.server.tasks.KeepUpdatedThread;
 
 import java.sql.Timestamp;
@@ -30,7 +31,7 @@ public class ClientManager
 
     public void orderServerForCoupaing(CoupaingServerPacket packet)
     {
-        BasicGameTemplate template = new BasicGameTemplate(
+        SimpleGameTemplate template = new SimpleGameTemplate(
                 UUID.randomUUID().toString(),
                 packet.getGame(),
                 packet.getMap(),
@@ -111,7 +112,7 @@ public class ClientManager
             return null;
     }
 
-    public List<MinecraftServerS> getServersByTemplate(BasicGameTemplate template)
+    public List<MinecraftServerS> getServersByTemplate(AbstractGameTemplate template)
     {
         List<MinecraftServerS> servers = new ArrayList<>();
 

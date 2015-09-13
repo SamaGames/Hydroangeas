@@ -5,7 +5,7 @@ import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.HydroClient;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.server.data.Status;
-import net.samagames.hydroangeas.server.games.BasicGameTemplate;
+import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
 
@@ -30,7 +30,7 @@ public class AlgorithmicMachine
         ModMessage.sendMessage(InstanceType.SERVER, "> Prêt !");
     }
 
-    public HydroClient selectGoodHydroClient(BasicGameTemplate template)
+    public HydroClient selectGoodHydroClient(AbstractGameTemplate template)
     {
         TreeSet<HydroClient> sortedClient = new TreeSet<>((o1, o2) -> (o1.getAvailableWeight() < o2.getAvailableWeight())? -1:1);
         sortedClient.addAll(instance.getClientManager().getClients());
@@ -47,7 +47,7 @@ public class AlgorithmicMachine
 
     public MinecraftServerS orderBasic(String game, String map)
     {
-        BasicGameTemplate template = instance.getTemplateManager().getTemplateByGameAndMap(game, map);
+        AbstractGameTemplate template = instance.getTemplateManager().getTemplateByGameAndMap(game, map);
         if(template == null)
         {
             instance.getLogger().warning("Error template " + game + " " + map + " doesn't exist!");
@@ -56,7 +56,7 @@ public class AlgorithmicMachine
         return orderTemplate(template);
     }
 
-    public MinecraftServerS orderTemplate(BasicGameTemplate template)
+    public MinecraftServerS orderTemplate(AbstractGameTemplate template)
     {
         HydroClient client = selectGoodHydroClient(template);
 
@@ -78,7 +78,7 @@ public class AlgorithmicMachine
         return server;
     }
 
-    public MinecraftServerS getServerFor(BasicGameTemplate template)
+    public MinecraftServerS getServerFor(AbstractGameTemplate template)
     {
         return null;
     }

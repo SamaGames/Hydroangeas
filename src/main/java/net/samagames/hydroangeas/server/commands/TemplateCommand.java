@@ -2,7 +2,7 @@ package net.samagames.hydroangeas.server.commands;
 
 import net.samagames.hydroangeas.common.commands.AbstractCommand;
 import net.samagames.hydroangeas.server.HydroangeasServer;
-import net.samagames.hydroangeas.server.games.BasicGameTemplate;
+import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
 
 import java.util.List;
 import java.util.logging.Level;
@@ -38,7 +38,7 @@ public class TemplateCommand extends AbstractCommand {
             instance.log(Level.INFO, message);
         }else if(args.length >= 1)
         {
-            BasicGameTemplate template = instance.getTemplateManager().getTemplateByID(args[0]);
+            AbstractGameTemplate template = instance.getTemplateManager().getTemplateByID(args[0]);
             if(template == null)
             {
                 instance.log(Level.INFO, "Template not found!");

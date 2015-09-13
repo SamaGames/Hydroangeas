@@ -3,7 +3,7 @@ package net.samagames.hydroangeas.server.waitingqueue;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
 import net.samagames.hydroangeas.common.protocol.queues.*;
 import net.samagames.hydroangeas.server.HydroangeasServer;
-import net.samagames.hydroangeas.server.games.BasicGameTemplate;
+import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
 import net.samagames.hydroangeas.utils.ChatColor;
 
 import java.util.ArrayList;
@@ -258,7 +258,7 @@ public class QueueManager {
         //TODO just do it !!!!!
     }
 
-    public Queue addQueue(BasicGameTemplate template)
+    public Queue addQueue(AbstractGameTemplate template)
     {
         Queue queue = new Queue(this, template);
         queues.add(queue);
