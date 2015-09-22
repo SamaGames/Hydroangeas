@@ -106,6 +106,8 @@ public abstract class Hydroangeas
         scheduler.shutdown();
 
         this.redisSubscriber.disable();
+
+        databaseConnector.disconnect();
     }
 
     public void log(Level level, String message)
