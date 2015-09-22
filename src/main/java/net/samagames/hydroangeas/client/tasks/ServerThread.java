@@ -18,7 +18,8 @@ import java.util.concurrent.Executors;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class ServerThread extends Thread {
+public class ServerThread extends Thread
+{
 
     public boolean isServerProcessAlive;
     public Process server;
@@ -31,7 +32,8 @@ public class ServerThread extends Thread {
     {
         this.instance = instance;
         this.executor = Executors.newFixedThreadPool(5);
-        try {
+        try
+        {
             this.directory = directory;
 
             Thread.sleep(10);
@@ -40,57 +42,69 @@ public class ServerThread extends Thread {
             isServerProcessAlive = true;
 
             executor.execute(() -> {
-                try {
+                try
+                {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(server.getErrorStream()));
                     String line = null;
-                    try {
-                        while(isServerProcessAlive && (line = reader.readLine()) != null) {
+                    try
+                    {
+                        while (isServerProcessAlive && (line = reader.readLine()) != null)
+                        {
                             //TODO handle errors
                         }
-                    } finally {
+                    } finally
+                    {
                         reader.close();
                     }
-                } catch(IOException ioe) {
+                } catch (IOException ioe)
+                {
                     ioe.printStackTrace();
                 }
             });
 
             executor.execute(() -> {
-                try {
+                try
+                {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(server.getInputStream()));
                     String line = null;
-                    try {
-                        while(isServerProcessAlive && (line = reader.readLine()) != null) {
+                    try
+                    {
+                        while (isServerProcessAlive && (line = reader.readLine()) != null)
+                        {
                             lastHeartbeat = System.currentTimeMillis();
                             //TODO: best crash detection
                         }
-                    } finally {
+                    } finally
+                    {
                         reader.close();
                     }
-                } catch(IOException ioe) {
+                } catch (IOException ioe)
+                {
                     ioe.printStackTrace();
                 }
             });
 
             executor.execute(() -> {
-                while(true)
+                while (true)
                 {
-                    try{
-
-                        if(System.currentTimeMillis() - lastHeartbeat > 10 * 1000)
-                        {
-                            instance.stopServer();
-                        }
-                        Thread.sleep(15 * 1000);
-                    }catch(Exception e)
+                    if (System.currentTimeMillis() - lastHeartbeat > 10 * 1000)
                     {
-                        e.printStackTrace();
+                        instance.stopServer();
+                    }
+                    try
+                    {
+                        Thread.sleep(15 * 1000);
+                    } catch (InterruptedException e)
+                    {
+                        break;
                     }
                 }
             });
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (InterruptedException e)
+        {
             e.printStackTrace();
         }
     }
@@ -98,9 +112,11 @@ public class ServerThread extends Thread {
     @Override
     public void run()
     {
-        try {
+        try
+        {
             server.waitFor();
-        } catch (InterruptedException e) {
+        } catch (InterruptedException e)
+        {
             e.printStackTrace();
         }
         normalStop();
@@ -112,9 +128,11 @@ public class ServerThread extends Thread {
     {
         isServerProcessAlive = false;
         instance.getInstance().getScheduler().execute(() -> {
-            try {
+            try
+            {
                 FileUtils.deleteDirectory(directory);
-            } catch (IOException e) {
+            } catch (IOException e)
+            {
                 e.printStackTrace();
             }
         });
