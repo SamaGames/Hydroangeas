@@ -32,17 +32,29 @@ public class MinecraftServerManager {
         this.client = client;
     }
 
-    public MinecraftServerS addServer(String game, String map, int minSlot, int maxSlot, JsonElement options, boolean isCoupaing, String templateID)
+    public MinecraftServerS addServer(String game, String map, int minSlot, int maxSlot, JsonElement options, boolean isCoupaing, String templateID, boolean hub)
     {
         MinecraftServerS server = new MinecraftServerS(client, game, map, minSlot, maxSlot, options);
         server.setTemplateID(templateID);
 
         server.setCoupaingServer(isCoupaing);
 
-        //Comme on prend que la première partie de l'uuid on check si un serveur a déja un nom identique
-        while(instance.getClientManager().getServerByName(server.getServerName()) != null)
+        if(!hub)
         {
-            server.changeUUID();
+            //Comme on prend que la première partie de l'uuid on check si un serveur a déja un nom identique
+            while(instance.getClientManager().getServerByName(server.getServerName()) != null)
+            {
+                server.changeUUID();
+            }
+        }else{
+            for(int i = 0; ; i++)
+            {
+                if(instance.getClientManager().getServerByName("Hub_"+i) == null)
+                {
+                    server.setHubID(i);
+                    break;
+                }
+            }
         }
 
         server.setWeight(MiscUtils.calculServerWeight(server.getGame(), server.getMaxSlot(), server.isCoupaingServer()));

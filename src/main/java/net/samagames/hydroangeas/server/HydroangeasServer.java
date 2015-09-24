@@ -62,7 +62,7 @@ public class HydroangeasServer extends Hydroangeas
         ModMessage.sendMessage(InstanceType.SERVER, "Démarrage d'Hydroangeas Server...");
         ModMessage.sendMessage(InstanceType.SERVER, "> Récupération des données éxistantes (60 secondes)...");
 
-        this.scheduler.schedule(() -> algorithmicMachine.startMachinery(), 60, TimeUnit.SECONDS);
+       // this.scheduler.schedule(() -> algorithmicMachine.startMachinery(), 60, TimeUnit.SECONDS);
     }
 
     public void disable()

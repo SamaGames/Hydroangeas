@@ -24,12 +24,6 @@ public class AlgorithmicMachine
         this.instance = instance;
     }
 
-    public void startMachinery()
-    {
-        //USELESS
-        ModMessage.sendMessage(InstanceType.SERVER, "> Prêt !");
-    }
-
     public HydroClient selectGoodHydroClient(AbstractGameTemplate template)
     {
         TreeSet<HydroClient> sortedClient = new TreeSet<>((o1, o2) -> (o1.getAvailableWeight() < o2.getAvailableWeight())? -1:1);
@@ -65,7 +59,6 @@ public class AlgorithmicMachine
             instance.log(Level.SEVERE, "Major error ! No Hydroclient available !");
             return null;
         }
-
         MinecraftServerS server = client.getServerManager().addServer(
                 template.getGameName(),
                 template.getMapName(),
@@ -73,7 +66,9 @@ public class AlgorithmicMachine
                 template.getMaxSlot(),
                 template.getOptions(),
                 template.isCoupaing(),
-                template.getId());
+                template.getId(),
+                template.getGameName().startsWith("Hub"));
+
         instance.log(Level.INFO, template.toString() + " created on " + client.getIp());
         return server;
     }

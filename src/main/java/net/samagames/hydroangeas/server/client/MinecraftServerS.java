@@ -25,6 +25,8 @@ public class MinecraftServerS {
     private int maxSlot;
     private JsonElement options;
 
+    private Integer hubID;
+
     private boolean started;
 
     private String templateID;
@@ -92,7 +94,7 @@ public class MinecraftServerS {
 
     public String getServerName()
     {
-        return this.game + "_" + this.uuid.toString().split("-")[0];
+        return this.game + "_" + ((hubID == null)?this.uuid.toString().split("-")[0]: hubID);
     }
 
     public int getMinSlot()
@@ -167,5 +169,17 @@ public class MinecraftServerS {
 
     public void setActualSlots(int actualSlots) {
         this.actualSlots = actualSlots;
+    }
+
+    public boolean isHub() {
+        return hubID != null;
+    }
+
+    public void setHubID(int hubID) {
+        this.hubID = hubID;
+    }
+
+    public Integer getHubID() {
+        return hubID;
     }
 }

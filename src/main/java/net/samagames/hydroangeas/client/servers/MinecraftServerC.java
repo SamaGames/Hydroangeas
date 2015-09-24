@@ -24,6 +24,8 @@ public class MinecraftServerC
     private JsonElement options;
     private int port;
 
+    private Integer hubID;
+
     private int weight;
 
     private ServerThread serverThread;
@@ -34,6 +36,8 @@ public class MinecraftServerC
 
         this.uuid = serverInfos.getUUID();
         this.coupaingServer = serverInfos.isCoupaingServer();
+
+        this.hubID = serverInfos.getHubID();
 
         this.game = serverInfos.getGame();
         this.map = serverInfos.getMap();
@@ -96,7 +100,7 @@ public class MinecraftServerC
                             "-jar", "spigot.jar", "nogui"},
                     new String[]{""}, serverFolder);
             serverThread.start();
-            instance.getLogger().info("Starting server "+ getServerName());
+            instance.getLogger().info("Starting server " + getServerName());
         }
         catch (Exception e)
         {
@@ -161,7 +165,7 @@ public class MinecraftServerC
 
     public String getServerName()
     {
-        return this.game + "_" + this.uuid.toString().split("-")[0];
+        return this.game + "_" + ((hubID == null)?this.uuid.toString().split("-")[0]: hubID);
     }
 
     public int getMinSlot()
@@ -186,5 +190,13 @@ public class MinecraftServerC
 
     public HydroangeasClient getInstance() {
         return instance;
+    }
+
+    public boolean isHub() {
+        return hubID != null;
+    }
+
+    public Integer getHubID() {
+        return hubID;
     }
 }

@@ -45,7 +45,6 @@ public class TemplateManager {
                     }else{
                         templates.add(new SimpleGameTemplate(FilenameUtils.removeExtension(file.getName()), data));
                     }
-
                 }
             }
         } catch (FileNotFoundException e) {

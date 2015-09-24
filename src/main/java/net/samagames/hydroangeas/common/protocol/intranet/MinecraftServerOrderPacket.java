@@ -17,6 +17,7 @@ public class MinecraftServerOrderPacket extends AbstractPacket{
 
     private UUID uuid;
 
+    private Integer hubID;
     private String game;
     private String map;
 
@@ -29,12 +30,13 @@ public class MinecraftServerOrderPacket extends AbstractPacket{
 
     public MinecraftServerOrderPacket(MinecraftServerS server)
     {
-        this(server.getUUID(), server.getGame(), server.getMap(), server.getMinSlot(), server.getMaxSlot(), server.getOptions());
+        this(server.getUUID(), server.getHubID(), server.getGame(), server.getMap(), server.getMinSlot(), server.getMaxSlot(), server.getOptions());
     }
 
-    public MinecraftServerOrderPacket(UUID uuid, String game, String map, int minSlot, int maxSlot, JsonElement options)
+    public MinecraftServerOrderPacket(UUID uuid, Integer hubID, String game, String map, int minSlot, int maxSlot, JsonElement options)
     {
         this.uuid = uuid;
+        this.hubID = hubID;
         this.game = game;
         this.map = map;
         this.minSlot = minSlot;
@@ -63,7 +65,7 @@ public class MinecraftServerOrderPacket extends AbstractPacket{
 
     public String getServerName()
     {
-        return this.game + "_" + this.uuid.toString().split("-")[0];
+        return this.game + "_" + ((hubID == null)?this.uuid.toString().split("-")[0]: hubID);
     }
 
     public int getMinSlot()
@@ -84,5 +86,9 @@ public class MinecraftServerOrderPacket extends AbstractPacket{
     public boolean isCoupaingServer()
     {
         return this.isCoupaing;
+    }
+
+    public Integer getHubID() {
+        return hubID;
     }
 }

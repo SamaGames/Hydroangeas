@@ -3,7 +3,6 @@ package net.samagames.hydroangeas.server.games;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.samagames.hydroangeas.Hydroangeas;
-import net.samagames.hydroangeas.server.HydroangeasServer;
 
 import java.util.ArrayList;
 import java.util.List;
