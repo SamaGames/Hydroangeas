@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class AlgorithmicMachine
 {
@@ -32,7 +33,7 @@ public class AlgorithmicMachine
 
     public HydroClient selectGoodHydroClient(BasicGameTemplate template)
     {
-        TreeSet<HydroClient> sortedClient = new TreeSet<>((o1, o2) -> (o1.getAvailableWeight() < o2.getAvailableWeight())? -1:1);
+        TreeSet<HydroClient> sortedClient = new TreeSet<>((o1, o2) -> (o1.getAvailableWeight() < o2.getAvailableWeight())? -1 : 1);
         sortedClient.addAll(instance.getClientManager().getClients());
         for(HydroClient client : sortedClient)
         {
@@ -88,13 +89,6 @@ public class AlgorithmicMachine
         if(serverStatus.getAction().equals(MinecraftServerUpdatePacket.UType.END))
         {
             HydroClient client = instance.getClientManager().getClientByUUID(serverStatus.getUUID());
-            /*MinecraftServerS oldserver = client.getServerManager().getServerByName(serverStatus.getServerName());
-            client.getServerManager().addServer(oldserver.getGame(),
-                    oldserver.getMap(),
-                    oldserver.getMinSlot(), //We restart the same server on the same client for test
-                    oldserver.getMaxSlot(),
-                    oldserver.getOptions(),
-                    oldserver.isCoupaingServer());*/
 
             instance.log(Level.INFO, "Server ended on " + client.getIp() + " servername: " + serverStatus.getServerName());
         }
@@ -105,13 +99,7 @@ public class AlgorithmicMachine
         List<MinecraftServerS> servers = new ArrayList<>();
         for(HydroClient client : instance.getClientManager().getClients())
         {
-            for (MinecraftServerS server : client.getServerManager().getServers())
-            {
-                if(server.getTemplateID().equalsIgnoreCase(templateID) && (server.getStatus().isAllowJoin() || server.getStatus().equals(Status.STARTING)) && server.getActualSlots() < server.getMaxSlot() * 0.90)
-                {
-                    servers.add(server);
-                }
-            }
+            servers.addAll(client.getServerManager().getServers().stream().filter(server -> server.getTemplateID().equalsIgnoreCase(templateID) && (server.getStatus().isAllowJoin() || server.getStatus().equals(Status.STARTING)) && server.getActualSlots() < server.getMaxSlot() * 0.90).collect(Collectors.toList()));
         }
         return servers;
     }

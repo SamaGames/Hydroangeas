@@ -4,7 +4,6 @@ import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.protocol.hubinfo.GameInfosToHubPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
-import net.samagames.hydroangeas.server.data.Status;
 import net.samagames.hydroangeas.server.games.BasicGameTemplate;
 
 import java.util.ArrayList;
@@ -61,22 +60,14 @@ public class Queue {
 
                 List<MinecraftServerS> servers = instance.getAlgorithmicMachine().getServerByTemplatesAndAvailable(template.getId());
 
-                for(MinecraftServerS server : servers)
-                {
-                    if(server.getStatus().isAllowJoin())
+                servers.stream().filter(server -> server.getStatus().isAllowJoin()).forEach(server -> {
+                    List<QGroup> groups = new ArrayList<>();
+                    queue.drainTo(groups, server.getMaxSlot());
+                    for (QGroup group : groups)
                     {
-                        List<QGroup> groups = new ArrayList<>();
-                        queue.drainTo(groups, server.getMaxSlot());
-                        for(QGroup group : groups)
-                        {
-                            group.sendTo(server.getServerName());
-                        }
-                    }else if(!server.getStatus().equals(Status.STARTING))
-                    {
-                        //ne devrait jamais arrriver (peut etre à delete)
-                        servers.remove(server);
+                        group.sendTo(server.getServerName());
                     }
-                }
+                });
 
                 if(servers.size() <= 0 && queue.size() >= template.getMaxSlot() * 0.7)
                 {

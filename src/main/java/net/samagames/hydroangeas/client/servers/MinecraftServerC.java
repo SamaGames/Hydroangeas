@@ -79,8 +79,6 @@ public class MinecraftServerC
                             "-Xmx1152M",
                             "-Xms512M",
                             "-Xmn256M",
-                            "-XX:PermSize=64M",
-                            "-XX:MaxPermSize=256M",
                             "-XX:-OmitStackTraceInFastThrow",
                             "-XX:SurvivorRatio=2",
                             "-XX:-UseAdaptiveSizePolicy",
