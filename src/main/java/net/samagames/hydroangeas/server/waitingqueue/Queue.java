@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
@@ -28,7 +27,7 @@ public class Queue {
     private String game;
     private String map;
 
-    private PriorityBlockingQueue<QGroup> queue;
+    private PriorityPlayerQueue queue;
 
     private Thread updater;
     private boolean sendInfo = true;
@@ -47,7 +46,7 @@ public class Queue {
         this.map = template.getMapName();
 
         //Si priority plus grande alors tu passe devant.
-        this.queue = new PriorityBlockingQueue<>(100000, (o1, o2) -> -Integer.compare(o1.getPriority(), o2.getPriority()));
+        this.queue = new PriorityPlayerQueue(100000, (o1, o2) -> -Integer.compare(o1.getPriority(), o2.getPriority()));
 
         worker = new Thread(() -> {
             while (working)
@@ -62,7 +61,7 @@ public class Queue {
 
                 servers.stream().filter(server -> server.getStatus().isAllowJoin()).forEach(server -> {
                     List<QGroup> groups = new ArrayList<>();
-                    queue.drainTo(groups, server.getMaxSlot());
+                    queue.drainPlayerTo(groups, server.getMaxSlot());
                     for (QGroup group : groups)
                     {
                         group.sendTo(server.getServerName());
@@ -154,7 +153,7 @@ public class Queue {
     public List<QGroup> getGroupsListFormatted(int number)
     {
         List<QGroup> data = new ArrayList<>();
-        queue.drainTo(data, number);
+        queue.drainPlayerTo(data, number);
 
         return data;
     }

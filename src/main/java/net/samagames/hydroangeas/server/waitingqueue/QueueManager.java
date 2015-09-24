@@ -26,7 +26,6 @@ public class QueueManager {
 
     public QueueManager(HydroangeasServer instance)
     {
-
         this.instance = instance;
     }
 
