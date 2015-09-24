@@ -12,10 +12,32 @@ public class DatabaseConnector
     private final Hydroangeas instance;
     private JedisPool jedisPool;
 
+    public Thread reconnection;
+
     public DatabaseConnector(Hydroangeas instance)
     {
         this.instance = instance;
         this.connect();
+
+        this.reconnection = new Thread(() -> {
+            while(true)
+            {
+                try{
+                    try{
+                        jedisPool.getResource().close();
+                    }catch(Exception e)
+                    {
+                        e.printStackTrace();
+                        instance.getLogger().severe("Error redis connection, Try to reconnect!");
+                        connect();
+                    }
+                    Thread.sleep(10*1000);
+                }catch (Exception e)
+                {
+                    break;
+                }
+            }
+        }, "Redis reconnect");
     }
 
     public void connect()
@@ -30,7 +52,6 @@ public class DatabaseConnector
         logger.setLevel(Level.OFF);
 
         this.jedisPool = new JedisPool(jedisConfiguration, this.instance.getConfiguration().redisIp, this.instance.getConfiguration().redisPort, 5000, this.instance.getConfiguration().redisPassword);
-
         try
         {
             this.jedisPool.getResource();
@@ -42,6 +63,11 @@ public class DatabaseConnector
         }
 
         this.instance.log(Level.INFO, "Connected to database.");
+    }
+
+    public void disconnect()
+    {
+        reconnection.interrupt();
     }
 
     public JedisPool getJedisPool()
