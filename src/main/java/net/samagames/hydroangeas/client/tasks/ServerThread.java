@@ -50,6 +50,7 @@ public class ServerThread extends Thread
                     {
                         while (isServerProcessAlive && (line = reader.readLine()) != null)
                         {
+                            System.err.println(instance.getServerName() + "> " + line);
                             //TODO handle errors
                         }
                     } finally
@@ -71,6 +72,7 @@ public class ServerThread extends Thread
                     {
                         while (isServerProcessAlive && (line = reader.readLine()) != null)
                         {
+                            System.out.println(instance.getServerName() + "> "+ line);
                             lastHeartbeat = System.currentTimeMillis();
                             //TODO: best crash detection
                         }
@@ -87,7 +89,7 @@ public class ServerThread extends Thread
             executor.execute(() -> {
                 while (true)
                 {
-                    if (System.currentTimeMillis() - lastHeartbeat > 10 * 1000)
+                    if (System.currentTimeMillis() - lastHeartbeat > 120000)
                     {
                         instance.stopServer();
                     }

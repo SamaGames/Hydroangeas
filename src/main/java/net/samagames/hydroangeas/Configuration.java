@@ -20,6 +20,9 @@ public class Configuration
     public String redisIp;
     public String redisPassword;
     public int redisPort;
+    private String restfullURL;
+    private String restfullUser;
+    private String restfullPassword;
 
     public Configuration(Hydroangeas instance, OptionSet options)
     {
@@ -61,6 +64,9 @@ public class Configuration
         this.redisIp = jsonRoot.get("redis-ip").getAsString();
         this.redisPort = jsonRoot.get("redis-port").getAsInt();
         this.redisPassword = jsonRoot.get("redis-password").getAsString();
+        this.restfullURL = jsonRoot.get("restfull-url").getAsString();
+        this.restfullUser = jsonRoot.get("restfull-user").getAsString();
+        this.restfullPassword = jsonRoot.get("restfull-user").getAsString();
     }
 
     public void createDefaultConfiguration()
@@ -92,6 +98,9 @@ public class Configuration
         if(!object.has("redis-ip")) flag = false;
         if(!object.has("redis-port")) flag = false;
         if(!object.has("redis-password")) flag = false;
+        if(!object.has("restfull-url")) flag = false;
+        if(!object.has("restfull-user")) flag = false;
+        if(!object.has("restfull-password")) flag = false;
         if(!object.has("web-domain")) flag = false;
 
         /** Client **/

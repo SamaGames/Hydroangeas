@@ -35,6 +35,7 @@ public class ServerStatusReceiver implements PacketReceiver {
             instance.getLogger().info("Server: " + serverName + " not handled by Hydro");
             return;
         }
+
         server.setActualSlots(data.getPlayers());
         server.setStatus(data.getStatus());
     }
