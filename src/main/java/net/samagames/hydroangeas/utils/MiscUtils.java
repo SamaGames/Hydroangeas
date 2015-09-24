@@ -99,6 +99,7 @@ public class MiscUtils
 
     public static int calculServerWeight(String game, int maxSlot, boolean isCoupaing)
     {
+        game = game.toLowerCase();
         int weight = 0;
 
         //GameType
