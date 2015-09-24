@@ -6,12 +6,12 @@ import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.server.data.Status;
 import net.samagames.hydroangeas.server.games.BasicGameTemplate;
-import net.samagames.hydroangeas.utils.PriorityBlockingQueue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
@@ -38,11 +38,6 @@ public class Queue {
     private boolean working = true;
 
     private BasicGameTemplate template;
-
-    /*public Queue(QueueManager manager, String name)
-    {
-        this(manager, name.split("_")[0], name.split("_")[1]);
-    }*/
 
     public Queue(QueueManager manager, BasicGameTemplate template)
     {
@@ -102,7 +97,7 @@ public class Queue {
             while(true)
             {
                 try{
-                    if(System.currentTimeMillis() - lastSend > 1 * 60 * 1000 || sendInfo)
+                    if(System.currentTimeMillis() - lastSend > 60000 || sendInfo)
                     {
                         sendInfoToHub();
                         sendInfo = false;

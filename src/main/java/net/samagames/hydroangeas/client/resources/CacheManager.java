@@ -1,7 +1,7 @@
 package net.samagames.hydroangeas.client.resources;
 
 import net.samagames.hydroangeas.client.HydroangeasClient;
-import net.samagames.hydroangeas.utils.InternetUtils;
+import net.samagames.hydroangeas.utils.NetworkUtils;
 import net.samagames.hydroangeas.utils.MiscUtils;
 import org.apache.commons.io.FileUtils;
 import org.rauschig.jarchivelib.Archiver;
@@ -71,7 +71,7 @@ public class CacheManager {
                 e.printStackTrace();
             }
         }else{
-            String remoteChecksum = InternetUtils.readURL(checksumURL);
+            String remoteChecksum = NetworkUtils.readURL(checksumURL);
 
             try {
                 if(!remoteChecksum.equals(MiscUtils.getSHA1(cache)))

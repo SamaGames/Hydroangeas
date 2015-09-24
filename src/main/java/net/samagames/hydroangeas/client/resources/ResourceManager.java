@@ -8,7 +8,7 @@ import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;
 import net.samagames.hydroangeas.client.servers.ServerDependency;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerIssuePacket;
-import net.samagames.hydroangeas.utils.InternetUtils;
+import net.samagames.hydroangeas.utils.NetworkUtils;
 import org.apache.commons.io.FileUtils;
 import org.rauschig.jarchivelib.Archiver;
 import org.rauschig.jarchivelib.ArchiverFactory;
@@ -33,7 +33,7 @@ public class ResourceManager
         try
         {
             String existURL = this.instance.getTemplatesDomain() + "servers/exist.php?game=" + server.getGame();
-            boolean exist = Boolean.valueOf(InternetUtils.readURL(existURL));
+            boolean exist = Boolean.valueOf(NetworkUtils.readURL(existURL));
 
             if (!exist)
             {
@@ -59,7 +59,7 @@ public class ResourceManager
         try
         {
             String existURL = this.instance.getTemplatesDomain() + "maps/exist.php?game=" + server.getGame() + "&map=" + server.getMap();
-            boolean exist = Boolean.valueOf(InternetUtils.readURL(existURL));
+            boolean exist = Boolean.valueOf(NetworkUtils.readURL(existURL));
 
             if (!exist)
             {
@@ -112,7 +112,7 @@ public class ResourceManager
             if(!pluginsPath.exists())
                 pluginsPath.mkdirs();
 
-            boolean exist = Boolean.valueOf(InternetUtils.readURL(existURL));
+            boolean exist = Boolean.valueOf(NetworkUtils.readURL(existURL));
 
             if (!exist)
             {
@@ -139,11 +139,11 @@ public class ResourceManager
         {
             this.instance.getLinuxBridge().sed("%serverName%", server.getServerName(), new File(serverPath, "plugins" + File.separator + "SamaGamesAPI" + File.separator + "config.yml").getAbsolutePath());
             this.instance.getLinuxBridge().sed("%serverPort%", String.valueOf(server.getPort()), new File(serverPath, "server.properties").getAbsolutePath());
-            this.instance.getLinuxBridge().sed("%serverIp%", InternetUtils.getExternalIp(), new File(serverPath, "server.properties").getAbsolutePath());
+            this.instance.getLinuxBridge().sed("%serverIp%", instance.getAsClient().getIP(), new File(serverPath, "server.properties").getAbsolutePath());
             this.instance.getLinuxBridge().sed("%serverName%", server.getServerName(), new File(serverPath, "scripts.txt").getAbsolutePath());
 
-            File coupaingFile = new File(serverPath, "game.json");
-            coupaingFile.createNewFile();
+            File gameFile = new File(serverPath, "game.json");
+            gameFile.createNewFile();
 
             JsonObject rootJson = new JsonObject();
             rootJson.addProperty("map-name", server.getMap());
@@ -153,7 +153,7 @@ public class ResourceManager
             rootJson.add("options", server.getOptions());
 
 
-            FileOutputStream fOut = new FileOutputStream(coupaingFile);
+            FileOutputStream fOut = new FileOutputStream(gameFile);
             OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
             myOutWriter.append(new Gson().toJson(rootJson));
             myOutWriter.close();

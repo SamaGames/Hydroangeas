@@ -10,6 +10,7 @@ import net.samagames.hydroangeas.common.database.RedisSubscriber;
 import net.samagames.hydroangeas.common.log.HydroLogger;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.utils.LinuxBridge;
+import net.samagames.restfull.RestAPI;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.IOException;
@@ -55,7 +56,7 @@ public abstract class Hydroangeas
             log(Level.INFO, "NOTE: This error is non crucial, and BungeeCord will still function correctly! Do not bug the author about it unless you are still unable to get it working");
         }
 
-        logger.info("Hydroangeas version 1.0.0 by BlueSlime");
+        logger.info("Hydroangeas version 1.0.0");
         logger.info("----------------------------------------");
 
         this.scheduler = Executors.newScheduledThreadPool(16);
@@ -63,6 +64,7 @@ public abstract class Hydroangeas
         this.options = options;
         this.configuration = new Configuration(this, options);
         this.databaseConnector = new DatabaseConnector(this);
+        RestAPI.getInstance().setup(configuration.restfullURL, configuration.restfullUser, configuration.restfullPassword);
         this.redisSubscriber = new RedisSubscriber(this);
         this.linuxBridge = new LinuxBridge();
 

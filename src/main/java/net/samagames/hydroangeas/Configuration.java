@@ -20,9 +20,9 @@ public class Configuration
     public String redisIp;
     public String redisPassword;
     public int redisPort;
-    private String restfullURL;
-    private String restfullUser;
-    private String restfullPassword;
+    public String restfullURL;
+    public String restfullUser;
+    public String restfullPassword;
 
     public Configuration(Hydroangeas instance, OptionSet options)
     {

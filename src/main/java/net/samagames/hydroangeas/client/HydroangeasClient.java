@@ -7,7 +7,7 @@ import net.samagames.hydroangeas.client.resources.ResourceManager;
 import net.samagames.hydroangeas.client.servers.ServerManager;
 import net.samagames.hydroangeas.client.tasks.LifeThread;
 import net.samagames.hydroangeas.common.protocol.intranet.ByeFromClientPacket;
-import net.samagames.hydroangeas.utils.InternetUtils;
+import net.samagames.hydroangeas.utils.NetworkUtils;
 import net.samagames.hydroangeas.utils.MiscUtils;
 
 import java.io.File;
@@ -98,7 +98,7 @@ public class HydroangeasClient extends Hydroangeas
 
     public String getIP()
     {
-        return InternetUtils.getExternalIp();
+        return "0.0.0.0";
     }
 
     public ClientConnectionManager getConnectionManager()

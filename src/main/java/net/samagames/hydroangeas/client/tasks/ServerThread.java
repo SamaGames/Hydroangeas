@@ -2,6 +2,8 @@ package net.samagames.hydroangeas.client.tasks;
 
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;
+import net.samagames.restfull.LogLevel;
+import net.samagames.restfull.RestAPI;
 import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
@@ -50,6 +52,7 @@ public class ServerThread extends Thread
                     {
                         while (isServerProcessAlive && (line = reader.readLine()) != null)
                         {
+                            RestAPI.getInstance().log(LogLevel.ERROR, instance.getServerName(), line);
                             System.err.println(instance.getServerName() + "> " + line);
                             //TODO handle errors
                         }
