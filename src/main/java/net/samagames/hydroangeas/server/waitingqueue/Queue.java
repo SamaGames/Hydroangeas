@@ -68,7 +68,7 @@ public class Queue {
                     }
                 });
 
-                if(servers.size() <= 0 && queue.size() >= template.getMaxSlot() * 0.7)
+                if(servers.size() <= 0 && queue.size() >= template.getMinSlot())
                 {
                     Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
                 }
