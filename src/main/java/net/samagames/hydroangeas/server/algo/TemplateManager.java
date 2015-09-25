@@ -1,5 +1,6 @@
 package net.samagames.hydroangeas.server.algo;
 
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.games.BasicGameTemplate;
@@ -34,10 +35,16 @@ public class TemplateManager {
 
         try {
             for(File file : directory.listFiles()) {
-                if(file.isFile()) {
-                    templates.add(
-                            new BasicGameTemplate(FilenameUtils.removeExtension(file.getName()),
-                                    new JsonParser().parse(new FileReader(file)).getAsJsonObject()));
+                if(file.isFile() && file.getName().endsWith(".json")) {
+                    try {
+                        templates.add(
+                                new BasicGameTemplate(FilenameUtils.removeExtension(file.getName()),
+                                        new JsonParser().parse(new FileReader(file)).getAsJsonObject()));
+                    } catch (JsonParseException e)
+                    {
+                        instance.getLogger().severe("Invalid template " + file.getName());
+                        e.printStackTrace();
+                    }
                 }
             }
         } catch (FileNotFoundException e) {

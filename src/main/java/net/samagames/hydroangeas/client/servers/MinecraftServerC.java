@@ -3,10 +3,12 @@ package net.samagames.hydroangeas.client.servers;
 import com.google.gson.JsonElement;
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.tasks.ServerThread;
+import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerIssuePacket;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerOrderPacket;
 import net.samagames.hydroangeas.utils.MiscUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -56,11 +58,22 @@ public class MinecraftServerC
             this.instance.getResourceManager().downloadServer(this, this.serverFolder);
             this.instance.getResourceManager().downloadMap(this, this.serverFolder);
             this.instance.getResourceManager().downloadDependencies(this, this.serverFolder);
-            this.instance.getResourceManager().patchServer(this, this.serverFolder, isCoupaingServer());
         }
         catch (Exception e)
         {
             this.instance.log(Level.SEVERE, "Can't make the server " + getServerName() + "!");
+            instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), this.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
+            e.printStackTrace();
+            serverFolder.delete();
+            return false;
+        }
+
+        try
+        {
+            this.instance.getResourceManager().patchServer(this, this.serverFolder, isCoupaingServer());
+        } catch (IOException e)
+        {
+            instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), this.getServerName(), MinecraftServerIssuePacket.Type.PATCH));
             e.printStackTrace();
             serverFolder.delete();
             return false;
