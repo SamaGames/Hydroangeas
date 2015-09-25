@@ -114,7 +114,6 @@ public class ClientManager
     public List<MinecraftServerS> getServersByTemplate(BasicGameTemplate template)
     {
         List<MinecraftServerS> servers = new ArrayList<>();
-
         for(HydroClient client : clientList)
         {
             servers.addAll(client.getServerManager().getServersByTemplate(template));

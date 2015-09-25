@@ -11,6 +11,7 @@ import net.samagames.hydroangeas.utils.MiscUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
@@ -127,17 +128,7 @@ public class MinecraftServerManager {
 
     public List<MinecraftServerS> getServersByTemplate(BasicGameTemplate template)
     {
-        List<MinecraftServerS> servers = new ArrayList<>();
-
-        for(MinecraftServerS server : servers)
-        {
-            if(server.getTemplateID().equals(template.getId()))
-            {
-                servers.add(server);
-            }
-        }
-
-        return servers;
+        return servers.stream().filter(server -> server.getTemplateID().equals(template.getId())).collect(Collectors.toList());
     }
 
     public int getTotalWeight()
