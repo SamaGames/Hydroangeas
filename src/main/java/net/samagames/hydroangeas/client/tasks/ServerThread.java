@@ -75,7 +75,6 @@ public class ServerThread extends Thread
                     {
                         while (isServerProcessAlive && (line = reader.readLine()) != null)
                         {
-                            System.out.println(instance.getServerName() + "> "+ line);
                             lastHeartbeat = System.currentTimeMillis();
                             //TODO: best crash detection
                         }
