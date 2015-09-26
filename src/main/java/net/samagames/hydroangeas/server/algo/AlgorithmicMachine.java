@@ -67,14 +67,7 @@ public class AlgorithmicMachine
             return null;
         }
 
-        MinecraftServerS server = client.getServerManager().addServer(
-                template.getGameName(),
-                template.getMapName(),
-                template.getMinSlot(),
-                template.getMaxSlot(),
-                template.getOptions(),
-                template.isCoupaing(),
-                template.getId());
+        MinecraftServerS server = client.getServerManager().addServer(template);
         instance.log(Level.INFO, template.toString() + " created on " + client.getIp());
         return server;
     }

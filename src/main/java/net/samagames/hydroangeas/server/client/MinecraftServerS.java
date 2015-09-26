@@ -3,7 +3,9 @@ package net.samagames.hydroangeas.server.client;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import net.samagames.hydroangeas.common.protocol.intranet.AskForClientActionPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerInfoPacket;
 import net.samagames.hydroangeas.server.data.Status;
+import net.samagames.hydroangeas.server.games.BasicGameTemplate;
 
 import java.util.UUID;
 
@@ -36,14 +38,17 @@ public class MinecraftServerS {
     private Status status = Status.STARTING;
     private int actualSlots;
 
-    public MinecraftServerS(HydroClient client, String game, String map)
+
+    public MinecraftServerS(HydroClient client, BasicGameTemplate template)
     {
-        this(client, game, map, 0, 0, new JsonPrimitive(""));
+        this(client, UUID.randomUUID(), template.getGameName(), template.getMapName(), template.getMinSlot(), template.getMaxSlot(), template.getOptions());
+        this.coupaingServer = template.isCoupaing();
     }
 
-    public MinecraftServerS(HydroClient client, String game, String map, int minSlot, int maxSlot, JsonElement options)
+    public MinecraftServerS(HydroClient client, MinecraftServerInfoPacket packet)
     {
-        this(client, UUID.randomUUID(), game, map, minSlot, maxSlot, options);
+        this(client, UUID.randomUUID(), packet.getGame(), packet.getMap(), packet.getMinSlot(), packet.getMaxSlot(), packet.getOptions());
+        this.port = packet.getPort();
     }
 
     public MinecraftServerS(HydroClient client, UUID uuid, String game, String map, int minSlot, int maxSlot, JsonElement options)
@@ -55,8 +60,6 @@ public class MinecraftServerS {
         this.minSlot = minSlot;
         this.maxSlot = maxSlot;
         this.options = options;
-
-        this.coupaingServer = false;
     }
 
     public void shutdown()

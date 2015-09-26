@@ -33,14 +33,11 @@ public class MinecraftServerManager {
         this.client = client;
     }
 
-    public MinecraftServerS addServer(String game, String map, int minSlot, int maxSlot, JsonElement options, boolean isCoupaing, String templateID)
+    public MinecraftServerS addServer(BasicGameTemplate template)
     {
-        MinecraftServerS server = new MinecraftServerS(client, game, map, minSlot, maxSlot, options);
-        server.setTemplateID(templateID);
+        MinecraftServerS server = new MinecraftServerS(client, template);
 
-        server.setCoupaingServer(isCoupaing);
-
-        //Comme on prend que la première partie de l'uuid on check si un serveur a déja un nom identique
+        // Make sure that the server name is not already taken
         while(instance.getClientManager().getServerByName(server.getServerName()) != null)
         {
             server.changeUUID();
@@ -63,8 +60,7 @@ public class MinecraftServerManager {
         {
             instance.getLogger().severe("Error sync! server: " + packet.getServerName() + " not know by Hydroserver!");
 
-            server = new MinecraftServerS(client, packet.getServerUUID(), packet.getGame(), packet.getMap(), packet.getMinSlot(), packet.getMaxSlot(), packet.getOptions());
-            server.setPort(packet.getPort());
+            server = new MinecraftServerS(client, packet);
 
             if(getServerByUUID(server.getUUID()) != null)
             {
@@ -94,9 +90,7 @@ public class MinecraftServerManager {
     {
         MinecraftServerS server = getServerByName(serverName);
         if(server == null)
-        {
             return;
-        }
 
         server.onShutdown();
         servers.remove(server);
@@ -105,12 +99,8 @@ public class MinecraftServerManager {
     public MinecraftServerS getServerByName(String serverName)
     {
         for(MinecraftServerS server : servers)
-        {
             if(server.getServerName().equals(serverName))
-            {
                 return server;
-            }
-        }
         return null;
     }
 

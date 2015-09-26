@@ -86,7 +86,6 @@ public class MinecraftServerC
     {
         try
         {
-            //this.instance.getLinuxBridge().mark2Start(this.serverFolder.getAbsolutePath()); //Old system
             serverThread = new ServerThread(this,
                     new String[]{"java",
                             "-Xmx1152M",

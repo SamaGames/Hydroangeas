@@ -71,7 +71,7 @@ public class ResourceManager
         }
     }
 
-    public void downloadDependencies(MinecraftServerC server, File serverPath) throws FileNotFoundException
+    public void downloadDependencies(MinecraftServerC server, File serverPath) throws IOException
     {
         File dependenciesFile = new File(serverPath, "dependencies.json");
 
@@ -86,35 +86,24 @@ public class ResourceManager
         }
     }
 
-    public void downloadDependency(MinecraftServerC server, ServerDependency dependency, File serverPath)
+    public void downloadDependency(MinecraftServerC server, ServerDependency dependency, File serverPath) throws IOException
     {
-        try
+        String existURL = this.instance.getTemplatesDomain() + "dependencies/exist.php?name=" + dependency.getName() + "&version=" + dependency.getVersion();
+        File pluginsPath = new File(serverPath, "plugins/");
+
+        if(!pluginsPath.exists())
+            pluginsPath.mkdirs();
+
+        if (!Boolean.parseBoolean(NetworkUtils.readURL(existURL)))
         {
-            String existURL = this.instance.getTemplatesDomain() + "dependencies/exist.php?name=" + dependency.getName() + "&version=" + dependency.getVersion();
-            File pluginsPath = new File(serverPath, "plugins/");
-
-            if(!pluginsPath.exists())
-                pluginsPath.mkdirs();
-
-            boolean exist = Boolean.valueOf(NetworkUtils.readURL(existURL));
-
-            if (!exist)
-            {
-                throw new IllegalStateException("Servers' dependency '" + dependency.getName() + "' don't exist!");
-            }
-
-            File dest = new File(pluginsPath, dependency.getName() + "_" + dependency.getVersion() + ".tar.gz");
-
-            FileUtils.copyFile(cacheManager.getDebFiles(dependency.getName(), dependency.getVersion()), dest);
-
-            Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
-            archiver.extract(dest, pluginsPath.getAbsoluteFile());
+            throw new IllegalStateException("Servers' dependency '" + dependency.getName() + "' don't exist!");
         }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
-        }
+
+        File dest = new File(pluginsPath, dependency.getName() + "_" + dependency.getVersion() + ".tar.gz");
+
+        FileUtils.copyFile(cacheManager.getDebFiles(dependency.getName(), dependency.getVersion()), dest);
+
+        ArchiverFactory.createArchiver("tar", "gz").extract(dest, pluginsPath.getAbsoluteFile());
     }
 
     public void patchServer(MinecraftServerC server, File serverPath, boolean isCoupaingServer) throws IOException
