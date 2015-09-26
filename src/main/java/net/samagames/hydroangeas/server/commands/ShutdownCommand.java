@@ -12,50 +12,58 @@ import net.samagames.hydroangeas.server.client.MinecraftServerS;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class ShutdownCommand extends AbstractCommand {
+public class ShutdownCommand extends AbstractCommand
+{
     public HydroangeasServer instance;
 
-    public ShutdownCommand(HydroangeasServer hydroangeasServer) {
+    public ShutdownCommand(HydroangeasServer hydroangeasServer)
+    {
         super("shutdown");
         this.instance = hydroangeasServer;
     }
 
     @Override
-    public boolean execute(String[] args) {
+    public boolean execute(String[] args)
+    {
 
-        if(args.length == 2)
+        if (args.length == 2)
         {
-            if(args[0].equals("client"))
+            switch (args[0])
             {
-                int id;
-                try{
-                    id = Integer.valueOf(args[1]);
-                    HydroClient client = instance.getClientManager().getClients().get(id);
-                    client.shutdown();
-                    instance.getLogger().info("#" + id + " shutdown successfully");
-                }catch (NumberFormatException e)
-                {
-                    instance.getLogger().info("Erreur numero du client. Tappez: info");
-                    return false;
-                }catch (IndexOutOfBoundsException e)
-                {
-                    instance.getLogger().info("Erreur mauvais numero du client. Tappez: info");
-                    return false;
-                }
-            }else if(args[0].equals("server"))
-            {
-                MinecraftServerS server = instance.getClientManager().getServerByName(args[1]);
-                if(server == null)
-                {
-                    instance.getLogger().info("Erreur mauvais nom de serveur!");
-                    return true;
-                }
-                server.shutdown();
-                instance.getLogger().info(server.getServerName() + " shutdown successfully");
-            }else{
-                showSyntaxe();
+                case "client":
+                    int id;
+                    try
+                    {
+                        id = Integer.valueOf(args[1]);
+                        HydroClient client = instance.getClientManager().getClients().get(id);
+                        client.shutdown();
+                        instance.getLogger().info("#" + id + " shutdown successfully");
+                    } catch (NumberFormatException e)
+                    {
+                        instance.getLogger().info("Erreur numero du client. Tappez: info");
+                        return false;
+                    } catch (IndexOutOfBoundsException e)
+                    {
+                        instance.getLogger().info("Erreur mauvais numero du client. Tappez: info");
+                        return false;
+                    }
+                    break;
+                case "server":
+                    MinecraftServerS server = instance.getClientManager().getServerByName(args[1]);
+                    if (server == null)
+                    {
+                        instance.getLogger().info("Erreur mauvais nom de serveur!");
+                        return true;
+                    }
+                    server.shutdown();
+                    instance.getLogger().info(server.getServerName() + " shutdown successfully");
+                    break;
+                default:
+                    showSyntaxe();
+                    break;
             }
-        }else{
+        } else
+        {
             showSyntaxe();
         }
         return true;

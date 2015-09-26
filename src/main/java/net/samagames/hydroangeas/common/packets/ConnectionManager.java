@@ -16,7 +16,8 @@ import java.util.logging.Level;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public abstract class ConnectionManager {
+public abstract class ConnectionManager
+{
 
     public AbstractPacket[] packets = new AbstractPacket[256];
 
@@ -56,29 +57,31 @@ public abstract class ConnectionManager {
     public void getPacket(String packet)
     {
         String id;
-        try{
+        try
+        {
             id = packet.split(":")[0];
-            if(id == null || packets[Integer.valueOf(id)] == null)
+            if (id == null || packets[Integer.valueOf(id)] == null)
             {
                 hydroangeas.log(Level.SEVERE, "Error bad packet ID in the channel");
                 return;
             }
-        }catch (Exception e)
+        } catch (Exception e)
         {
             e.printStackTrace();
             hydroangeas.log(Level.SEVERE, "Error packet no ID in the channel");
             return;
         }
 
-        packet = packet.substring(id.length()+1, packet.length());
+        packet = packet.substring(id.length() + 1, packet.length());
 
         final String finalPacket = packet;
         final String finalID = id;
         final ConnectionManager manager = this;
         new Thread(() -> {
-            try {
+            try
+            {
                 manager.handler(Integer.valueOf(finalID), finalPacket);
-            }catch (Exception e)
+            } catch (Exception e)
             {
                 e.printStackTrace();
             }
@@ -89,9 +92,9 @@ public abstract class ConnectionManager {
     {
         for (int i = 0; i < packets.length; i++)
         {
-            if(packets[i] == null)
+            if (packets[i] == null)
                 continue;
-            if(packets[i].getClass().equals(p.getClass()))
+            if (packets[i].getClass().equals(p.getClass()))
                 return i;
         }
         return -1;
@@ -100,18 +103,19 @@ public abstract class ConnectionManager {
     public void sendPacket(String channel, AbstractPacket data)
     {
         int i = packetId(data);
-        if(i < 0)
+        if (i < 0)
         {
             hydroangeas.log(Level.SEVERE, "Bad packet ID: " + i);
             return;
-        }else if(channel == null)
+        } else if (channel == null)
         {
             hydroangeas.log(Level.SEVERE, "Channel null !");
             return;
         }
-        try{
-            hydroangeas.getRedisSubscriber().send(channel, i + ":" +gson.toJson(data));
-        }catch (Exception e)
+        try
+        {
+            hydroangeas.getRedisSubscriber().send(channel, i + ":" + gson.toJson(data));
+        } catch (Exception e)
         {
             e.printStackTrace();
         }

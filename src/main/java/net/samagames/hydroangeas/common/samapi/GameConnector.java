@@ -11,7 +11,8 @@ import java.util.UUID;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class GameConnector {
+public class GameConnector
+{
 
     public static void sendPlayerToServer(String serverName, UUID playerId)
     {

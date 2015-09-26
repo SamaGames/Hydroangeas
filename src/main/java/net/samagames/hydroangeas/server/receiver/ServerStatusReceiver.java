@@ -13,7 +13,8 @@ import net.samagames.hydroangeas.server.data.ServerStatus;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class ServerStatusReceiver implements PacketReceiver {
+public class ServerStatusReceiver implements PacketReceiver
+{
 
     public HydroangeasServer instance;
 
@@ -23,14 +24,15 @@ public class ServerStatusReceiver implements PacketReceiver {
     }
 
     @Override
-    public void receive(String packet) {
+    public void receive(String packet)
+    {
         ServerStatus data = new Gson().fromJson(packet, ServerStatus.class);
 
         String serverName = data.getBungeeName();
 
         MinecraftServerS server = instance.getClientManager().getServerByName(serverName);
 
-        if(server == null)
+        if (server == null)
         {
             instance.getLogger().info("Server: " + serverName + " not handled by Hydro");
             return;

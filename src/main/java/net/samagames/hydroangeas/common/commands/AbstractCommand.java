@@ -7,7 +7,8 @@ package net.samagames.hydroangeas.common.commands;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public abstract class AbstractCommand {
+public abstract class AbstractCommand
+{
 
     protected String command;
 

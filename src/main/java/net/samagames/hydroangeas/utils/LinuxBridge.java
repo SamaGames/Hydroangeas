@@ -16,7 +16,7 @@ public class LinuxBridge
 
     public void bash(String path)
     {
-        this.exec(new String[] {"bash", path});
+        this.exec(new String[]{"bash", path});
     }
 
     public void mkdir(String path)
@@ -90,8 +90,7 @@ public class LinuxBridge
 
                 Process p = pb.start();
                 p.waitFor();
-            }
-            catch (IOException | InterruptedException e)
+            } catch (IOException | InterruptedException e)
             {
                 e.printStackTrace();
             }

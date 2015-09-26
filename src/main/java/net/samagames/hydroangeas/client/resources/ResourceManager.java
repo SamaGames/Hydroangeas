@@ -7,7 +7,6 @@ import com.google.gson.JsonParser;
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;
 import net.samagames.hydroangeas.client.servers.ServerDependency;
-import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerIssuePacket;
 import net.samagames.hydroangeas.utils.NetworkUtils;
 import org.apache.commons.io.FileUtils;
 import org.rauschig.jarchivelib.Archiver;
@@ -48,38 +47,32 @@ public class ResourceManager
 
     public void downloadMap(MinecraftServerC server, File serverPath) throws IOException
     {
-        try
+        String existURL = this.instance.getTemplatesDomain() + "maps/exist.php?game=" + server.getGame() + "&map=" + server.getMap().replaceAll(" ", "_");
+
+        if (!Boolean.parseBoolean(NetworkUtils.readURL(existURL)))
         {
-            String existURL = this.instance.getTemplatesDomain() + "maps/exist.php?game=" + server.getGame() + "&map=" + server.getMap().replaceAll(" ", "_");
-            boolean exist = Boolean.valueOf(NetworkUtils.readURL(existURL));
-
-            if (!exist)
-            {
-                throw new IllegalStateException("Server's map don't exist! (" + existURL + ")");
-            }
-
-            File dest = new File(serverPath, server.getGame() + "_" + server.getMap().replaceAll(" ", "_") + ".tar.gz");
-
-            FileUtils.copyFile(cacheManager.getMapFiles(server.getGame(), server.getMap().replaceAll(" ", "_")), dest);
-
-            Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
-            archiver.extract(dest, serverPath.getAbsoluteFile());
+            throw new IllegalStateException("Server's map don't exist! (" + existURL + ")");
         }
-        catch (Exception e)
-        {
-            throw e;
-        }
+
+        File dest = new File(serverPath, server.getGame() + "_" + server.getMap().replaceAll(" ", "_") + ".tar.gz");
+
+        FileUtils.copyFile(cacheManager.getMapFiles(server.getGame(), server.getMap().replaceAll(" ", "_")), dest);
+
+        Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
+        archiver.extract(dest, serverPath.getAbsoluteFile());
     }
 
     public void downloadDependencies(MinecraftServerC server, File serverPath) throws IOException
     {
         File dependenciesFile = new File(serverPath, "dependencies.json");
 
-        while(!dependenciesFile.exists()) {}
+        while (!dependenciesFile.exists())
+        {
+        }
 
         JsonArray jsonRoot = new JsonParser().parse(new FileReader(dependenciesFile)).getAsJsonArray();
 
-        for(int i = 0; i < jsonRoot.size(); i++)
+        for (int i = 0; i < jsonRoot.size(); i++)
         {
             JsonObject jsonDependency = jsonRoot.get(i).getAsJsonObject();
             this.downloadDependency(server, new ServerDependency(jsonDependency.get("name").getAsString(), jsonDependency.get("version").getAsString()), serverPath);
@@ -91,7 +84,7 @@ public class ResourceManager
         String existURL = this.instance.getTemplatesDomain() + "dependencies/exist.php?name=" + dependency.getName() + "&version=" + dependency.getVersion();
         File pluginsPath = new File(serverPath, "plugins/");
 
-        if(!pluginsPath.exists())
+        if (!pluginsPath.exists())
             pluginsPath.mkdirs();
 
         if (!Boolean.parseBoolean(NetworkUtils.readURL(existURL)))
@@ -131,7 +124,8 @@ public class ResourceManager
         fOut.close();
     }
 
-    public CacheManager getCacheManager() {
+    public CacheManager getCacheManager()
+    {
         return cacheManager;
     }
 }

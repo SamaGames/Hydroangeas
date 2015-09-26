@@ -14,7 +14,8 @@ import java.util.logging.Level;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public abstract class CommandManager {
+public abstract class CommandManager
+{
 
     public Hydroangeas hydroangeas;
 
@@ -26,18 +27,19 @@ public abstract class CommandManager {
         commands = new ArrayList<>();
     }
 
-    public void inputCommand(String data) {
+    public void inputCommand(String data)
+    {
 
         String[] args = data.split(" ");
         String command = args[0];
 
         args = Arrays.copyOfRange(args, 1, args.length);
 
-        for(AbstractCommand command1 : commands)
+        for (AbstractCommand command1 : commands)
         {
-            if(command1.getCommand().equals(command))
+            if (command1.getCommand().equals(command))
             {
-                if(!command1.execute(args))
+                if (!command1.execute(args))
                 {
                     hydroangeas.log(Level.WARNING, "Error while executing the command!");
                 }

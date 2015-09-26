@@ -1,7 +1,6 @@
 package net.samagames.hydroangeas.server.client;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 import net.samagames.hydroangeas.common.protocol.intranet.AskForClientActionPacket;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerInfoPacket;
 import net.samagames.hydroangeas.server.data.Status;
@@ -16,7 +15,8 @@ import java.util.UUID;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class MinecraftServerS {
+public class MinecraftServerS
+{
 
     private HydroClient client;
     private UUID uuid;
@@ -43,6 +43,7 @@ public class MinecraftServerS {
     {
         this(client, UUID.randomUUID(), template.getGameName(), template.getMapName(), template.getMinSlot(), template.getMaxSlot(), template.getOptions());
         this.coupaingServer = template.isCoupaing();
+        this.templateID = template.getId();
     }
 
     public MinecraftServerS(HydroClient client, MinecraftServerInfoPacket packet)
@@ -128,47 +129,58 @@ public class MinecraftServerS {
         return started;
     }
 
-    public void setStarted(boolean started) {
+    public void setStarted(boolean started)
+    {
         this.started = started;
     }
 
-    public int getWeight() {
+    public int getWeight()
+    {
         return weight;
     }
 
-    public void setWeight(int weight) {
+    public void setWeight(int weight)
+    {
         this.weight = weight;
     }
 
-    public int getPort() {
+    public int getPort()
+    {
         return port;
     }
 
-    public void setPort(int port) {
+    public void setPort(int port)
+    {
         this.port = port;
     }
 
-    public String getTemplateID() {
+    public String getTemplateID()
+    {
         return templateID;
     }
 
-    public void setTemplateID(String templateID) {
+    public void setTemplateID(String templateID)
+    {
         this.templateID = templateID;
     }
 
-    public Status getStatus() {
+    public Status getStatus()
+    {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(Status status)
+    {
         this.status = status;
     }
 
-    public int getActualSlots() {
+    public int getActualSlots()
+    {
         return actualSlots;
     }
 
-    public void setActualSlots(int actualSlots) {
+    public void setActualSlots(int actualSlots)
+    {
         this.actualSlots = actualSlots;
     }
 }

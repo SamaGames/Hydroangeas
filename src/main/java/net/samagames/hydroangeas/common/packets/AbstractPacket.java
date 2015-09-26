@@ -20,7 +20,8 @@ public abstract class AbstractPacket
         {
             if (this.callback != null)
                 this.callback.run();
+        } catch (Exception ignored)
+        {
         }
-        catch (Exception ignored) {}
     }
 }

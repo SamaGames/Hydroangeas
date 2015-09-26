@@ -10,17 +10,20 @@ import net.samagames.hydroangeas.common.commands.AbstractCommand;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class StopCommand extends AbstractCommand {
+public class StopCommand extends AbstractCommand
+{
 
     public HydroangeasClient instance;
 
-    public StopCommand(HydroangeasClient hydroangeasClient) {
+    public StopCommand(HydroangeasClient hydroangeasClient)
+    {
         super("stop");
         this.instance = hydroangeasClient;
     }
 
     @Override
-    public boolean execute(String[] args) {
+    public boolean execute(String[] args)
+    {
 
         instance.getLogger().info("Stopping the server..");
         System.exit(0);

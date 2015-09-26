@@ -18,13 +18,12 @@ public class NetworkUtils
             in.close();
 
             return inputLine;
-        }
-        catch (IOException e)
+        } catch (IOException e)
         {
             e.printStackTrace();
         }
 
-        return null;
+        return "";
     }
 
     public static String readFullURL(String url)
@@ -44,8 +43,7 @@ public class NetworkUtils
             in.close();
 
             return builder.toString();
-        }
-        catch (IOException e)
+        } catch (IOException e)
         {
             e.printStackTrace();
         }

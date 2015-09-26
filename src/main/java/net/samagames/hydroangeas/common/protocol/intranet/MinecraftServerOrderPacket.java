@@ -13,7 +13,8 @@ import java.util.UUID;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class MinecraftServerOrderPacket extends AbstractPacket{
+public class MinecraftServerOrderPacket extends AbstractPacket
+{
 
     private UUID uuid;
 
@@ -42,7 +43,8 @@ public class MinecraftServerOrderPacket extends AbstractPacket{
         this.options = options;
     }
 
-    public MinecraftServerOrderPacket() {
+    public MinecraftServerOrderPacket()
+    {
 
     }
 

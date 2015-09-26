@@ -15,12 +15,12 @@ public class ModMessage
 
     public static void sendMessage(InstanceType type, String message)
     {
-        sendModMessage(new JsonModMessage("Hydroangeas " + type.toString(), ChatColor.GREEN, message));
+        sendModMessage(new JsonModMessage("Hydroangeas " + type, ChatColor.GREEN, message));
     }
 
     public static void sendError(InstanceType type, String message)
     {
-        sendModMessage(new JsonModMessage("Hydroangeas " + type.toString(), ChatColor.GREEN, ChatColor.RED + "✖" + ChatColor.RESET + " " + message));
+        sendModMessage(new JsonModMessage("Hydroangeas " + type, ChatColor.GREEN, ChatColor.RED + "✖" + ChatColor.RESET + " " + message));
     }
 
     public static void sendDebug(String message)

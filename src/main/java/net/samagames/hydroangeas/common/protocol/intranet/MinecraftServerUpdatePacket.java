@@ -13,7 +13,8 @@ import java.util.UUID;
  * All rights reserved.
  */
 
-public class MinecraftServerUpdatePacket extends AbstractPacket {
+public class MinecraftServerUpdatePacket extends AbstractPacket
+{
 
     private UType action;
 
@@ -34,7 +35,8 @@ public class MinecraftServerUpdatePacket extends AbstractPacket {
         this.action = action;
     }
 
-    public MinecraftServerUpdatePacket() {
+    public MinecraftServerUpdatePacket()
+    {
 
     }
 
@@ -58,9 +60,13 @@ public class MinecraftServerUpdatePacket extends AbstractPacket {
         return newWeight;
     }
 
-    public int getMaxWeight() {
+    public int getMaxWeight()
+    {
         return maxWeight;
     }
 
-    public enum UType {START, END}
+    public enum UType
+    {
+        START, END
+    }
 }

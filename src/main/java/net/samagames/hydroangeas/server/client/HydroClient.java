@@ -15,7 +15,8 @@ import java.util.logging.Level;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class HydroClient {
+public class HydroClient
+{
 
     private HydroangeasServer instance;
     private UUID uuid;
@@ -37,16 +38,16 @@ public class HydroClient {
 
     public void updateData(HelloFromClientPacket packet)
     {
-        if(uuid == null)
+        if (uuid == null)
             this.uuid = packet.getUUID();
 
         setIp(packet.getIp());
 
         setMaxWeight(this.maxWeight = packet.getMaxWeight());
 
-        if(getActualWeight() != packet.getActualWeight())
+        if (getActualWeight() != packet.getActualWeight())
         {
-            instance.log(Level.SEVERE, "Error client and server not sync about weight! client:" + packet.getActualWeight() + " server:"+ getActualWeight());
+            instance.log(Level.SEVERE, "Error client and server not sync about weight! client:" + packet.getActualWeight() + " server:" + getActualWeight());
         }
 
         this.timestamp = new Timestamp(System.currentTimeMillis());
@@ -108,15 +109,17 @@ public class HydroClient {
         return this.serverManager;
     }
 
-    public HydroangeasServer getInstance() {
+    public HydroangeasServer getInstance()
+    {
         return instance;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if(obj instanceof HydroClient)
+    public boolean equals(Object obj)
+    {
+        if (obj instanceof HydroClient)
         {
-            if(this.getUUID().equals(((HydroClient)obj).getUUID()))
+            if (this.getUUID().equals(((HydroClient) obj).getUUID()))
             {
                 return true;
             }

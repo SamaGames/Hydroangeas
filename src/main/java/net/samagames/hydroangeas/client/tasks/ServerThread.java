@@ -46,9 +46,8 @@ public class ServerThread extends Thread
             executor.execute(() -> {
                 try
                 {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(server.getErrorStream()));
                     String line = null;
-                    try
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(server.getErrorStream())))
                     {
                         while (isServerProcessAlive && (line = reader.readLine()) != null)
                         {
@@ -56,9 +55,6 @@ public class ServerThread extends Thread
                             System.err.println(instance.getServerName() + "> " + line);
                             //TODO handle errors
                         }
-                    } finally
-                    {
-                        reader.close();
                     }
                 } catch (IOException ioe)
                 {
@@ -69,18 +65,14 @@ public class ServerThread extends Thread
             executor.execute(() -> {
                 try
                 {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(server.getInputStream()));
                     String line = null;
-                    try
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(server.getInputStream())))
                     {
                         while (isServerProcessAlive && (line = reader.readLine()) != null)
                         {
                             lastHeartbeat = System.currentTimeMillis();
                             //TODO: best crash detection
                         }
-                    } finally
-                    {
-                        reader.close();
                     }
                 } catch (IOException ioe)
                 {
@@ -104,10 +96,7 @@ public class ServerThread extends Thread
                     }
                 }
             });
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-        } catch (InterruptedException e)
+        } catch (IOException | InterruptedException e)
         {
             e.printStackTrace();
         }

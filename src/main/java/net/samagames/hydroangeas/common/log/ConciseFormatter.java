@@ -10,7 +10,7 @@ import java.util.logging.LogRecord;
 public class ConciseFormatter extends Formatter
 {
 
-    private final DateFormat date = new SimpleDateFormat( System.getProperty( "net.samagames.log-date-format", "HH:mm:ss" ) );
+    private final DateFormat date = new SimpleDateFormat(System.getProperty("net.samagames.log-date-format", "HH:mm:ss"));
 
     @Override
     @SuppressWarnings("ThrowableResultIgnored")
@@ -18,17 +18,17 @@ public class ConciseFormatter extends Formatter
     {
         StringBuilder formatted = new StringBuilder();
 
-        formatted.append( date.format( record.getMillis() ) );
-        formatted.append( " [" );
-        formatted.append( record.getLevel().getLocalizedName() );
-        formatted.append( "] " );
-        formatted.append( formatMessage( record ) );
-        formatted.append( '\n' );
-        if ( record.getThrown() != null )
+        formatted.append(date.format(record.getMillis()));
+        formatted.append(" [");
+        formatted.append(record.getLevel().getLocalizedName());
+        formatted.append("] ");
+        formatted.append(formatMessage(record));
+        formatted.append('\n');
+        if (record.getThrown() != null)
         {
             StringWriter writer = new StringWriter();
-            record.getThrown().printStackTrace( new PrintWriter( writer ) );
-            formatted.append( writer );
+            record.getThrown().printStackTrace(new PrintWriter(writer));
+            formatted.append(writer);
         }
 
         return formatted.toString();

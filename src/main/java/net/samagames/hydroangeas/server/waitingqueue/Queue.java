@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
@@ -18,8 +20,10 @@ import java.util.UUID;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class Queue {
+public class Queue
+{
 
+    private final ScheduledFuture workerTask, hubRefreshTask;
     private QueueManager manager;
 
     private HydroangeasServer instance;
@@ -28,14 +32,10 @@ public class Queue {
     private String map;
 
     private PriorityPlayerQueue queue;
-
-    private Thread updater;
-    private boolean sendInfo = true;
-
-    private Thread worker;
-    private boolean working = true;
+    private volatile boolean sendInfo = true;
 
     private BasicGameTemplate template;
+    private long lastSend = System.currentTimeMillis();
 
     public Queue(QueueManager manager, BasicGameTemplate template)
     {
@@ -48,67 +48,38 @@ public class Queue {
         //Si priority plus grande alors tu passe devant.
         this.queue = new PriorityPlayerQueue(100000, (o1, o2) -> -Integer.compare(o1.getPriority(), o2.getPriority()));
 
-        worker = new Thread(() -> {
-            while (working)
+        workerTask = instance.getScheduler().scheduleAtFixedRate(() ->
+        {
+            if (template == null)
             {
-                if(template == null)
-                {
-                    Hydroangeas.getInstance().getLogger().info("Template null!");
-                    return;
-                }
-
-                List<MinecraftServerS> servers = instance.getAlgorithmicMachine().getServerByTemplatesAndAvailable(template.getId());
-
-                servers.stream().filter(server -> server.getStatus().isAllowJoin()).forEach(server -> {
-                    List<QGroup> groups = new ArrayList<>();
-                    queue.drainPlayerTo(groups, server.getMaxSlot());
-                    for (QGroup group : groups)
-                    {
-                        group.sendTo(server.getServerName());
-                    }
-                });
-
-                if(servers.size() <= 0 && queue.size() >= template.getMinSlot())
-                {
-                    Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
-                }
-
-                try {
-                    Thread.sleep(900L);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                Hydroangeas.getInstance().getLogger().info("Template null!");
+                return;
             }
-        }, template.getId() + " Worker");
-        worker.start();
 
-        updater = new Thread(() -> {
-            long lastSend = System.currentTimeMillis();
-            while(true)
+            List<MinecraftServerS> servers = instance.getAlgorithmicMachine().getServerByTemplatesAndAvailable(template.getId());
+
+            servers.stream().filter(server -> server.getStatus().isAllowJoin()).forEach(server -> {
+                List<QGroup> groups = new ArrayList<>();
+                queue.drainPlayerTo(groups, server.getMaxSlot());
+                for (QGroup group : groups)
+                {
+                    group.sendTo(server.getServerName());
+                }
+            });
+
+            if (servers.size() <= 0 && queue.size() >= template.getMinSlot())
             {
-                try{
-                    if(System.currentTimeMillis() - lastSend > 60000 || sendInfo)
-                    {
-                        sendInfoToHub();
-                        sendInfo = false;
-                    }
-
-                    Thread.sleep(700);
-                }catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
+                Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
             }
-        }, template.getId() + " Updater");
-        updater.start();
+        }, 0, 900, TimeUnit.MILLISECONDS);
+        hubRefreshTask = instance.getScheduler().scheduleAtFixedRate(this::sendInfoToHub, 0, 750, TimeUnit.MILLISECONDS);
 
     }
 
     public void remove()
     {
-        working = false;
-        worker.interrupt();
-        updater.interrupt();
+        workerTask.cancel(true);
+        hubRefreshTask.cancel(true);
     }
 
     public boolean addPlayersInNewGroup(QPlayer leader, List<QPlayer> players)
@@ -118,33 +89,40 @@ public class Queue {
 
     public boolean addGroup(QGroup qGroup)
     {
-        try{
+        try
+        {
             return queue.add(qGroup);
-        }finally{
+        } finally
+        {
             sendInfo = true;
         }
     }
 
     public boolean removeGroup(QGroup qGroup)
     {
-        try{
+        try
+        {
             return queue.remove(qGroup);
-        }finally{
+        } finally
+        {
             sendInfo = true;
         }
     }
 
     public boolean removeQPlayer(QPlayer player)
     {
-        try {
+        try
+        {
             QGroup group = getGroupByPlayer(player.getUUID());
             boolean result = group.removeQPlayer(player);
             removeGroup(group);
-            if (group.getLeader() != null) {
+            if (group.getLeader() != null)
+            {
                 addGroup(group);
             }
             return result;
-        }finally{
+        } finally
+        {
             sendInfo = true;
         }
     }
@@ -171,7 +149,8 @@ public class Queue {
     {
         HashMap<UUID, Integer> data = new HashMap<>();
         int i = 0;
-        for (QGroup qGroup : queue) {
+        for (QGroup qGroup : queue)
+        {
             for (QPlayer qPlayer : qGroup.getQPlayers())
             {
                 data.put(qPlayer.getUUID(), i);
@@ -182,11 +161,11 @@ public class Queue {
 
     public QGroup getGroupByLeader(UUID leader)
     {
-        for(QGroup qGroup : queue)
+        for (QGroup qGroup : queue)
         {
-            if(qGroup == null)
+            if (qGroup == null)
                 continue;
-            if(qGroup.getLeader().getUUID().equals(leader))
+            if (qGroup.getLeader().getUUID().equals(leader))
             {
                 return qGroup;
             }
@@ -196,11 +175,11 @@ public class Queue {
 
     public QGroup getGroupByPlayer(UUID player)
     {
-        for(QGroup qGroup : queue)
+        for (QGroup qGroup : queue)
         {
-            if(qGroup == null)
+            if (qGroup == null)
                 continue;
-            if(qGroup.contains(player))
+            if (qGroup.contains(player))
             {
                 return qGroup;
             }
@@ -213,7 +192,7 @@ public class Queue {
         int i = 0;
         for (QGroup qGroup : queue)
         {
-            if(qGroup == null)
+            if (qGroup == null)
                 continue;
             if (qGroup.contains(uuid))
             {
@@ -227,19 +206,19 @@ public class Queue {
     public boolean removeUUID(UUID uuid)
     {
         QGroup group = getGroupByPlayer(uuid);
-        if(group == null)
+        if (group == null)
             return false;
         return group.removeQPlayer(uuid);
     }
 
     public boolean containsUUID(UUID uuid)
     {
-        for(QGroup qGroup : queue)
+        for (QGroup qGroup : queue)
         {
-            if(qGroup == null)
+            if (qGroup == null)
                 continue;
 
-            if(qGroup.contains(uuid))
+            if (qGroup.contains(uuid))
             {
                 return true;
             }
@@ -249,11 +228,11 @@ public class Queue {
 
     public boolean containsLeader(UUID uuid)
     {
-        for(QGroup qGroup : queue)
+        for (QGroup qGroup : queue)
         {
-            if(qGroup == null)
+            if (qGroup == null)
                 continue;
-            if(qGroup.getLeader().getUUID().equals(uuid))
+            if (qGroup.getLeader().getUUID().equals(uuid))
             {
                 return true;
             }
@@ -264,7 +243,7 @@ public class Queue {
     public int getSize()
     {
         int i = 0;
-        for(QGroup group : queue)
+        for (QGroup group : queue)
         {
             i += group.getSize();
         }
@@ -273,20 +252,29 @@ public class Queue {
 
     public void sendInfoToHub()
     {
-        instance.getScheduler().execute(() -> {
-            GameInfosToHubPacket packet = new GameInfosToHubPacket(template.getId());
-            packet.setPlayerMaxForMap(template.getMaxSlot());
-            packet.setPlayerWaitFor(getSize());
-            List<MinecraftServerS> serverSList = instance.getClientManager().getServersByTemplate(template);
-            int nb = 0;
-            for(MinecraftServerS serverS : serverSList)
+        try
+        {
+            if (System.currentTimeMillis() - lastSend > 60000 || sendInfo)
             {
-                nb += serverS.getActualSlots();
-            }
-            packet.setTotalPlayerOnServers(nb);
+                GameInfosToHubPacket packet = new GameInfosToHubPacket(template.getId());
+                packet.setPlayerMaxForMap(template.getMaxSlot());
+                packet.setPlayerWaitFor(getSize());
+                List<MinecraftServerS> serverSList = instance.getClientManager().getServersByTemplate(template);
+                int nb = 0;
+                for (MinecraftServerS serverS : serverSList)
+                {
+                    nb += serverS.getActualSlots();
+                }
+                packet.setTotalPlayerOnServers(nb);
 
-            manager.sendPacketHub(packet);
-        });
+                manager.sendPacketHub(packet);
+                lastSend = System.currentTimeMillis();
+                sendInfo = false;
+            }
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public String getName()
@@ -294,11 +282,13 @@ public class Queue {
         return template.getId();
     }
 
-    public String getGame() {
+    public String getGame()
+    {
         return game;
     }
 
-    public String getMap() {
+    public String getMap()
+    {
         return map;
     }
 

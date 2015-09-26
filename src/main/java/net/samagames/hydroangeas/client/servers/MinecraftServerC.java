@@ -58,8 +58,7 @@ public class MinecraftServerC
             this.instance.getResourceManager().downloadServer(this, this.serverFolder);
             this.instance.getResourceManager().downloadMap(this, this.serverFolder);
             this.instance.getResourceManager().downloadDependencies(this, this.serverFolder);
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             this.instance.log(Level.SEVERE, "Can't make the server " + getServerName() + "!");
             instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), this.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
@@ -106,9 +105,8 @@ public class MinecraftServerC
                             "-jar", "spigot.jar", "nogui"},
                     new String[]{""}, serverFolder);
             serverThread.start();
-            instance.getLogger().info("Starting server "+ getServerName());
-        }
-        catch (Exception e)
+            instance.getLogger().info("Starting server " + getServerName());
+        } catch (Exception e)
         {
             this.instance.log(Level.SEVERE, "Can't start the server " + getServerName() + "!");
             e.printStackTrace();
@@ -126,8 +124,7 @@ public class MinecraftServerC
         {
             //this.instance.getLinuxBridge().mark2Stop(getServerName());
             serverThread.forceStop();
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             this.instance.log(Level.SEVERE, "Can't stop the server " + getServerName() + "!");
             e.printStackTrace();
@@ -194,7 +191,8 @@ public class MinecraftServerC
         return this.coupaingServer;
     }
 
-    public HydroangeasClient getInstance() {
+    public HydroangeasClient getInstance()
+    {
         return instance;
     }
 }

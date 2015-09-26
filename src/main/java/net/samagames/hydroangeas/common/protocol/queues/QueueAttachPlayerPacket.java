@@ -26,11 +26,13 @@ public class QueueAttachPlayerPacket extends QueuePacket
         this.players = players;
     }
 
-    public QPlayer getLeader() {
+    public QPlayer getLeader()
+    {
         return leader;
     }
 
-    public List<QPlayer> getPlayers() {
+    public List<QPlayer> getPlayers()
+    {
         return players;
     }
 }

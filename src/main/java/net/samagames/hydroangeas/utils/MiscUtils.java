@@ -22,8 +22,7 @@ public class MiscUtils
         try
         {
             url = MiscUtils.class.getProtectionDomain().getCodeSource().getLocation();
-        }
-        catch (SecurityException ex)
+        } catch (SecurityException ex)
         {
             url = MiscUtils.class.getResource(MiscUtils.class.getSimpleName() + ".class");
         }
@@ -44,14 +43,14 @@ public class MiscUtils
         try
         {
             url = new URL(extURL);
+        } catch (MalformedURLException ignored)
+        {
         }
-        catch (MalformedURLException ignored) {}
 
         try
         {
             return new File(url.toURI());
-        }
-        catch(URISyntaxException ex)
+        } catch (URISyntaxException ex)
         {
             return new File(url.getPath());
         }
@@ -66,12 +65,7 @@ public class MiscUtils
             CodeSource codeSource = MiscUtils.class.getProtectionDomain().getCodeSource();
             File jarFile = new File(URLDecoder.decode(codeSource.getLocation().toURI().getPath(), "UTF-8"));
             jarDir = jarFile.getParentFile().getPath();
-        }
-        catch (URISyntaxException ex)
-        {
-            ex.printStackTrace();
-        }
-        catch (UnsupportedEncodingException ex)
+        } catch (URISyntaxException | UnsupportedEncodingException ex)
         {
             ex.printStackTrace();
         }
@@ -79,20 +73,23 @@ public class MiscUtils
         return jarDir + "/";
     }
 
-    public static String getSHA1(File f) throws NoSuchAlgorithmException, IOException {
+    public static String getSHA1(File f) throws NoSuchAlgorithmException, IOException
+    {
         MessageDigest sha1 = MessageDigest.getInstance("SHA1");
         FileInputStream fis = new FileInputStream(f);
 
         byte[] data = new byte[1024];
         int read = 0;
-        while ((read = fis.read(data)) != -1) {
+        while ((read = fis.read(data)) != -1)
+        {
             sha1.update(data, 0, read);
-        };
+        }
         byte[] hashBytes = sha1.digest();
 
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < hashBytes.length; i++) {
-            sb.append(Integer.toString((hashBytes[i] & 0xff) + 0x100, 16).substring(1));
+        StringBuilder sb = new StringBuilder();
+        for (byte hashByte : hashBytes)
+        {
+            sb.append(Integer.toString((hashByte & 0xff) + 0x100, 16).substring(1));
         }
         return sb.toString();
     }
@@ -126,10 +123,10 @@ public class MiscUtils
         }
 
         //SlotNumber
-        weight += maxSlot * 1;
+        weight += maxSlot;
 
         //Is coupaing
-        if(isCoupaing)
+        if (isCoupaing)
         {
             weight += 50;
         }

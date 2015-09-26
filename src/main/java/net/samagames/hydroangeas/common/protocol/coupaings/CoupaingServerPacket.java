@@ -10,7 +10,8 @@ import net.samagames.hydroangeas.common.packets.AbstractPacket;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class CoupaingServerPacket extends AbstractPacket{
+public class CoupaingServerPacket extends AbstractPacket
+{
 
     private String game;
 
@@ -26,23 +27,28 @@ public class CoupaingServerPacket extends AbstractPacket{
 
     }
 
-    public String getGame() {
+    public String getGame()
+    {
         return game;
     }
 
-    public String getMap() {
+    public String getMap()
+    {
         return map;
     }
 
-    public int getMinSlot() {
+    public int getMinSlot()
+    {
         return minSlot;
     }
 
-    public int getMaxSlot() {
+    public int getMaxSlot()
+    {
         return maxSlot;
     }
 
-    public JsonElement getOptions() {
+    public JsonElement getOptions()
+    {
         return options;
     }
 }

@@ -9,7 +9,8 @@ import net.samagames.hydroangeas.server.waitingqueue.QPlayer;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class QueueAddPlayerPacket extends QueuePacket {
+public class QueueAddPlayerPacket extends QueuePacket
+{
 
     private QPlayer player;
 
@@ -31,7 +32,8 @@ public class QueueAddPlayerPacket extends QueuePacket {
         this.player = player;
     }
 
-    public QPlayer getPlayer() {
+    public QPlayer getPlayer()
+    {
         return player;
     }
 }

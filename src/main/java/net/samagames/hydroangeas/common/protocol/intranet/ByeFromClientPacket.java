@@ -11,7 +11,8 @@ import java.util.UUID;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class ByeFromClientPacket extends AbstractPacket {
+public class ByeFromClientPacket extends AbstractPacket
+{
 
     private UUID uuid;
 
@@ -20,7 +21,8 @@ public class ByeFromClientPacket extends AbstractPacket {
         this.uuid = uuid;
     }
 
-    public ByeFromClientPacket() {
+    public ByeFromClientPacket()
+    {
 
     }
 

@@ -33,12 +33,12 @@ public class AlgorithmicMachine
 
     public HydroClient selectGoodHydroClient(BasicGameTemplate template)
     {
-        TreeSet<HydroClient> sortedClient = new TreeSet<>((o1, o2) -> (o1.getAvailableWeight() < o2.getAvailableWeight())? -1 : 1);
+        TreeSet<HydroClient> sortedClient = new TreeSet<>((o1, o2) -> (o1.getAvailableWeight() < o2.getAvailableWeight()) ? -1 : 1);
         sortedClient.addAll(instance.getClientManager().getClients());
-        for(HydroClient client : sortedClient)
+        for (HydroClient client : sortedClient)
         {
             int weight = template.getWeight();
-            if(client.getAvailableWeight() - weight > FREE_SPACE)
+            if (client.getAvailableWeight() - weight > FREE_SPACE)
             {
                 return client;
             }
@@ -49,7 +49,7 @@ public class AlgorithmicMachine
     public MinecraftServerS orderBasic(String game, String map)
     {
         BasicGameTemplate template = instance.getTemplateManager().getTemplateByGameAndMap(game, map);
-        if(template == null)
+        if (template == null)
         {
             instance.getLogger().warning("Error template " + game + " " + map + " doesn't exist!");
             return null;
@@ -61,14 +61,14 @@ public class AlgorithmicMachine
     {
         HydroClient client = selectGoodHydroClient(template);
 
-        if(client == null)
+        if (client == null)
         {
             instance.log(Level.SEVERE, "Major error ! No Hydroclient available !");
             return null;
         }
 
         MinecraftServerS server = client.getServerManager().addServer(template);
-        instance.log(Level.INFO, template.toString() + " created on " + client.getIp());
+        instance.log(Level.INFO, template + " created on " + client.getIp());
         return server;
     }
 
@@ -79,7 +79,7 @@ public class AlgorithmicMachine
 
     public void onServerUpdate(MinecraftServerUpdatePacket serverStatus)
     {
-        if(serverStatus.getAction().equals(MinecraftServerUpdatePacket.UType.END))
+        if (serverStatus.getAction().equals(MinecraftServerUpdatePacket.UType.END))
         {
             HydroClient client = instance.getClientManager().getClientByUUID(serverStatus.getUUID());
 
@@ -90,7 +90,7 @@ public class AlgorithmicMachine
     public List<MinecraftServerS> getServerByTemplatesAndAvailable(String templateID)
     {
         List<MinecraftServerS> servers = new ArrayList<>();
-        for(HydroClient client : instance.getClientManager().getClients())
+        for (HydroClient client : instance.getClientManager().getClients())
         {
             servers.addAll(client.getServerManager().getServers().stream().filter(server -> server.getTemplateID().equalsIgnoreCase(templateID) && (server.getStatus().isAllowJoin() || server.getStatus().equals(Status.STARTING)) && server.getActualSlots() < server.getMaxSlot() * 0.90).collect(Collectors.toList()));
         }

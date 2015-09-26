@@ -54,7 +54,10 @@ public class PriorityPlayerQueue extends PriorityBlockingQueue<QGroup>
                     {
                         this.remoteAtMethod.setAccessible(true);
                         this.remoteAtMethod.invoke(this, i);
-                    } catch (ReflectiveOperationException e) {e.printStackTrace();}
+                    } catch (ReflectiveOperationException e)
+                    {
+                        e.printStackTrace();
+                    }
 
                     check -= group.getSize();
                 }

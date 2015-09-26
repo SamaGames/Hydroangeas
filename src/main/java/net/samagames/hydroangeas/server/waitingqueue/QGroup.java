@@ -14,7 +14,8 @@ import java.util.stream.Collectors;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class QGroup {
+public class QGroup
+{
 
     private QPlayer leader;
 
@@ -44,7 +45,7 @@ public class QGroup {
     public void calculatePriority()
     {
         //Celui qui a la plus grosse prioritée la donne au groupe
-        for(QPlayer qPlayer : players)
+        for (QPlayer qPlayer : players)
         {
             priority = Math.max(qPlayer.getPriority(), priority);
         }
@@ -57,9 +58,9 @@ public class QGroup {
 
     public boolean contains(UUID uuid)
     {
-        for(QPlayer qp : players)
+        for (QPlayer qp : players)
         {
-            if(qp.getUUID().equals(uuid))
+            if (qp.getUUID().equals(uuid))
             {
                 return true;
             }
@@ -74,9 +75,9 @@ public class QGroup {
 
     public QPlayer getPlayerByUUID(UUID player)
     {
-        for(QPlayer p : players)
+        for (QPlayer p : players)
         {
-            if(p.getUUID().equals(player))
+            if (p.getUUID().equals(player))
             {
                 return p;
             }
@@ -86,11 +87,13 @@ public class QGroup {
 
     public boolean addPlayer(QPlayer player)
     {
-        if(contains(player.getUUID()))
+        if (contains(player.getUUID()))
             return false;
-        try{
+        try
+        {
             return players.add(player);
-        }finally{
+        } finally
+        {
             calculatePriority();
         }
     }
@@ -102,12 +105,14 @@ public class QGroup {
 
     public boolean removeQPlayer(QPlayer player)
     {
-        if(player.getUUID().equals(leader.getUUID()))
+        if (player.getUUID().equals(leader.getUUID()))
             leader = null;
 
-        try{
+        try
+        {
             return players.remove(player);
-        }finally {
+        } finally
+        {
             calculatePriority();
         }
     }
@@ -127,13 +132,14 @@ public class QGroup {
         return players.size();
     }
 
-    public QPlayer getLeader() {
+    public QPlayer getLeader()
+    {
         return leader;
     }
 
     public void sendTo(String serverName)
     {
-        for(QPlayer player : players)
+        for (QPlayer player : players)
         {
             GameConnector.sendPlayerToServer(serverName, player.getUUID());
         }

@@ -1,8 +1,8 @@
 package net.samagames.hydroangeas.client.resources;
 
 import net.samagames.hydroangeas.client.HydroangeasClient;
-import net.samagames.hydroangeas.utils.NetworkUtils;
 import net.samagames.hydroangeas.utils.MiscUtils;
+import net.samagames.hydroangeas.utils.NetworkUtils;
 import org.apache.commons.io.FileUtils;
 import org.rauschig.jarchivelib.Archiver;
 import org.rauschig.jarchivelib.ArchiverFactory;
@@ -19,7 +19,8 @@ import java.security.NoSuchAlgorithmException;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class CacheManager {
+public class CacheManager
+{
 
     private HydroangeasClient instance;
 
@@ -30,11 +31,10 @@ public class CacheManager {
 
     public File getServerFiles(String game)
     {
-        String fileName = game;
 
-        String checksumURL = this.instance.getTemplatesDomain() + "servers/checksum.php?file=" + fileName;
-        String wgetURL = this.instance.getTemplatesDomain() + "servers/" + fileName + ".tar.gz";
-        File cache = new File(this.instance.getServerFolder(), "cache/servers/" + fileName + ".tar.gz");
+        String checksumURL = this.instance.getTemplatesDomain() + "servers/checksum.php?file=" + game;
+        String wgetURL = this.instance.getTemplatesDomain() + "servers/" + game + ".tar.gz";
+        File cache = new File(this.instance.getServerFolder(), "cache/servers/" + game + ".tar.gz");
 
         return getCache(wgetURL, checksumURL, cache);
     }
@@ -63,39 +63,46 @@ public class CacheManager {
 
     public File getCache(String wgetURL, String checksumURL, File cache)
     {
-        if(!cache.exists())
+        if (!cache.exists())
         {
-            try {
+            try
+            {
                 FileUtils.copyURLToFile(new URL(wgetURL), cache);
-            } catch (IOException e) {
+            } catch (IOException e)
+            {
                 e.printStackTrace();
             }
-        }else{
+        } else
+        {
             String remoteChecksum = NetworkUtils.readURL(checksumURL);
 
-            try {
-                if(!remoteChecksum.equals(MiscUtils.getSHA1(cache)))
+            try
+            {
+                if (!remoteChecksum.equals(MiscUtils.getSHA1(cache)))
                 {
-                    try {
+                    try
+                    {
                         FileUtils.copyURLToFile(new URL(wgetURL), cache);
-                    } catch (IOException e) {
+                    } catch (IOException e)
+                    {
                         e.printStackTrace();
                     }
                 }
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
+            } catch (NoSuchAlgorithmException | IOException e)
+            {
                 e.printStackTrace();
             }
         }
         return cache;
     }
 
-    public long getChecksum(File file) throws IOException {
+    public long getChecksum(File file) throws IOException
+    {
         return FileUtils.checksumCRC32(file);
     }
 
-    public void downloader(URL remoteFile, File archive, File dest) throws IOException {
+    public void downloader(URL remoteFile, File archive, File dest) throws IOException
+    {
         FileUtils.copyURLToFile(remoteFile, archive);
         Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
         archiver.extract(archive, dest);

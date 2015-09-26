@@ -21,7 +21,8 @@ import java.util.stream.Collectors;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class TemplateManager {
+public class TemplateManager
+{
 
     private List<BasicGameTemplate> templates = new ArrayList<>();
     private HydroangeasServer instance;
@@ -33,10 +34,14 @@ public class TemplateManager {
 
         File directory = new File(MiscUtils.getApplicationDirectory(), "templates");
 
-        try {
-            for(File file : directory.listFiles()) {
-                if(file.isFile() && file.getName().endsWith(".json")) {
-                    try {
+        try
+        {
+            for (File file : directory.listFiles())
+            {
+                if (file.isFile() && file.getName().endsWith(".json"))
+                {
+                    try
+                    {
                         templates.add(
                                 new BasicGameTemplate(FilenameUtils.removeExtension(file.getName()),
                                         new JsonParser().parse(new FileReader(file)).getAsJsonObject()));
@@ -47,7 +52,8 @@ public class TemplateManager {
                     }
                 }
             }
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e)
+        {
             e.printStackTrace();
         }
 
@@ -57,7 +63,7 @@ public class TemplateManager {
     public void loadQueues()
     {
         instance.getLogger().info("Ajout des queues pour chaque Template:");
-        for(BasicGameTemplate template : templates)
+        for (BasicGameTemplate template : templates)
         {
             instance.getQueueManager().addQueue(template);
             instance.getLogger().info("ID: " + template.getId() + " Jeu: " + template.getGameName() + " Map: " + template.getMapName());
@@ -66,9 +72,9 @@ public class TemplateManager {
 
     public BasicGameTemplate getTemplateByID(String id)
     {
-        for(BasicGameTemplate template : templates)
+        for (BasicGameTemplate template : templates)
         {
-            if(template.getId().equalsIgnoreCase(id))
+            if (template.getId().equalsIgnoreCase(id))
             {
                 return template;
             }
@@ -78,9 +84,9 @@ public class TemplateManager {
 
     public BasicGameTemplate getTemplateByGameAndMap(String game, String map)
     {
-        for(BasicGameTemplate template : templates)
+        for (BasicGameTemplate template : templates)
         {
-            if(template.getGameName().equalsIgnoreCase(game) && template.getMapName().equalsIgnoreCase(map))
+            if (template.getGameName().equalsIgnoreCase(game) && template.getMapName().equalsIgnoreCase(map))
             {
                 return template;
             }
@@ -100,11 +106,8 @@ public class TemplateManager {
 
     public List<String> getListTemplate()
     {
-        ArrayList<String> tmp = new ArrayList<>();
-        for(BasicGameTemplate template : templates)
-        {
-            tmp.add(template.getId());
-        }
+        List<String> tmp = new ArrayList<>();
+        templates.stream().forEach((template -> tmp.add(template.getId())));
         return tmp;
     }
 }

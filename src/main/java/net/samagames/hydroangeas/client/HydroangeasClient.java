@@ -7,7 +7,6 @@ import net.samagames.hydroangeas.client.resources.ResourceManager;
 import net.samagames.hydroangeas.client.servers.ServerManager;
 import net.samagames.hydroangeas.client.tasks.LifeThread;
 import net.samagames.hydroangeas.common.protocol.intranet.ByeFromClientPacket;
-import net.samagames.hydroangeas.utils.NetworkUtils;
 import net.samagames.hydroangeas.utils.MiscUtils;
 
 import java.io.File;
@@ -26,7 +25,8 @@ public class HydroangeasClient extends Hydroangeas
     private ServerManager serverManager;
     private ResourceManager resourceManager;
 
-    public HydroangeasClient(OptionSet options) throws IOException {
+    public HydroangeasClient(OptionSet options) throws IOException
+    {
         super(options);
     }
 
@@ -46,7 +46,7 @@ public class HydroangeasClient extends Hydroangeas
 
         commandManager = new ClientCommandManager(this);
 
-        this.redisSubscriber.registerReceiver("global@" + getUUID().toString() + "@hydroangeas-client", data -> connectionManager.getPacket(data));
+        this.redisSubscriber.registerReceiver("global@" + getUUID() + "@hydroangeas-client", connectionManager::getPacket);
 
         this.serverManager = new ServerManager(this);
         this.resourceManager = new ResourceManager(this);
@@ -55,6 +55,7 @@ public class HydroangeasClient extends Hydroangeas
         this.lifeThread.start();
     }
 
+    @Override
     public void disable()
     {
         connectionManager.sendPacket(new ByeFromClientPacket(getUUID()));
