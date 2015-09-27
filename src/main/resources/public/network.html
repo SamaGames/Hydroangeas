@@ -1,31 +1,32 @@
 <!doctype html>
 <html>
-    <head>
-        <title>Hydroangeas &bull; Graphique du réseau</title>
+<head>
+    <title>Hydroangeas &bull; Graphique du réseau</title>
 
-        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-        <script type="text/javascript">
-            google.load("visualization", "1", {packages:["orgchart"]});
-            google.setOnLoadCallback(drawChart);
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+        google.load("visualization", "1", {packages: ["orgchart"]});
+        google.setOnLoadCallback(drawChart);
 
-            function drawChart()
-            {
-                var data = new google.visualization.DataTable();
-                data.addColumn('string', 'Name');
-                data.addColumn('string', 'Manager');
+        function drawChart() {
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Name');
+            data.addColumn('string', 'Manager');
 
-                data.addRows([
-                    [{v:'Hydroangeas Server', f:'Hydroangeas Server<div style="color:green;">Serveur de contrôle</div>'}, ''],
-                    %DATA%
-                ]);
+            data.addRows([
+                        [{
+                            v: 'Hydroangeas Server',
+                            f: 'Hydroangeas Server<div style="color:green;">Serveur de contrôle</div>'
+                        }, ''],
+                    % DATA %;
+        ])
+            var chart = new google.visualization.OrgChart(document.getElementById('chart_div'));
+            chart.draw(data, {allowHtml: true});
+        }
+    </script>
+</head>
 
-                var chart = new google.visualization.OrgChart(document.getElementById('chart_div'));
-                chart.draw(data, {allowHtml:true});
-            }
-        </script>
-    </head>
-
-    <body>
-        <div id="chart_div"></div>
-    </body>
+<body>
+<div id="chart_div"></div>
+</body>
 </html>

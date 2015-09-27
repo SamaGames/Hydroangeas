@@ -17,7 +17,7 @@ public class MinecraftServerIssuePacket extends AbstractPacket
         this.serverName = serverName;
         this.issueType = issueType;
 
-        switch(issueType)
+        switch (issueType)
         {
             case MAKE:
                 this.message = "Impossible de créer le serveur '" + serverName + "'!";
@@ -41,7 +41,8 @@ public class MinecraftServerIssuePacket extends AbstractPacket
         }
     }
 
-    public MinecraftServerIssuePacket() {
+    public MinecraftServerIssuePacket()
+    {
 
     }
 
@@ -66,5 +67,8 @@ public class MinecraftServerIssuePacket extends AbstractPacket
         return this.message;
     }
 
-    public enum Type { MAKE, PATCH, START, STOP }
+    public enum Type
+    {
+        MAKE, PATCH, START, STOP
+    }
 }

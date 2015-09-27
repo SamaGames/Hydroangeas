@@ -9,7 +9,8 @@ import net.samagames.hydroangeas.common.packets.AbstractPacket;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public abstract class QueuePacket extends AbstractPacket {
+public abstract class QueuePacket extends AbstractPacket
+{
 
     private String game;
     private String map;
@@ -35,22 +36,29 @@ public abstract class QueuePacket extends AbstractPacket {
         this.templateID = templateID;
     }
 
-    public TypeQueue getTypeQueue() {
+    public TypeQueue getTypeQueue()
+    {
         return typeQueue;
     }
 
-    public String getTemplateID() {
+    public String getTemplateID()
+    {
         return templateID;
     }
 
-    public String getMap() {
+    public String getMap()
+    {
         return map;
     }
 
-    public String getGame() {
+    public String getGame()
+    {
         return game;
     }
 
 
-    public enum TypeQueue{NAMEDID, NAMED, RANDOM, FAST}
+    public enum TypeQueue
+    {
+        NAMEDID, NAMED, RANDOM, FAST
+    }
 }

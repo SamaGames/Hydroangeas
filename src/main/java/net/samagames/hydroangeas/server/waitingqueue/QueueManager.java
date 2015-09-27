@@ -19,14 +19,14 @@ import java.util.stream.Collectors;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class QueueManager {
+public class QueueManager
+{
 
     public List<Queue> queues = new ArrayList<>();
     private HydroangeasServer instance;
 
     public QueueManager(HydroangeasServer instance)
     {
-
         this.instance = instance;
     }
 
@@ -37,7 +37,7 @@ public class QueueManager {
         Queue designedQueue = getQueue(packet);
         Queue currentQueue = getQueueByLeader(player.getUUID());
 
-        if(designedQueue == null)
+        if (designedQueue == null)
         {
             //No queue to add get out !
             //PlayerMessager.sendMessage(player.getUUID(), ChatColor.RED + "Aucun template disponible pour ce jeu!");
@@ -45,14 +45,14 @@ public class QueueManager {
             return;
         }
 
-        if(designedQueue.equals(currentQueue))
+        if (designedQueue.equals(currentQueue))
         {
             //PlayerMessager.sendMessage(player.getUUID(), ChatColor.GREEN + "Tu es déjà dans la queue!");
-            sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, false, ChatColor.GREEN +"Vous êtes déjà dans la queue!"));
+            sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, false, ChatColor.GREEN + "Vous êtes déjà dans la queue!"));
             return;
         }
 
-        if(currentQueue != null)
+        if (currentQueue != null)
         {
             currentQueue.removeQPlayer(player);
         }
@@ -73,7 +73,7 @@ public class QueueManager {
             //No queue maybe not known ?
             //PlayerMessager.sendMessage(player.getUUID(), ChatColor.RED + "Aucun queue définis!");
         }*/
-        if(currentQueue == null)
+        if (currentQueue == null)
         {
             //No queue, security remove ?
             sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, false, "Vous n\'avez aucune queue!"));
@@ -92,7 +92,7 @@ public class QueueManager {
         QPlayer leader = packet.getLeader();
         Queue designedQueue = getQueueByLeader(leader.getUUID());
 
-        if(designedQueue == null)
+        if (designedQueue == null)
         {
             /*for(QPlayer qPlayer : packet.getPlayers())
             {
@@ -103,11 +103,11 @@ public class QueueManager {
 
         QGroup group = designedQueue.getGroupByLeader(leader.getUUID());
 
-        if(group == null)
+        if (group == null)
         {
             //Logically not possible but.. #MOJANG
 
-            for(QPlayer qPlayer : packet.getPlayers())
+            for (QPlayer qPlayer : packet.getPlayers())
             {
                 sendPacketHub(new QueueInfosUpdatePacket(qPlayer, QueueInfosUpdatePacket.Type.REMOVE, false, "Vous n'êtes pas leader de party!"));
                 //PlayerMessager.sendMessage(qPlayer.getUUID(), ChatColor.RED + "Le leader de votre party n'a pas choisit de queue !");
@@ -121,10 +121,10 @@ public class QueueManager {
 
     public void handlepacket(QueueDetachPlayerPacket packet)
     {
-        for(QPlayer player : packet.getPlayers())
+        for (QPlayer player : packet.getPlayers())
         {
             Queue designedQueue = getQueueByPlayer(player.getUUID());
-            if(designedQueue != null)
+            if (designedQueue != null)
             {
                 designedQueue.removeQPlayer(player);
 
@@ -139,17 +139,18 @@ public class QueueManager {
         Queue queue = null;
         QueuePacket.TypeQueue typeQueue = packet.getTypeQueue();
 
-        try{
-            if(typeQueue.equals(QueuePacket.TypeQueue.NAMED))
+        try
+        {
+            if (typeQueue.equals(QueuePacket.TypeQueue.NAMED))
             {
                 queue = instance.getQueueManager().getQueueByName(packet.getGame() + "_" + packet.getMap());
-            }else if(typeQueue.equals(QueuePacket.TypeQueue.NAMEDID))
+            } else if (typeQueue.equals(QueuePacket.TypeQueue.NAMEDID))
             {
                 queue = instance.getQueueManager().getQueueByName(packet.getTemplateID());
-            }else if(typeQueue.equals(QueuePacket.TypeQueue.FAST))
+            } else if (typeQueue.equals(QueuePacket.TypeQueue.FAST))
             {
                 //TODO select best queue
-            }else
+            } else
             {
                 //RANDOM
                 List<Queue> queuesByGame = instance.getQueueManager().getQueuesByGame(packet.getGame());
@@ -162,7 +163,7 @@ public class QueueManager {
                 //PlayerMessager.sendMessage(, ChatColor.RED + "Aucun template disponible pour ce jeu!");
                 return null;
             }*/
-        }catch (Exception e)
+        } catch (Exception e)
         {
             e.printStackTrace();
         }
@@ -246,7 +247,7 @@ public class QueueManager {
     {
         queue.addPlayersInNewGroup(leader, players);
 
-        for(QPlayer qPlayer : players)
+        for (QPlayer qPlayer : players)
         {
             sendPacketHub(new QueueInfosUpdatePacket(qPlayer, QueueInfosUpdatePacket.Type.ADD, queue.getTemplate().getId()));
             //PlayerMessager.sendMessage(qPlayer.getUUID(), ChatColor.GREEN + "Vous avez été ajouté à la queue " + ChatColor.RED + queue.getMap());
@@ -268,7 +269,7 @@ public class QueueManager {
     public boolean removeQueue(String name)
     {
         Queue queue = getQueueByName(name);
-        if(queue == null)
+        if (queue == null)
         {
             return false;
         }
@@ -288,9 +289,9 @@ public class QueueManager {
 
     public Queue getQueueByName(String name)
     {
-        for(Queue queue : queues)
+        for (Queue queue : queues)
         {
-            if(queue.getName().equalsIgnoreCase(name))
+            if (queue.getName().equalsIgnoreCase(name))
             {
                 return queue;
             }
@@ -305,9 +306,9 @@ public class QueueManager {
 
     public Queue getQueueByPlayer(UUID player)
     {
-        for(Queue queue : queues)
+        for (Queue queue : queues)
         {
-            if(queue.containsUUID(player))
+            if (queue.containsUUID(player))
             {
                 return queue;
             }
@@ -317,9 +318,9 @@ public class QueueManager {
 
     public Queue getQueueByLeader(UUID player)
     {
-        for(Queue queue : queues)
+        for (Queue queue : queues)
         {
-            if(queue.containsLeader(player))
+            if (queue.containsLeader(player))
             {
                 return queue;
             }

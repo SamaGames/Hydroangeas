@@ -12,11 +12,13 @@ import net.samagames.hydroangeas.server.HydroangeasServer;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class ServerCommandManager extends CommandManager {
+public class ServerCommandManager extends CommandManager
+{
 
     public HydroangeasServer instance;
 
-    public ServerCommandManager(Hydroangeas hydroangeas) {
+    public ServerCommandManager(Hydroangeas hydroangeas)
+    {
         super(hydroangeas);
         instance = hydroangeas.getAsServer();
 

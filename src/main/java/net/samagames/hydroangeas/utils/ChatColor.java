@@ -35,7 +35,7 @@ public enum ChatColor
 
     ChatColor(char code, int intCode, boolean isFormat)
     {
-        this.toString = new String(new char[] {COLOR_CHAR, code});
+        this.toString = new String(new char[]{COLOR_CHAR, code});
     }
 
     @Override

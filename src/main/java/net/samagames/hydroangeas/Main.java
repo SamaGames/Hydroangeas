@@ -39,8 +39,7 @@ public class Main
                 try
                 {
                     parser.printHelpOn(System.out);
-                }
-                catch (IOException ex)
+                } catch (IOException ex)
                 {
                     System.err.println(ex.getLocalizedMessage());
                 }
@@ -65,8 +64,7 @@ public class Main
             {
                 System.err.println("You must start Hydroangeas as a client or a server!");
                 System.exit(-1);
-            }
-            else if (options.has("client") && options.has("server"))
+            } else if (options.has("client") && options.has("server"))
             {
                 System.err.println("Hydroangeas can't be a client AND a server!");
                 System.exit(-1);
@@ -82,9 +80,11 @@ public class Main
             while (hydroangeas.isRunning)
             {
                 String line = null;
-                try {
-                    line = hydroangeas.getConsoleReader().readLine( ">" );
-                } catch(IOException e){
+                try
+                {
+                    line = hydroangeas.getConsoleReader().readLine(">");
+                } catch (IOException e)
+                {
                     e.printStackTrace();
                 }
                 if (line != null)
@@ -92,13 +92,9 @@ public class Main
                     hydroangeas.getCommandManager().inputCommand(line);
                 }
             }
-        }
-        catch (OptionException ex)
+        } catch (OptionException | IOException ex)
         {
             System.err.println(ex.getLocalizedMessage());
-            System.exit(-1);
-        } catch (IOException e) {
-            System.err.println(e.getLocalizedMessage());
             System.exit(-1);
         }
     }

@@ -1,6 +1,7 @@
 package net.samagames.hydroangeas.server.algo;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
@@ -23,7 +24,8 @@ import java.util.stream.Collectors;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class TemplateManager {
+public class TemplateManager
+{
 
     private List<AbstractGameTemplate> templates = new ArrayList<>();
     private HydroangeasServer instance;
@@ -35,19 +37,31 @@ public class TemplateManager {
 
         File directory = new File(MiscUtils.getApplicationDirectory(), "templates");
 
-        try {
-            for(File file : directory.listFiles()) {
-                if(file.isFile()) {
-                    JsonObject data = new JsonParser().parse(new FileReader(file)).getAsJsonObject();
-                    if(data.getAsJsonPrimitive("Type").getAsString().equals("Package"))
+        try
+        {
+            for (File file : directory.listFiles())
+            {
+                if (file.isFile() && file.getName().endsWith(".json"))
+                {
+                    try
                     {
-                        templates.add(new PackageGameTemplate(FilenameUtils.removeExtension(file.getName()), data));
-                    }else{
-                        templates.add(new SimpleGameTemplate(FilenameUtils.removeExtension(file.getName()), data));
+                        JsonObject data = new JsonParser().parse(new FileReader(file)).getAsJsonObject();
+                        if (data.getAsJsonPrimitive("Type").getAsString().equals("Package"))
+                        {
+                            templates.add(new PackageGameTemplate(FilenameUtils.removeExtension(file.getName()), data));
+                        } else
+                        {
+                            templates.add(new SimpleGameTemplate(FilenameUtils.removeExtension(file.getName()), data));
+                        }
+                    } catch (JsonParseException e)
+                    {
+                        instance.getLogger().severe("Invalid template " + file.getName());
+                        e.printStackTrace();
                     }
                 }
             }
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e)
+        {
             e.printStackTrace();
         }
 
@@ -57,7 +71,7 @@ public class TemplateManager {
     public void loadQueues()
     {
         instance.getLogger().info("Ajout des queues pour chaque Template:");
-        for(AbstractGameTemplate template : templates)
+        for (AbstractGameTemplate template : templates)
         {
             instance.getQueueManager().addQueue(template);
             instance.getLogger().info("ID: " + template.getId() + " Jeu: " + template.getGameName() + " Map: " + template.getMapName());
@@ -66,9 +80,9 @@ public class TemplateManager {
 
     public AbstractGameTemplate getTemplateByID(String id)
     {
-        for(AbstractGameTemplate template : templates)
+        for (AbstractGameTemplate template : templates)
         {
-            if(template.getId().equalsIgnoreCase(id))
+            if (template.getId().equalsIgnoreCase(id))
             {
                 return template;
             }
@@ -78,9 +92,9 @@ public class TemplateManager {
 
     public AbstractGameTemplate getTemplateByGameAndMap(String game, String map)
     {
-        for(AbstractGameTemplate template : templates)
+        for (AbstractGameTemplate template : templates)
         {
-            if(template.getGameName().equalsIgnoreCase(game) && template.getMapName().equalsIgnoreCase(map))
+            if (template.getGameName().equalsIgnoreCase(game) && template.getMapName().equalsIgnoreCase(map))
             {
                 return template;
             }
@@ -100,11 +114,8 @@ public class TemplateManager {
 
     public List<String> getListTemplate()
     {
-        ArrayList<String> tmp = new ArrayList<>();
-        for(AbstractGameTemplate template : templates)
-        {
-            tmp.add(template.getId());
-        }
+        List<String> tmp = new ArrayList<>();
+        templates.stream().forEach((template -> tmp.add(template.getId())));
         return tmp;
     }
 }

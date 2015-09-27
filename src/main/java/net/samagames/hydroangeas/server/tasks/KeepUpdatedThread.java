@@ -22,23 +22,24 @@ public class KeepUpdatedThread
 
     public void start()
     {
-        instance.getScheduler().scheduleAtFixedRate(() -> check(), 2, 10, TimeUnit.SECONDS);
+        instance.getScheduler().scheduleAtFixedRate(this::check, 2, 10, TimeUnit.SECONDS);
     }
 
     public void check()
     {
         this.instance.getClientManager().getClients().stream().forEachOrdered(client -> {
-            try{
+            try
+            {
                 instance.getConnectionManager().sendPacket(client, new HeartbeatPacket(instance.getServerUUID()));
                 Timestamp actualTime = new Timestamp(System.currentTimeMillis());
-                if(actualTime.getTime() - client.getTimestamp().getTime() > TIMEOUT)
+                if (actualTime.getTime() - client.getTimestamp().getTime() > TIMEOUT)
                 {
-                    Hydroangeas.getInstance().log(Level.WARNING, "Lost connection with client " + client.getUUID().toString() + "!");
-                    ModMessage.sendMessage(InstanceType.SERVER, "Connexion perdue avec le client " + client.getUUID().toString() + " !");
+                    Hydroangeas.getInstance().log(Level.WARNING, "Lost connection with client " + client.getUUID() + "!");
+                    ModMessage.sendMessage(InstanceType.SERVER, "Connexion perdue avec le client " + client.getUUID() + " !");
 
                     instance.getClientManager().onClientNoReachable(client.getUUID());
                 }
-            }catch(Exception e)
+            } catch (Exception e)
             {
                 e.printStackTrace();
             }

@@ -1,6 +1,5 @@
 package net.samagames.hydroangeas.server.client;
 
-import com.google.gson.JsonElement;
 import net.samagames.hydroangeas.common.protocol.intranet.AskForClientActionPacket;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerInfoPacket;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerOrderPacket;
@@ -11,6 +10,7 @@ import net.samagames.hydroangeas.utils.MiscUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
@@ -19,7 +19,8 @@ import java.util.UUID;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class MinecraftServerManager {
+public class MinecraftServerManager
+{
 
     private HydroangeasServer instance;
 
@@ -32,12 +33,10 @@ public class MinecraftServerManager {
         this.client = client;
     }
 
-    public MinecraftServerS addServer(String game, String map, int minSlot, int maxSlot, JsonElement options, boolean isCoupaing, String templateID, boolean hub)
-    {
-        MinecraftServerS server = new MinecraftServerS(client, game, map, minSlot, maxSlot, options);
-        server.setTemplateID(templateID);
 
-        server.setCoupaingServer(isCoupaing);
+    public MinecraftServerS addServer(AbstractGameTemplate template, boolean hub)
+    {
+        MinecraftServerS server = new MinecraftServerS(client, template);
 
         if(!hub)
         {
@@ -70,14 +69,13 @@ public class MinecraftServerManager {
     {
         MinecraftServerS server = getServerByName(packet.getServerName());
         //Server not in here so add it
-        if(server == null)
+        if (server == null)
         {
             instance.getLogger().severe("Error sync! server: " + packet.getServerName() + " not know by Hydroserver!");
 
-            server = new MinecraftServerS(client, packet.getServerUUID(), packet.getGame(), packet.getMap(), packet.getMinSlot(), packet.getMaxSlot(), packet.getOptions());
-            server.setPort(packet.getPort());
+            server = new MinecraftServerS(client, packet);
 
-            if(getServerByUUID(server.getUUID()) != null)
+            if (getServerByUUID(server.getUUID()) != null)
             {
                 instance.getLogger().severe("Error duplicated UUID ! Not saving server !");
                 instance.getConnectionManager().sendPacket(client,
@@ -87,10 +85,11 @@ public class MinecraftServerManager {
             server.setWeight(MiscUtils.calculServerWeight(server.getGame(), server.getMaxSlot(), server.isCoupaingServer()));
             servers.add(server);
             instance.getLogger().info("Added " + packet.getServerName());
-        }else{//Server here ! so update it !
+        } else
+        {//Server here ! so update it !
 
             //First check correspondance between uuid and serverName
-            if(!server.getUUID().equals(packet.getServerUUID()))
+            if (!server.getUUID().equals(packet.getServerUUID()))
             {
                 instance.getLogger().severe("Error server: " + server.getServerName() + " has not the same UUID");
                 instance.getConnectionManager().sendPacket(client,
@@ -104,10 +103,8 @@ public class MinecraftServerManager {
     public void removeServer(String serverName)
     {
         MinecraftServerS server = getServerByName(serverName);
-        if(server == null)
-        {
+        if (server == null)
             return;
-        }
 
         server.onShutdown();
         servers.remove(server);
@@ -115,21 +112,17 @@ public class MinecraftServerManager {
 
     public MinecraftServerS getServerByName(String serverName)
     {
-        for(MinecraftServerS server : servers)
-        {
-            if(server.getServerName().equals(serverName))
-            {
+        for (MinecraftServerS server : servers)
+            if (server.getServerName().equals(serverName))
                 return server;
-            }
-        }
         return null;
     }
 
     public MinecraftServerS getServerByUUID(UUID uuid)
     {
-        for(MinecraftServerS server : servers)
+        for (MinecraftServerS server : servers)
         {
-            if(server.getUUID().equals(uuid))
+            if (server.getUUID().equals(uuid))
             {
                 return server;
             }
@@ -139,23 +132,13 @@ public class MinecraftServerManager {
 
     public List<MinecraftServerS> getServersByTemplate(AbstractGameTemplate template)
     {
-        List<MinecraftServerS> servers = new ArrayList<>();
-
-        for(MinecraftServerS server : servers)
-        {
-            if(server.getTemplateID().equals(template.getId()))
-            {
-                servers.add(server);
-            }
-        }
-
-        return servers;
+        return servers.stream().filter(server -> server.getTemplateID().equals(template.getId())).collect(Collectors.toList());
     }
 
     public int getTotalWeight()
     {
         int weight = 0;
-        for(MinecraftServerS serverS : servers)
+        for (MinecraftServerS serverS : servers)
         {
             weight += serverS.getWeight();
         }

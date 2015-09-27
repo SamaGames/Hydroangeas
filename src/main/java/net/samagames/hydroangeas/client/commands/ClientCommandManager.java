@@ -12,11 +12,13 @@ import net.samagames.hydroangeas.common.commands.CommandManager;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class ClientCommandManager extends CommandManager {
+public class ClientCommandManager extends CommandManager
+{
 
     public HydroangeasClient instance;
 
-    public ClientCommandManager(Hydroangeas hydroangeas) {
+    public ClientCommandManager(Hydroangeas hydroangeas)
+    {
         super(hydroangeas);
         instance = hydroangeas.getAsClient();
 

@@ -55,8 +55,7 @@ public class DatabaseConnector
         try
         {
             this.jedisPool.getResource();
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             this.instance.log(Level.SEVERE, "Can't connect to the database!");
             System.exit(-1);

@@ -30,7 +30,8 @@ public class HydroangeasServer extends Hydroangeas
 
     private HubBalancer hubBalancer;
 
-    public HydroangeasServer(OptionSet options) throws IOException {
+    public HydroangeasServer(OptionSet options) throws IOException
+    {
         super(options);
     }
 
@@ -42,9 +43,10 @@ public class HydroangeasServer extends Hydroangeas
         this.connectionManager = new ServerConnectionManager(this);
 
         this.redisSubscriber.registerReceiver("global@hydroangeas-server", data -> {
-            try{
+            try
+            {
                 connectionManager.getPacket(data);
-            }catch(Exception e)
+            } catch (Exception e)
             {
                 e.printStackTrace();
             }
@@ -64,12 +66,10 @@ public class HydroangeasServer extends Hydroangeas
 
         ModMessage.sendMessage(InstanceType.SERVER, "Démarrage d'Hydroangeas Server...");
         ModMessage.sendMessage(InstanceType.SERVER, "> Récupération des données éxistantes (60 secondes)...");
-
         this.hubBalancer = new HubBalancer(this);
-
-       // this.scheduler.schedule(() -> algorithmicMachine.startMachinery(), 60, TimeUnit.SECONDS);
     }
 
+    @Override
     public void disable()
     {
         queueManager.disable();
@@ -96,11 +96,13 @@ public class HydroangeasServer extends Hydroangeas
         return this.algorithmicMachine;
     }
 
-    public QueueManager getQueueManager() {
+    public QueueManager getQueueManager()
+    {
         return queueManager;
     }
 
-    public TemplateManager getTemplateManager() {
+    public TemplateManager getTemplateManager()
+    {
         return templateManager;
     }
 

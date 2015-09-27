@@ -8,41 +8,38 @@ public class LogDispatcher extends Thread
 {
 
     private final HydroLogger logger;
-    private final BlockingQueue<LogRecord> queue = new LinkedBlockingQueue<LogRecord>();
+    private final BlockingQueue<LogRecord> queue = new LinkedBlockingQueue<>();
 
     public LogDispatcher(HydroLogger logger)
     {
-        super( "Hydroangeas Logger Thread" );
+        super("Hydroangeas Logger Thread");
         this.logger = logger;
     }
 
     @Override
     public void run()
     {
-        while ( !isInterrupted() )
+        while (!isInterrupted())
         {
             LogRecord record;
             try
             {
                 record = queue.take();
-            } catch ( InterruptedException ex )
+            } catch (InterruptedException ex)
             {
                 continue;
             }
 
-            logger.doLog( record );
+            logger.doLog(record);
         }
-        for ( LogRecord record : queue )
-        {
-            logger.doLog( record );
-        }
+        queue.forEach(logger::doLog);
     }
 
     public void queue(LogRecord record)
     {
-        if ( !isInterrupted() )
+        if (!isInterrupted())
         {
-            queue.add( record );
+            queue.add(record);
         }
     }
 }

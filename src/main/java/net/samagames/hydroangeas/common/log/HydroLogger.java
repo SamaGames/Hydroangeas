@@ -9,7 +9,7 @@ public class HydroLogger extends Logger
 {
 
     private final Formatter formatter = new ConciseFormatter();
-    private final LogDispatcher dispatcher = new LogDispatcher( this );
+    private final LogDispatcher dispatcher = new LogDispatcher(this);
 
     @SuppressWarnings(
             {
@@ -17,22 +17,22 @@ public class HydroLogger extends Logger
             })
     public HydroLogger(Hydroangeas hydroangeas)
     {
-        super( "Hydroangeas", null );
-        setLevel( Level.ALL );
+        super("Hydroangeas", null);
+        setLevel(Level.ALL);
 
         try
         {
-            FileHandler fileHandler = new FileHandler( "Hydroangeas.log", 1 << 24, 8, true );
-            fileHandler.setFormatter( formatter );
-            addHandler( fileHandler );
+            FileHandler fileHandler = new FileHandler("Hydroangeas.log", 1 << 24, 8, true);
+            fileHandler.setFormatter(formatter);
+            addHandler(fileHandler);
 
-            ColouredWriter consoleHandler = new ColouredWriter( hydroangeas.getConsoleReader() );
-            consoleHandler.setLevel( Level.INFO );
-            consoleHandler.setFormatter( formatter );
-            addHandler( consoleHandler );
-        } catch ( IOException ex )
+            ColouredWriter consoleHandler = new ColouredWriter(hydroangeas.getConsoleReader());
+            consoleHandler.setLevel(Level.INFO);
+            consoleHandler.setFormatter(formatter);
+            addHandler(consoleHandler);
+        } catch (IOException ex)
         {
-            System.err.println( "Could not register logger!" );
+            System.err.println("Could not register logger!");
             ex.printStackTrace();
         }
         dispatcher.start();
@@ -41,11 +41,11 @@ public class HydroLogger extends Logger
     @Override
     public void log(LogRecord record)
     {
-        dispatcher.queue( record );
+        dispatcher.queue(record);
     }
 
     void doLog(LogRecord record)
     {
-        super.log( record );
+        super.log(record);
     }
 }

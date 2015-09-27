@@ -11,7 +11,8 @@ import java.util.UUID;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class HeartbeatPacket extends AbstractPacket {
+public class HeartbeatPacket extends AbstractPacket
+{
 
     private UUID uuid;
     private boolean online = true;
@@ -21,7 +22,8 @@ public class HeartbeatPacket extends AbstractPacket {
         this.uuid = uuid;
     }
 
-    public HeartbeatPacket() {
+    public HeartbeatPacket()
+    {
 
     }
 

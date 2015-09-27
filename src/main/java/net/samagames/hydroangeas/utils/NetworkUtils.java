@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 
-public class InternetUtils
+public class NetworkUtils
 {
     public static String readURL(String url)
     {
@@ -18,13 +18,12 @@ public class InternetUtils
             in.close();
 
             return inputLine;
-        }
-        catch (IOException e)
+        } catch (IOException e)
         {
             e.printStackTrace();
         }
 
-        return null;
+        return "";
     }
 
     public static String readFullURL(String url)
@@ -44,25 +43,7 @@ public class InternetUtils
             in.close();
 
             return builder.toString();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    public static String getExternalIp()
-    {
-        try
-        {
-            URL ipURL = new URL("http://checkip.amazonaws.com");
-            BufferedReader in = new BufferedReader(new InputStreamReader(ipURL.openStream()));
-
-            return in.readLine();
-        }
-        catch (IOException e)
+        } catch (IOException e)
         {
             e.printStackTrace();
         }

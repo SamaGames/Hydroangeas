@@ -12,17 +12,20 @@ import java.util.logging.Level;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class StopCommand extends AbstractCommand {
+public class StopCommand extends AbstractCommand
+{
 
     public HydroangeasServer instance;
 
-    public StopCommand(HydroangeasServer hydroangeasServer) {
+    public StopCommand(HydroangeasServer hydroangeasServer)
+    {
         super("stop");
         this.instance = hydroangeasServer;
     }
 
     @Override
-    public boolean execute(String[] args) {
+    public boolean execute(String[] args)
+    {
 
         instance.log(Level.INFO, "Stopping the server..");
         System.exit(0);

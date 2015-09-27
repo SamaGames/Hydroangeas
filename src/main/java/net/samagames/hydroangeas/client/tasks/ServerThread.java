@@ -2,6 +2,8 @@ package net.samagames.hydroangeas.client.tasks;
 
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;
+import net.samagames.restfull.LogLevel;
+import net.samagames.restfull.RestAPI;
 import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
@@ -44,17 +46,15 @@ public class ServerThread extends Thread
             executor.execute(() -> {
                 try
                 {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(server.getErrorStream()));
                     String line = null;
-                    try
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(server.getErrorStream())))
                     {
                         while (isServerProcessAlive && (line = reader.readLine()) != null)
                         {
+                            RestAPI.getInstance().log(LogLevel.ERROR, instance.getServerName(), line);
+                            System.err.println(instance.getServerName() + "> " + line);
                             //TODO handle errors
                         }
-                    } finally
-                    {
-                        reader.close();
                     }
                 } catch (IOException ioe)
                 {
@@ -65,18 +65,14 @@ public class ServerThread extends Thread
             executor.execute(() -> {
                 try
                 {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(server.getInputStream()));
                     String line = null;
-                    try
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(server.getInputStream())))
                     {
                         while (isServerProcessAlive && (line = reader.readLine()) != null)
                         {
                             lastHeartbeat = System.currentTimeMillis();
                             //TODO: best crash detection
                         }
-                    } finally
-                    {
-                        reader.close();
                     }
                 } catch (IOException ioe)
                 {
@@ -87,7 +83,7 @@ public class ServerThread extends Thread
             executor.execute(() -> {
                 while (true)
                 {
-                    if (System.currentTimeMillis() - lastHeartbeat > 10 * 1000)
+                    if (System.currentTimeMillis() - lastHeartbeat > 120000)
                     {
                         instance.stopServer();
                     }
@@ -100,10 +96,7 @@ public class ServerThread extends Thread
                     }
                 }
             });
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-        } catch (InterruptedException e)
+        } catch (IOException | InterruptedException e)
         {
             e.printStackTrace();
         }

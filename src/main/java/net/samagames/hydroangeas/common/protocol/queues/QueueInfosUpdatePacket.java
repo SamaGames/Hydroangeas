@@ -10,7 +10,8 @@ import net.samagames.hydroangeas.server.waitingqueue.QPlayer;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class QueueInfosUpdatePacket extends AbstractPacket {
+public class QueueInfosUpdatePacket extends AbstractPacket
+{
 
     private Type type;
     private boolean success;
@@ -41,28 +42,34 @@ public class QueueInfosUpdatePacket extends AbstractPacket {
         this.templateID = templateID;
     }
 
-    public Type getType() {
+    public Type getType()
+    {
         return type;
     }
 
-    public boolean isSuccess() {
+    public boolean isSuccess()
+    {
         return success;
     }
 
-    public String getErrorMessage() {
+    public String getErrorMessage()
+    {
         return errorMessage;
     }
 
-    public String getTemplateID() {
+    public String getTemplateID()
+    {
         return templateID;
     }
 
-    public QPlayer getPlayer() {
+    public QPlayer getPlayer()
+    {
         return player;
     }
 
 
-    public enum Type {
+    public enum Type
+    {
         ADD, REMOVE
     }
 }

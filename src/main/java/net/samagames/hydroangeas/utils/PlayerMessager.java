@@ -11,10 +11,11 @@ import java.util.UUID;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class PlayerMessager {
+public class PlayerMessager
+{
 
     public static void sendMessage(UUID player, String message)
     {
-        Hydroangeas.getInstance().getRedisSubscriber().send("apiexec.send", player.toString() + " {\"text\":\""+ message +"\"}");
+        Hydroangeas.getInstance().getRedisSubscriber().send("apiexec.send", player + " {\"text\":\"" + message + "\"}");
     }
 }

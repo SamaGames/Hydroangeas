@@ -11,7 +11,8 @@ import java.util.UUID;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class AskForClientActionPacket extends AbstractPacket{
+public class AskForClientActionPacket extends AbstractPacket
+{
 
     private UUID uuid;
     private ActionCommand command;
@@ -19,7 +20,9 @@ public class AskForClientActionPacket extends AbstractPacket{
     //Datas
     private String data;
 
-    public AskForClientActionPacket(){}
+    public AskForClientActionPacket()
+    {
+    }
 
     public AskForClientActionPacket(UUID uuid, ActionCommand command, String data)
     {
@@ -38,11 +41,13 @@ public class AskForClientActionPacket extends AbstractPacket{
         return data;
     }
 
-    public ActionCommand getCommand() {
+    public ActionCommand getCommand()
+    {
         return command;
     }
 
-    public enum ActionCommand{
+    public enum ActionCommand
+    {
         SERVEREND, CLIENTSHUTDOWN, CONSOLECOMMAND
     }
 }

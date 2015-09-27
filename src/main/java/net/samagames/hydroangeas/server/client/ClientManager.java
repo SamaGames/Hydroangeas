@@ -46,11 +46,11 @@ public class ClientManager
     public void updateClient(HelloFromClientPacket packet)
     {
         HydroClient client = this.getClientByUUID(packet.getUUID());
-        if(client == null)
+        if (client == null)
         {
             client = new HydroClient(instance, packet.getUUID());
-            this.instance.log(Level.INFO, "New client " + client.getUUID().toString() + " connected!");
-            if(!clientList.add(client)) instance.log(Level.INFO, "Not added !");
+            this.instance.log(Level.INFO, "New client " + client.getUUID() + " connected!");
+            if (!clientList.add(client)) instance.log(Level.INFO, "Not added !");
         }
         client.updateData(packet);
     }
@@ -58,9 +58,9 @@ public class ClientManager
     public void onClientHeartbeat(UUID uuid)
     {
         HydroClient client = this.getClientByUUID(uuid);
-        if(client == null)
+        if (client == null)
         {
-            this.instance.log(Level.INFO, "Client " + uuid.toString() + " connected!");
+            this.instance.log(Level.INFO, "Client " + uuid + " connected!");
             instance.getConnectionManager().sendPacket(uuid, new AskForClientDataPacket());
             return;
         }
@@ -71,7 +71,7 @@ public class ClientManager
     public void onClientNoReachable(UUID clientUUID)
     {
         HydroClient client = this.getClientByUUID(clientUUID);
-        if(!clientList.remove(client)) instance.log(Level.INFO, "Not deleted !");
+        if (!clientList.remove(client)) instance.log(Level.INFO, "Not deleted !");
     }
 
     public KeepUpdatedThread getKeepUpdatedThread()
@@ -86,12 +86,13 @@ public class ClientManager
 
     public HydroClient getClientByUUID(UUID uuid)
     {
-        if(uuid == null)
+        if (uuid == null)
             return null;
 
-        for(HydroClient client : clientList)
+        for (HydroClient client : clientList)
         {
-            if(client.getUUID().equals(uuid)){
+            if (client.getUUID().equals(uuid))
+            {
                 return client;
             }
         }
@@ -101,22 +102,21 @@ public class ClientManager
     public MinecraftServerS getServerByName(String name)
     {
 
-            for(HydroClient client : clientList)
+        for (HydroClient client : clientList)
+        {
+            MinecraftServerS server = client.getServerManager().getServerByName(name);
+            if (server != null)
             {
-                MinecraftServerS server = client.getServerManager().getServerByName(name);
-                if(server != null)
-                {
-                    return server;
-                }
+                return server;
             }
-            return null;
+        }
+        return null;
     }
 
     public List<MinecraftServerS> getServersByTemplate(AbstractGameTemplate template)
     {
         List<MinecraftServerS> servers = new ArrayList<>();
-
-        for(HydroClient client : clientList)
+        for (HydroClient client : clientList)
         {
             servers.addAll(client.getServerManager().getServersByTemplate(template));
         }

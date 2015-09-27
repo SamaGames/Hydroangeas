@@ -14,32 +14,35 @@ import java.util.logging.Level;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class TemplateCommand extends AbstractCommand {
+public class TemplateCommand extends AbstractCommand
+{
 
     public HydroangeasServer instance;
 
-    public TemplateCommand(HydroangeasServer hydroangeasServer) {
+    public TemplateCommand(HydroangeasServer hydroangeasServer)
+    {
         super("order");
         this.instance = hydroangeasServer;
     }
 
     @Override
-    public boolean execute(String[] args) {
+    public boolean execute(String[] args)
+    {
 
         if (args.length <= 0)
         {
             List<String> listTemplate = instance.getTemplateManager().getListTemplate();
             String message = "Templates: ";
-            for(String templateName : listTemplate)
+            for (String templateName : listTemplate)
             {
                 message += templateName;
             }
 
             instance.log(Level.INFO, message);
-        }else if(args.length >= 1)
+        } else if (args.length >= 1)
         {
             AbstractGameTemplate template = instance.getTemplateManager().getTemplateByID(args[0]);
-            if(template == null)
+            if (template == null)
             {
                 instance.log(Level.INFO, "Template not found!");
                 return false;

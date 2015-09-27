@@ -16,11 +16,13 @@ import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerOrderPa
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class ClientConnectionManager extends ConnectionManager {
+public class ClientConnectionManager extends ConnectionManager
+{
 
     public HydroangeasClient instance;
 
-    public ClientConnectionManager(Hydroangeas hydroangeas) {
+    public ClientConnectionManager(Hydroangeas hydroangeas)
+    {
         super(hydroangeas);
 
         instance = hydroangeas.getAsClient();
@@ -33,23 +35,24 @@ public class ClientConnectionManager extends ConnectionManager {
     }
 
     @Override
-    public void handler(int id, String data) {
+    public void handler(int id, String data)
+    {
         Object spacket = gson.fromJson(data, packets[id].getClass());
 
-        if(spacket instanceof HeartbeatPacket)
+        if (spacket instanceof HeartbeatPacket)
         {
             HeartbeatPacket heartbeatPacket = (HeartbeatPacket) spacket;
             instance.getLifeThread().onServerHeartbeat(heartbeatPacket.getUUID());
-        }else if(spacket instanceof MinecraftServerOrderPacket)
+        } else if (spacket instanceof MinecraftServerOrderPacket)
         {
             MinecraftServerOrderPacket packet = (MinecraftServerOrderPacket) spacket;
 
             Hydroangeas.getInstance().getAsClient().getServerManager().newServer(packet);
-        }else if(spacket instanceof AskForClientDataPacket)
+        } else if (spacket instanceof AskForClientDataPacket)
         {
             AskForClientDataPacket packet = (AskForClientDataPacket) spacket;
             Hydroangeas.getInstance().getAsClient().getLifeThread().sendData(true);
-        }else if(spacket instanceof AskForClientActionPacket)
+        } else if (spacket instanceof AskForClientActionPacket)
         {
             AskForClientActionPacket packet = (AskForClientActionPacket) spacket;
 

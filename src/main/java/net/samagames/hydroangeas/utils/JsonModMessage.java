@@ -13,27 +13,33 @@ public class JsonModMessage
         this.message = message;
     }
 
-    public String getSender() {
+    public String getSender()
+    {
         return sender;
     }
 
-    public void setSender(String sender) {
+    public void setSender(String sender)
+    {
         this.sender = sender;
     }
 
-    public ChatColor getSenderPrefix() {
+    public ChatColor getSenderPrefix()
+    {
         return senderPrefix;
     }
 
-    public void setSenderPrefix(ChatColor senderPrefix) {
+    public void setSenderPrefix(ChatColor senderPrefix)
+    {
         this.senderPrefix = senderPrefix;
     }
 
-    public String getMessage() {
+    public String getMessage()
+    {
         return message;
     }
 
-    public void setMessage(String message) {
+    public void setMessage(String message)
+    {
         this.message = message;
     }
 }

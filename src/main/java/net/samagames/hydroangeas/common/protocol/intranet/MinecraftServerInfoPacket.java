@@ -14,7 +14,8 @@ import java.util.UUID;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class MinecraftServerInfoPacket extends AbstractPacket {
+public class MinecraftServerInfoPacket extends AbstractPacket
+{
 
     private UUID uuid;
 
@@ -35,7 +36,8 @@ public class MinecraftServerInfoPacket extends AbstractPacket {
     {
     }
 
-    public MinecraftServerInfoPacket(Hydroangeas instance, MinecraftServerC server) {
+    public MinecraftServerInfoPacket(Hydroangeas instance, MinecraftServerC server)
+    {
         this(instance.getUUID(),
                 server.getServerName(),
                 server.getUUID(),
@@ -49,7 +51,8 @@ public class MinecraftServerInfoPacket extends AbstractPacket {
                 server.getWeight());
     }
 
-    public MinecraftServerInfoPacket(UUID uuid, String serverName, UUID serverUUID, String game, String map, int minSlot, int maxSlot, boolean coupaingServer, JsonElement options, int port, int weight) {
+    public MinecraftServerInfoPacket(UUID uuid, String serverName, UUID serverUUID, String game, String map, int minSlot, int maxSlot, boolean coupaingServer, JsonElement options, int port, int weight)
+    {
         this.uuid = uuid;
         this.serverName = serverName;
         this.serverUUID = serverUUID;
@@ -64,47 +67,58 @@ public class MinecraftServerInfoPacket extends AbstractPacket {
         this.options = options;
     }
 
-    public UUID getUUID() {
+    public UUID getUUID()
+    {
         return uuid;
     }
 
-    public boolean isCoupaingServer() {
+    public boolean isCoupaingServer()
+    {
         return coupaingServer;
     }
 
-    public String getGame() {
+    public String getGame()
+    {
         return game;
     }
 
-    public String getMap() {
+    public String getMap()
+    {
         return map;
     }
 
-    public int getMinSlot() {
+    public int getMinSlot()
+    {
         return minSlot;
     }
 
-    public int getMaxSlot() {
+    public int getMaxSlot()
+    {
         return maxSlot;
     }
 
-    public JsonElement getOptions() {
+    public JsonElement getOptions()
+    {
         return options;
     }
 
-    public String getServerName() {
+    public String getServerName()
+    {
         return serverName;
     }
 
-    public int getPort() {
+    public int getPort()
+    {
         return port;
     }
 
-    public int getWeight() {
+    public int getWeight()
+    {
         return weight;
     }
 
-    public UUID getServerUUID() {
+    public UUID getServerUUID()
+    {
         return serverUUID;
     }
 }

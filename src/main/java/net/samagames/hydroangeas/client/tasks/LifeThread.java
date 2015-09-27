@@ -28,24 +28,24 @@ public class LifeThread
     public void start()
     {
         sendData(true);
-        instance.getScheduler().scheduleAtFixedRate(() -> check(), 2, 10, TimeUnit.SECONDS);
+        instance.getScheduler().scheduleAtFixedRate(this::check, 2, 10, TimeUnit.SECONDS);
     }
 
     public void check()
     {
         instance.getConnectionManager().sendPacket(new HeartbeatPacket(instance.getClientUUID()));
 
-        if(System.currentTimeMillis() - lastHeartbeatFromServer > TIMEOUT)
+        if (System.currentTimeMillis() - lastHeartbeatFromServer > TIMEOUT)
         {
-            if(this.connected)
+            if (this.connected)
             {
-                ModMessage.sendMessage(InstanceType.CLIENT, "[" + this.instance.getClientUUID().toString() + "] Impossible de contacter le serveur Hydroangeas !");
+                ModMessage.sendMessage(InstanceType.CLIENT, "[" + this.instance.getClientUUID() + "] Impossible de contacter le serveur Hydroangeas !");
             }
             this.instance.log(Level.SEVERE, "Can't tell the Hydroangeas Server! Maybe it's down?");
             this.connected = false;
-        }else if(!connected)
+        } else if (!connected)
         {
-            ModMessage.sendMessage(InstanceType.CLIENT, "[" + this.instance.getClientUUID().toString() + "] Retour à la normale !");
+            ModMessage.sendMessage(InstanceType.CLIENT, "[" + this.instance.getClientUUID() + "] Retour à la normale !");
 
             this.instance.log(Level.INFO, "Hydroangeas Server has responded! Resync data...");
             sendData(true);
@@ -57,9 +57,9 @@ public class LifeThread
     public void sendData(boolean all)
     {
         instance.getConnectionManager().sendPacket(new HelloFromClientPacket(instance));
-        if(all)
+        if (all)
         {
-            for(MinecraftServerC server : instance.getServerManager().getServers())
+            for (MinecraftServerC server : instance.getServerManager().getServers())
             {
                 instance.getConnectionManager().sendPacket(new MinecraftServerInfoPacket(instance, server));
             }

@@ -10,6 +10,7 @@ import net.samagames.hydroangeas.common.database.RedisSubscriber;
 import net.samagames.hydroangeas.common.log.HydroLogger;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.utils.LinuxBridge;
+import net.samagames.restfull.RestAPI;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.IOException;
@@ -38,7 +39,8 @@ public abstract class Hydroangeas
 
     protected Logger logger;
 
-    public Hydroangeas(OptionSet options) throws IOException {
+    public Hydroangeas(OptionSet options) throws IOException
+    {
         instance = this;
 
         uuid = UUID.randomUUID();
@@ -49,20 +51,20 @@ public abstract class Hydroangeas
 
         logger = new HydroLogger(this);
 
-        if ( consoleReader.getTerminal() instanceof UnsupportedTerminal)
+        if (consoleReader.getTerminal() instanceof UnsupportedTerminal)
         {
             log(Level.INFO, "Unable to initialize fancy terminal. To fix this on Windows, install the correct Microsoft Visual C++ 2008 Runtime");
             log(Level.INFO, "NOTE: This error is non crucial, and BungeeCord will still function correctly! Do not bug the author about it unless you are still unable to get it working");
         }
 
-        logger.info("Hydroangeas version 1.0.0 by BlueSlime");
+        logger.info("Hydroangeas version 1.0.0");
         logger.info("----------------------------------------");
 
         this.scheduler = Executors.newScheduledThreadPool(16);
-
         this.options = options;
         this.configuration = new Configuration(this, options);
         this.databaseConnector = new DatabaseConnector(this);
+        RestAPI.getInstance().setup(configuration.restfullURL, configuration.restfullUser, configuration.restfullPassword);
         this.redisSubscriber = new RedisSubscriber(this);
         this.linuxBridge = new LinuxBridge();
 
@@ -83,10 +85,12 @@ public abstract class Hydroangeas
         return instance;
     }
 
-    public static int findRandomOpenPort() {
-        try (ServerSocket socket = new ServerSocket(0)) {
+    public static int findRandomOpenPort()
+    {
+        try (ServerSocket socket = new ServerSocket(0))
+        {
             return socket.getLocalPort();
-        }catch (Exception e)
+        } catch (Exception e)
         {
             e.printStackTrace();
         }
@@ -102,7 +106,6 @@ public abstract class Hydroangeas
         isRunning = false;
 
         disable();
-
         scheduler.shutdown();
 
         this.redisSubscriber.disable();
@@ -112,13 +115,6 @@ public abstract class Hydroangeas
 
     public void log(Level level, String message)
     {
-        /*DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        String finalMessage = "[" + dateFormat.format(new Date()) + "]" + " [" + level.getName().toUpperCase() + "] " + message;
-
-        if(level == Level.SEVERE)
-            System.err.println(finalMessage);
-        else
-            System.out.println(finalMessage);*/
         logger.log(level, message);
     }
 
@@ -149,7 +145,7 @@ public abstract class Hydroangeas
 
     public HydroangeasClient getAsClient()
     {
-        if(this instanceof HydroangeasClient)
+        if (this instanceof HydroangeasClient)
             return (HydroangeasClient) this;
         else
             return null;
@@ -157,13 +153,14 @@ public abstract class Hydroangeas
 
     public HydroangeasServer getAsServer()
     {
-        if(this instanceof HydroangeasServer)
+        if (this instanceof HydroangeasServer)
             return (HydroangeasServer) this;
         else
             return null;
     }
 
-    public ConsoleReader getConsoleReader() {
+    public ConsoleReader getConsoleReader()
+    {
         return consoleReader;
     }
 
@@ -172,11 +169,13 @@ public abstract class Hydroangeas
         return commandManager;
     }
 
-    public Logger getLogger() {
+    public Logger getLogger()
+    {
         return logger;
     }
 
-    public UUID getUUID() {
+    public UUID getUUID()
+    {
         return uuid;
     }
 }

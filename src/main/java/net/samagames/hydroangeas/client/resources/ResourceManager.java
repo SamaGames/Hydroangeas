@@ -7,8 +7,7 @@ import com.google.gson.JsonParser;
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;
 import net.samagames.hydroangeas.client.servers.ServerDependency;
-import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerIssuePacket;
-import net.samagames.hydroangeas.utils.InternetUtils;
+import net.samagames.hydroangeas.utils.NetworkUtils;
 import org.apache.commons.io.FileUtils;
 import org.rauschig.jarchivelib.Archiver;
 import org.rauschig.jarchivelib.ArchiverFactory;
@@ -28,145 +27,105 @@ public class ResourceManager
         this.cacheManager = new CacheManager(instance);
     }
 
-    public void downloadServer(MinecraftServerC server, File serverPath)
+    public void downloadServer(MinecraftServerC server, File serverPath) throws IOException
     {
-        try
+        String existURL = this.instance.getTemplatesDomain() + "servers/exist.php?game=" + server.getGame();
+        boolean exist = Boolean.valueOf(NetworkUtils.readURL(existURL));
+
+        if (!exist)
         {
-            String existURL = this.instance.getTemplatesDomain() + "servers/exist.php?game=" + server.getGame();
-            boolean exist = Boolean.valueOf(InternetUtils.readURL(existURL));
-
-            if (!exist)
-            {
-                throw new IllegalStateException("Server template don't exist!");
-            }
-
-            File dest = new File(serverPath, server.getGame() + ".tar.gz");
-
-            FileUtils.copyFile(cacheManager.getServerFiles(server.getGame()), dest);
-
-            Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
-            archiver.extract(dest, serverPath.getAbsoluteFile());
+            throw new IllegalStateException("Server template don't exist!");
         }
-        catch (Exception e)
+
+        File dest = new File(serverPath, server.getGame() + ".tar.gz");
+
+        FileUtils.copyFile(cacheManager.getServerFiles(server.getGame()), dest);
+
+        Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
+        archiver.extract(dest, serverPath.getAbsoluteFile());
+    }
+
+    public void downloadMap(MinecraftServerC server, File serverPath) throws IOException
+    {
+        String existURL = this.instance.getTemplatesDomain() + "maps/exist.php?game=" + server.getGame() + "&map=" + server.getMap().replaceAll(" ", "_");
+
+        if (!Boolean.parseBoolean(NetworkUtils.readURL(existURL)))
         {
-            e.printStackTrace();
-            instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
+            throw new IllegalStateException("Server's map don't exist! (" + existURL + ")");
+        }
+
+        File dest = new File(serverPath, server.getGame() + "_" + server.getMap().replaceAll(" ", "_") + ".tar.gz");
+
+        FileUtils.copyFile(cacheManager.getMapFiles(server.getGame(), server.getMap().replaceAll(" ", "_")), dest);
+
+        Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
+        archiver.extract(dest, serverPath.getAbsoluteFile());
+    }
+
+    public void downloadDependencies(MinecraftServerC server, File serverPath) throws IOException
+    {
+        File dependenciesFile = new File(serverPath, "dependencies.json");
+
+        while (!dependenciesFile.exists())
+        {
+        }
+
+        JsonArray jsonRoot = new JsonParser().parse(new FileReader(dependenciesFile)).getAsJsonArray();
+
+        for (int i = 0; i < jsonRoot.size(); i++)
+        {
+            JsonObject jsonDependency = jsonRoot.get(i).getAsJsonObject();
+            this.downloadDependency(server, new ServerDependency(jsonDependency.get("name").getAsString(), jsonDependency.get("version").getAsString()), serverPath);
         }
     }
 
-    public void downloadMap(MinecraftServerC server, File serverPath)
+    public void downloadDependency(MinecraftServerC server, ServerDependency dependency, File serverPath) throws IOException
     {
-        try
+        String existURL = this.instance.getTemplatesDomain() + "dependencies/exist.php?name=" + dependency.getName() + "&version=" + dependency.getVersion();
+        File pluginsPath = new File(serverPath, "plugins/");
+
+        if (!pluginsPath.exists())
+            pluginsPath.mkdirs();
+
+        if (!Boolean.parseBoolean(NetworkUtils.readURL(existURL)))
         {
-            String existURL = this.instance.getTemplatesDomain() + "maps/exist.php?game=" + server.getGame() + "&map=" + server.getMap();
-            boolean exist = Boolean.valueOf(InternetUtils.readURL(existURL));
-
-            if (!exist)
-            {
-                throw new IllegalStateException("Server's map don't exist!");
-            }
-
-            File dest = new File(serverPath, server.getGame() + "_" + server.getMap() + ".tar.gz");
-
-            FileUtils.copyFile(cacheManager.getMapFiles(server.getGame(), server.getMap()), dest);
-
-            Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
-            archiver.extract(dest, serverPath.getAbsoluteFile());
+            throw new IllegalStateException("Servers' dependency '" + dependency.getName() + "' don't exist!");
         }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
-        }
+
+        File dest = new File(pluginsPath, dependency.getName() + "_" + dependency.getVersion() + ".tar.gz");
+
+        FileUtils.copyFile(cacheManager.getDebFiles(dependency.getName(), dependency.getVersion()), dest);
+
+        ArchiverFactory.createArchiver("tar", "gz").extract(dest, pluginsPath.getAbsoluteFile());
     }
 
-    public void downloadDependencies(MinecraftServerC server, File serverPath)
+    public void patchServer(MinecraftServerC server, File serverPath, boolean isCoupaingServer) throws IOException
     {
-        try
-        {
-            File dependenciesFile = new File(serverPath, "dependencies.json");
+        this.instance.getLinuxBridge().sed("%serverName%", server.getServerName(), new File(serverPath, "plugins" + File.separator + "SamaGamesAPI" + File.separator + "config.yml").getAbsolutePath());
+        this.instance.getLinuxBridge().sed("%serverPort%", String.valueOf(server.getPort()), new File(serverPath, "server.properties").getAbsolutePath());
+        this.instance.getLinuxBridge().sed("%serverIp%", instance.getAsClient().getIP(), new File(serverPath, "server.properties").getAbsolutePath());
+        this.instance.getLinuxBridge().sed("%serverName%", server.getServerName(), new File(serverPath, "scripts.txt").getAbsolutePath());
 
-            while(!dependenciesFile.exists()) {}
+        File gameFile = new File(serverPath, "game.json");
+        gameFile.createNewFile();
 
-            JsonArray jsonRoot = new JsonParser().parse(new FileReader(dependenciesFile)).getAsJsonArray();
+        JsonObject rootJson = new JsonObject();
+        rootJson.addProperty("map-name", server.getMap());
+        rootJson.addProperty("min-slots", server.getMinSlot());
+        rootJson.addProperty("max-slots", server.getMaxSlot());
 
-            for(int i = 0; i < jsonRoot.size(); i++)
-            {
-                JsonObject jsonDependency = jsonRoot.get(i).getAsJsonObject();
-                this.downloadDependency(server, new ServerDependency(jsonDependency.get("name").getAsString(), jsonDependency.get("version").getAsString()), serverPath);
-            }
-        }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-        }
+        rootJson.add("options", server.getOptions());
+
+
+        FileOutputStream fOut = new FileOutputStream(gameFile);
+        OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
+        myOutWriter.append(new Gson().toJson(rootJson));
+        myOutWriter.close();
+        fOut.close();
     }
 
-    public void downloadDependency(MinecraftServerC server, ServerDependency dependency, File serverPath)
+    public CacheManager getCacheManager()
     {
-        try
-        {
-            String existURL = this.instance.getTemplatesDomain() + "dependencies/exist.php?name=" + dependency.getName() + "&version=" + dependency.getVersion();
-            File pluginsPath = new File(serverPath, "plugins/");
-
-            if(!pluginsPath.exists())
-                pluginsPath.mkdirs();
-
-            boolean exist = Boolean.valueOf(InternetUtils.readURL(existURL));
-
-            if (!exist)
-            {
-                throw new IllegalStateException("Servers' dependency '" + dependency.getName() + "' don't exist!");
-            }
-
-            File dest = new File(pluginsPath, dependency.getName() + "_" + dependency.getVersion() + ".tar.gz");
-
-            FileUtils.copyFile(cacheManager.getDebFiles(dependency.getName(), dependency.getVersion()), dest);
-
-            Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
-            archiver.extract(dest, pluginsPath.getAbsoluteFile());
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
-        }
-    }
-
-    public void patchServer(MinecraftServerC server, File serverPath, boolean isCoupaingServer)
-    {
-        try
-        {
-            this.instance.getLinuxBridge().sed("%serverName%", server.getServerName(), new File(serverPath, "plugins" + File.separator + "SamaGamesAPI" + File.separator + "config.yml").getAbsolutePath());
-            this.instance.getLinuxBridge().sed("%serverPort%", String.valueOf(server.getPort()), new File(serverPath, "server.properties").getAbsolutePath());
-            this.instance.getLinuxBridge().sed("%serverIp%", InternetUtils.getExternalIp(), new File(serverPath, "server.properties").getAbsolutePath());
-            this.instance.getLinuxBridge().sed("%serverName%", server.getServerName(), new File(serverPath, "scripts.txt").getAbsolutePath());
-
-            File coupaingFile = new File(serverPath, "game.json");
-            coupaingFile.createNewFile();
-
-            JsonObject rootJson = new JsonObject();
-            rootJson.addProperty("map-name", server.getMap());
-            rootJson.addProperty("min-slots", server.getMinSlot());
-            rootJson.addProperty("max-slots", server.getMaxSlot());
-
-            rootJson.add("options", server.getOptions());
-
-
-            FileOutputStream fOut = new FileOutputStream(coupaingFile);
-            OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
-            myOutWriter.append(new Gson().toJson(rootJson));
-            myOutWriter.close();
-            fOut.close();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.PATCH));
-        }
-    }
-
-    public CacheManager getCacheManager() {
         return cacheManager;
     }
 }

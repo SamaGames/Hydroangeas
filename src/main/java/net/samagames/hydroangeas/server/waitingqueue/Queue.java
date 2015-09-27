@@ -4,15 +4,15 @@ import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.protocol.hubinfo.GameInfosToHubPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
-import net.samagames.hydroangeas.server.data.Status;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
 import net.samagames.hydroangeas.server.games.PackageGameTemplate;
-import net.samagames.hydroangeas.utils.PriorityBlockingQueue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
@@ -21,28 +21,23 @@ import java.util.UUID;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class Queue {
+public class Queue
+{
 
+    private final ScheduledFuture workerTask, hubRefreshTask;
+    private final String map;
     private QueueManager manager;
 
     private HydroangeasServer instance;
 
     private String game;
 
-    private PriorityBlockingQueue<QGroup> queue;
-
-    private Thread updater;
-    private boolean sendInfo = true;
-
-    private Thread worker;
-    private boolean working = true;
+    private PriorityPlayerQueue queue;
+    private volatile boolean sendInfo = true;
 
     private AbstractGameTemplate template;
 
-    /*public Queue(QueueManager manager, String name)
-    {
-        this(manager, name.split("_")[0], name.split("_")[1]);
-    }*/
+    private long lastSend = System.currentTimeMillis();
 
     public Queue(QueueManager manager, AbstractGameTemplate template)
     {
@@ -50,6 +45,7 @@ public class Queue {
         this.manager = manager;
         this.template = template;
         this.game = template.getGameName();
+        this.map = template.getMapName();
 
         if(template instanceof PackageGameTemplate)//Assuming that the package template have not selected a template we force it
         {
@@ -57,37 +53,22 @@ public class Queue {
         }
 
         //Si priority plus grande alors tu passe devant.
-        this.queue = new PriorityBlockingQueue<>(100000, (o1, o2) -> -Integer.compare(o1.getPriority(), o2.getPriority()));
+        this.queue = new PriorityPlayerQueue(100000, (o1, o2) -> -Integer.compare(o1.getPriority(), o2.getPriority()));
 
-        worker = new Thread(() -> {
-            while (working)
+        workerTask = instance.getScheduler().scheduleAtFixedRate(() ->
+        {
+            if (template == null)
             {
-                if(template == null)
-                {
-                    Hydroangeas.getInstance().getLogger().info("Template null!");
-                    return;
-                }
+                Hydroangeas.getInstance().getLogger().info("Template null!");
+                return;
+            }
 
-                List<MinecraftServerS> servers = instance.getAlgorithmicMachine().getServerByTemplatesAndAvailable(template.getId());
+            List<MinecraftServerS> servers = instance.getAlgorithmicMachine().getServerByTemplatesAndAvailable(template.getId());
 
-                for(MinecraftServerS server : servers)
-                {
-                    if(server.getStatus().isAllowJoin())
-                    {
-                        List<QGroup> groups = new ArrayList<>();
-                        queue.drainTo(groups, server.getMaxSlot());
-                        for(QGroup group : groups)
-                        {
-                            group.sendTo(server.getServerName());
-                        }
-                    }else if(!server.getStatus().equals(Status.STARTING))
-                    {
-                        //ne devrait jamais arrriver (peut etre à delete)
-                        servers.remove(server);
-                    }
-                }
-
-                if(servers.size() <= 0 && queue.size() >= template.getMaxSlot() * 0.7)
+            servers.stream().filter(server -> server.getStatus().isAllowJoin()).forEach(server -> {
+                List<QGroup> groups = new ArrayList<>();
+                queue.drainPlayerTo(groups, server.getMaxSlot());
+                for (QGroup group : groups)
                 {
                     Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
                     if(template instanceof PackageGameTemplate)//If it's a package template we change it now
@@ -95,25 +76,16 @@ public class Queue {
                         ((PackageGameTemplate) template).selectTemplate();
                     }
                 }
+            });
 
-                try {
-                    Thread.sleep(900L);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, template.getId() + " Worker");
-        worker.start();
-
-        updater = new Thread(() -> {
-            long lastSend = System.currentTimeMillis();
-            while(true)
+            if (servers.size() <= 0 && queue.size() >= template.getMinSlot())
             {
                 try{
-                    if(System.currentTimeMillis() - lastSend > 1 * 60 * 1000 || sendInfo)
+                    if(System.currentTimeMillis() - lastSend > 60000 || sendInfo)
                     {
                         sendInfo = false;
                         sendInfoToHub();
+                        lastSend = System.currentTimeMillis();
                     }
 
                     Thread.sleep(700);
@@ -122,16 +94,15 @@ public class Queue {
                     e.printStackTrace();
                 }
             }
-        }, template.getId() + " Updater");
-        updater.start();
+        }, 0, 900, TimeUnit.MILLISECONDS);
+        hubRefreshTask = instance.getScheduler().scheduleAtFixedRate(this::sendInfoToHub, 0, 750, TimeUnit.MILLISECONDS);
 
     }
 
     public void remove()
     {
-        working = false;
-        worker.interrupt();
-        updater.interrupt();
+        workerTask.cancel(true);
+        hubRefreshTask.cancel(true);
     }
 
     public boolean addPlayersInNewGroup(QPlayer leader, List<QPlayer> players)
@@ -141,33 +112,40 @@ public class Queue {
 
     public boolean addGroup(QGroup qGroup)
     {
-        try{
+        try
+        {
             return queue.add(qGroup);
-        }finally{
+        } finally
+        {
             sendInfo = true;
         }
     }
 
     public boolean removeGroup(QGroup qGroup)
     {
-        try{
+        try
+        {
             return queue.remove(qGroup);
-        }finally{
+        } finally
+        {
             sendInfo = true;
         }
     }
 
     public boolean removeQPlayer(QPlayer player)
     {
-        try {
+        try
+        {
             QGroup group = getGroupByPlayer(player.getUUID());
             boolean result = group.removeQPlayer(player);
             removeGroup(group);
-            if (group.getLeader() != null) {
+            if (group.getLeader() != null)
+            {
                 addGroup(group);
             }
             return result;
-        }finally{
+        } finally
+        {
             sendInfo = true;
         }
     }
@@ -176,7 +154,7 @@ public class Queue {
     public List<QGroup> getGroupsListFormatted(int number)
     {
         List<QGroup> data = new ArrayList<>();
-        queue.drainTo(data, number);
+        queue.drainPlayerTo(data, number);
 
         return data;
     }
@@ -194,7 +172,8 @@ public class Queue {
     {
         HashMap<UUID, Integer> data = new HashMap<>();
         int i = 0;
-        for (QGroup qGroup : queue) {
+        for (QGroup qGroup : queue)
+        {
             for (QPlayer qPlayer : qGroup.getQPlayers())
             {
                 data.put(qPlayer.getUUID(), i);
@@ -205,11 +184,11 @@ public class Queue {
 
     public QGroup getGroupByLeader(UUID leader)
     {
-        for(QGroup qGroup : queue)
+        for (QGroup qGroup : queue)
         {
-            if(qGroup == null)
+            if (qGroup == null)
                 continue;
-            if(qGroup.getLeader().getUUID().equals(leader))
+            if (qGroup.getLeader().getUUID().equals(leader))
             {
                 return qGroup;
             }
@@ -219,11 +198,11 @@ public class Queue {
 
     public QGroup getGroupByPlayer(UUID player)
     {
-        for(QGroup qGroup : queue)
+        for (QGroup qGroup : queue)
         {
-            if(qGroup == null)
+            if (qGroup == null)
                 continue;
-            if(qGroup.contains(player))
+            if (qGroup.contains(player))
             {
                 return qGroup;
             }
@@ -236,7 +215,7 @@ public class Queue {
         int i = 0;
         for (QGroup qGroup : queue)
         {
-            if(qGroup == null)
+            if (qGroup == null)
                 continue;
             if (qGroup.contains(uuid))
             {
@@ -250,19 +229,19 @@ public class Queue {
     public boolean removeUUID(UUID uuid)
     {
         QGroup group = getGroupByPlayer(uuid);
-        if(group == null)
+        if (group == null)
             return false;
         return group.removeQPlayer(uuid);
     }
 
     public boolean containsUUID(UUID uuid)
     {
-        for(QGroup qGroup : queue)
+        for (QGroup qGroup : queue)
         {
-            if(qGroup == null)
+            if (qGroup == null)
                 continue;
 
-            if(qGroup.contains(uuid))
+            if (qGroup.contains(uuid))
             {
                 return true;
             }
@@ -272,11 +251,11 @@ public class Queue {
 
     public boolean containsLeader(UUID uuid)
     {
-        for(QGroup qGroup : queue)
+        for (QGroup qGroup : queue)
         {
-            if(qGroup == null)
+            if (qGroup == null)
                 continue;
-            if(qGroup.getLeader().getUUID().equals(uuid))
+            if (qGroup.getLeader().getUUID().equals(uuid))
             {
                 return true;
             }
@@ -287,7 +266,7 @@ public class Queue {
     public int getSize()
     {
         int i = 0;
-        for(QGroup group : queue)
+        for (QGroup group : queue)
         {
             i += group.getSize();
         }
@@ -296,20 +275,29 @@ public class Queue {
 
     public void sendInfoToHub()
     {
-        instance.getScheduler().execute(() -> {
-            GameInfosToHubPacket packet = new GameInfosToHubPacket(template.getId());
-            packet.setPlayerMaxForMap(template.getMaxSlot());
-            packet.setPlayerWaitFor(getSize());
-            List<MinecraftServerS> serverSList = instance.getClientManager().getServersByTemplate(template);
-            int nb = 0;
-            for(MinecraftServerS serverS : serverSList)
+        try
+        {
+            if (System.currentTimeMillis() - lastSend > 60000 || sendInfo)
             {
-                nb += serverS.getActualSlots();
-            }
-            packet.setTotalPlayerOnServers(nb);
+                GameInfosToHubPacket packet = new GameInfosToHubPacket(template.getId());
+                packet.setPlayerMaxForMap(template.getMaxSlot());
+                packet.setPlayerWaitFor(getSize());
+                List<MinecraftServerS> serverSList = instance.getClientManager().getServersByTemplate(template);
+                int nb = 0;
+                for (MinecraftServerS serverS : serverSList)
+                {
+                    nb += serverS.getActualSlots();
+                }
+                packet.setTotalPlayerOnServers(nb);
 
-            manager.sendPacketHub(packet);
-        });
+                manager.sendPacketHub(packet);
+                lastSend = System.currentTimeMillis();
+                sendInfo = false;
+            }
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public String getName()
@@ -317,8 +305,14 @@ public class Queue {
         return template.getId();
     }
 
-    public String getGame() {
+    public String getGame()
+    {
         return game;
+    }
+
+    public String getMap()
+    {
+        return map;
     }
 
     public AbstractGameTemplate getTemplate()

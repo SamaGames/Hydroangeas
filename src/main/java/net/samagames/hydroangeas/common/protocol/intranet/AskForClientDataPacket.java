@@ -11,7 +11,8 @@ import java.util.UUID;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class AskForClientDataPacket extends AbstractPacket {
+public class AskForClientDataPacket extends AbstractPacket
+{
 
     private UUID uuid;
 
@@ -20,7 +21,8 @@ public class AskForClientDataPacket extends AbstractPacket {
         this.uuid = uuid;
     }
 
-    public AskForClientDataPacket() {
+    public AskForClientDataPacket()
+    {
 
     }
 

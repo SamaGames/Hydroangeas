@@ -19,23 +19,23 @@ public class ServerManager
     public ServerManager(HydroangeasClient instance)
     {
         this.instance = instance;
-
     }
 
     public void newServer(MinecraftServerOrderPacket serverInfos)
     {
-        try{
+        try
+        {
             int port = getAvailablePort();
             MinecraftServerC server = new MinecraftServerC(this.instance, serverInfos, port);
 
             instance.getLogger().info("Server creation !");
 
-            if(!server.makeServer())
+            if (!server.makeServer())
             {
                 instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), serverInfos.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
                 return;
             }
-            if(!server.startServer())
+            if (!server.startServer())
             {
                 instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), serverInfos.getServerName(), MinecraftServerIssuePacket.Type.START));
                 return;
@@ -47,7 +47,7 @@ public class ServerManager
             instance.getConnectionManager().sendPacket(new MinecraftServerUpdatePacket(instance, server.getServerName(), MinecraftServerUpdatePacket.UType.START));
             //Complete data of the server
             instance.getConnectionManager().sendPacket(new MinecraftServerInfoPacket(instance, server));
-        }catch(Exception e)
+        } catch (Exception e)
         {
             e.printStackTrace();
             instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), serverInfos.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
@@ -56,13 +56,13 @@ public class ServerManager
 
     public void stopAll()
     {
-        for(MinecraftServerC server : this.servers)
+        for (MinecraftServerC server : this.servers)
         {
-            if(!server.stopServer())
+            if (!server.stopServer())
             {
                 instance.getConnectionManager().sendPacket(
                         new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.STOP));
-            }else
+            } else
             {
                 instance.getConnectionManager().sendPacket(new MinecraftServerUpdatePacket(instance, server.getServerName(), MinecraftServerUpdatePacket.UType.END));
             }
@@ -78,13 +78,13 @@ public class ServerManager
 
     public int getAvailablePort()
     {
-        return instance.findRandomOpenPort();
+        return HydroangeasClient.findRandomOpenPort();
     }
 
     public int getWeightOfAllServers()
     {
         int w = 0;
-        for(MinecraftServerC server : servers)
+        for (MinecraftServerC server : servers)
         {
             w += server.getWeight();
         }
@@ -93,9 +93,9 @@ public class ServerManager
 
     public MinecraftServerC getServerByName(String name)
     {
-        for(MinecraftServerC server : servers)
+        for (MinecraftServerC server : servers)
         {
-            if(server.getServerName().equals(name))
+            if (server.getServerName().equals(name))
             {
                 return server;
             }
@@ -105,9 +105,9 @@ public class ServerManager
 
     public MinecraftServerC getServerByUUID(UUID uuid)
     {
-        for(MinecraftServerC server : servers)
+        for (MinecraftServerC server : servers)
         {
-            if(server.getUUID().equals(uuid))
+            if (server.getUUID().equals(uuid))
             {
                 return server;
             }
