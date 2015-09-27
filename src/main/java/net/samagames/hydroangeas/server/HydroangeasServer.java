@@ -7,6 +7,7 @@ import net.samagames.hydroangeas.server.algo.TemplateManager;
 import net.samagames.hydroangeas.server.client.ClientManager;
 import net.samagames.hydroangeas.server.commands.ServerCommandManager;
 import net.samagames.hydroangeas.server.connection.ServerConnectionManager;
+import net.samagames.hydroangeas.server.hubs.HubBalancer;
 import net.samagames.hydroangeas.server.receiver.ServerStatusReceiver;
 import net.samagames.hydroangeas.server.waitingqueue.QueueManager;
 import net.samagames.hydroangeas.utils.InstanceType;
@@ -26,6 +27,8 @@ public class HydroangeasServer extends Hydroangeas
     private TemplateManager templateManager;
 
     private QueueManager queueManager;
+
+    private HubBalancer hubBalancer;
 
     public HydroangeasServer(OptionSet options) throws IOException {
         super(options);
@@ -62,6 +65,8 @@ public class HydroangeasServer extends Hydroangeas
         ModMessage.sendMessage(InstanceType.SERVER, "Démarrage d'Hydroangeas Server...");
         ModMessage.sendMessage(InstanceType.SERVER, "> Récupération des données éxistantes (60 secondes)...");
 
+        this.hubBalancer = new HubBalancer(this);
+
        // this.scheduler.schedule(() -> algorithmicMachine.startMachinery(), 60, TimeUnit.SECONDS);
     }
 
@@ -97,5 +102,9 @@ public class HydroangeasServer extends Hydroangeas
 
     public TemplateManager getTemplateManager() {
         return templateManager;
+    }
+
+    public HubBalancer getHubBalancer() {
+        return hubBalancer;
     }
 }

@@ -78,20 +78,16 @@ public class AlgorithmicMachine
         return null;
     }
 
-    public void onServerUpdate(MinecraftServerUpdatePacket serverStatus)
+    public void onServerUpdate(HydroClient client, MinecraftServerS oldServer, MinecraftServerUpdatePacket serverStatus)
     {
         if(serverStatus.getAction().equals(MinecraftServerUpdatePacket.UType.END))
         {
-            HydroClient client = instance.getClientManager().getClientByUUID(serverStatus.getUUID());
-            /*MinecraftServerS oldserver = client.getServerManager().getServerByName(serverStatus.getServerName());
-            client.getServerManager().addServer(oldserver.getGame(),
-                    oldserver.getMap(),
-                    oldserver.getMinSlot(), //We restart the same server on the same client for test
-                    oldserver.getMaxSlot(),
-                    oldserver.getOptions(),
-                    oldserver.isCoupaingServer());*/
-
             instance.log(Level.INFO, "Server ended on " + client.getIp() + " servername: " + serverStatus.getServerName());
+
+            if(oldServer.isHub())
+            {
+                instance.getHubBalancer().onHubShutdown(oldServer);
+            }
         }
     }
 

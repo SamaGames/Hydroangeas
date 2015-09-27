@@ -122,6 +122,8 @@ public class MiscUtils
             case "dimension":
                 weight += 30;
                 break;
+            default:
+            break;
         }
 
         //SlotNumber

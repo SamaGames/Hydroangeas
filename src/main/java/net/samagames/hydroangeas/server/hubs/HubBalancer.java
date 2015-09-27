@@ -24,10 +24,11 @@ public class HubBalancer {
     {
         this.instance = instance;
 
-        balancer = new BalancingTask(instance, this);
+        updateHubTemplate();
+    }
 
-        balancer.start();
-
+    public boolean updateHubTemplate()
+    {
         try{
             hubTemplate = (SimpleGameTemplate) instance.getTemplateManager().getTemplateByID("Hub");
         }catch (Exception e)
@@ -36,12 +37,39 @@ public class HubBalancer {
 
             instance.getLogger().severe("No Hub template found !");
             instance.getLogger().severe("Add one and reboot HydroServer or no hub will be start on the network!");
+            return false;
         }
+
+        if(balancer == null)
+        {
+            balancer = new BalancingTask(instance, this);
+        }
+
+        if(!balancer.isAlive())
+        {
+            balancer.start();
+        }
+        return true;
+    }
+
+    public void startNewHub()
+    {
+        hubs.add(instance.getAlgorithmicMachine().orderTemplate(hubTemplate));
     }
 
     public int getNumberServer()
     {
         return hubs.size();
+    }
+
+    public int getUsedSlots()
+    {
+        int i = 0;
+        for(MinecraftServerS serverS : hubs)
+        {
+            i+= serverS.getActualSlots();
+        }
+        return i;
     }
 
     public int getTotalSlot()
@@ -59,10 +87,14 @@ public class HubBalancer {
         return hubs;
     }
 
-    public boolean stopBalancing()
+    public void stopBalancing()
     {
-        balancer.interrupt();
-        return true;
+        if(balancer != null) balancer.interrupt();
+    }
+
+    public void onHubShutdown(MinecraftServerS serverS)
+    {
+        hubs.remove(serverS);
     }
 
     public SimpleGameTemplate getHubTemplate()

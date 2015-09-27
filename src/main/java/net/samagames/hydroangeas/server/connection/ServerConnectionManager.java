@@ -83,15 +83,15 @@ public class ServerConnectionManager extends ConnectionManager{
                 return;
             }
 
+            MinecraftServerS server = client.getServerManager().getServerByName(packet.getServerName());
+
             //Handle pour l'algo avant de prendre les action
             try{
-                instance.getAlgorithmicMachine().onServerUpdate(packet);
+                instance.getAlgorithmicMachine().onServerUpdate(client, server, packet);
             }catch(Exception e)
             {
                 e.printStackTrace();
             }
-
-            MinecraftServerS server = client.getServerManager().getServerByName(packet.getServerName());
 
             switch(packet.getAction())
             {
