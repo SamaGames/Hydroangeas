@@ -4,6 +4,7 @@ import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.server.games.SimpleGameTemplate;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,11 +32,11 @@ public class HubBalancer {
     {
         try{
             hubTemplate = (SimpleGameTemplate) instance.getTemplateManager().getTemplateByID("Hub");
-        }catch (Exception e)
+            if (hubTemplate == null)
+                throw new IOException("No Hub template found !");
+        }catch (IOException e)
         {
             e.printStackTrace();
-
-            instance.getLogger().severe("No Hub template found !");
             instance.getLogger().severe("Add one and reboot HydroServer or no hub will be start on the network!");
             return false;
         }

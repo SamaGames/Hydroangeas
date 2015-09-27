@@ -81,13 +81,7 @@ public class Queue
             if (servers.size() <= 0 && queue.size() >= template.getMinSlot())
             {
                 try{
-                    if(System.currentTimeMillis() - lastSend > 60000 || sendInfo)
-                    {
-                        sendInfo = false;
-                        sendInfoToHub();
-                        lastSend = System.currentTimeMillis();
-                    }
-
+                    sendInfoToHub();
                     Thread.sleep(700);
                 }catch (Exception e)
                 {
