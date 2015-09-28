@@ -67,31 +67,19 @@ public class Queue
 
             servers.stream().filter(server -> server.getStatus().isAllowJoin()).forEach(server -> {
                 List<QGroup> groups = new ArrayList<>();
-                queue.drainPlayerTo(groups, server.getMaxSlot());
-                for (QGroup group : groups)
+                queue.drainTo(groups, server.getMaxSlot());
+                for(QGroup group : groups)
                 {
-                    Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
-                    if(template instanceof PackageGameTemplate)//If it's a package template we change it now
-                    {
-                        ((PackageGameTemplate) template).selectTemplate();
-                    }
+                    group.sendTo(server.getServerName());
                 }
             });
 
-            if (servers.size() <= 0 && queue.size() >= template.getMinSlot())
+            if(servers.size() <= 0 && queue.size() >= template.getMinSlot())
             {
-                try{
-                    if(System.currentTimeMillis() - lastSend > 60000 || sendInfo)
-                    {
-                        sendInfo = false;
-                        sendInfoToHub();
-                        lastSend = System.currentTimeMillis();
-                    }
-
-                    Thread.sleep(700);
-                }catch (Exception e)
+                Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
+                if(template instanceof PackageGameTemplate) // If it's a package template we change it now
                 {
-                    e.printStackTrace();
+                    ((PackageGameTemplate) template).selectTemplate();
                 }
             }
         }, 0, 900, TimeUnit.MILLISECONDS);

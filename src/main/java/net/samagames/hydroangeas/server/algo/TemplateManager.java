@@ -46,7 +46,7 @@ public class TemplateManager
                     try
                     {
                         JsonObject data = new JsonParser().parse(new FileReader(file)).getAsJsonObject();
-                        if (data.getAsJsonPrimitive("Type").getAsString().equals("Package"))
+                        if (data.getAsJsonPrimitive("Type") != null && data.getAsJsonPrimitive("Type").getAsString().equals("Package"))
                         {
                             templates.add(new PackageGameTemplate(FilenameUtils.removeExtension(file.getName()), data));
                         } else
