@@ -5,6 +5,7 @@ import net.samagames.hydroangeas.common.packets.PacketReceiver;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.server.data.ServerStatus;
+import net.samagames.hydroangeas.server.waitingqueue.Queue;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
@@ -40,5 +41,11 @@ public class ServerStatusReceiver implements PacketReceiver
 
         server.setActualSlots(data.getPlayers());
         server.setStatus(data.getStatus());
+
+        Queue queue = instance.getQueueManager().getQueueByTemplate(server.getTemplateID());
+        if(queue != null)
+        {
+            queue.updateInfosToHub();
+        }
     }
 }

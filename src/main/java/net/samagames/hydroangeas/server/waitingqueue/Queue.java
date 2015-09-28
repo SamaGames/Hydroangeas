@@ -273,6 +273,11 @@ public class Queue
         return i;
     }
 
+    public void updateInfosToHub()
+    {
+        sendInfo = true;
+    }
+
     public void sendInfoToHub()
     {
         try

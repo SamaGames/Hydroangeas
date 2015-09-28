@@ -304,6 +304,18 @@ public class QueueManager
         return queues.stream().filter(queue -> queue.getGame().equalsIgnoreCase(game)).collect(Collectors.toList());
     }
 
+    public Queue getQueueByTemplate(String templateID)
+    {
+        for (Queue queue : queues)
+        {
+            if (queue.getTemplate().getId().equals(templateID))
+            {
+                return queue;
+            }
+        }
+        return null;
+    }
+
     public Queue getQueueByPlayer(UUID player)
     {
         for (Queue queue : queues)
