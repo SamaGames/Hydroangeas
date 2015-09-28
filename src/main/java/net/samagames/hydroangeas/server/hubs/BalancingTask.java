@@ -11,7 +11,7 @@ public class BalancingTask extends Thread {
     private HydroangeasServer instance;
     private HubBalancer hubBalancer;
 
-    public static final int HUB_SAFETY_MARGIN = 3;
+    public static final int HUB_SAFETY_MARGIN = 2;
     public static final int HUB_CONSIDERED_AS_EMPTY = 5; //Number minimum of player on a HUB we can stop
 
     private int coolDown = 0; //*100ms
@@ -36,7 +36,7 @@ public class BalancingTask extends Thread {
                     {
                         hubBalancer.startNewHub();
                     }
-                    coolDown += 5;
+                    coolDown += 7;
                 }else if(hubBalancer.getNumberServer() > requestNumber)
                 {
                     for(MinecraftServerS serverS : hubBalancer.getBalancedHubList())
