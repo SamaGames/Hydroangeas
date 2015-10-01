@@ -2,14 +2,10 @@ package net.samagames.hydroangeas.client.servers;
 
 public class ServerDependency
 {
-    private final String name;
-    private final String version;
-
-    public ServerDependency(String name, String version)
-    {
-        this.name = name;
-        this.version = version;
-    }
+    private String name;
+    private String version;
+    private String type;
+    private String ext;
 
     public String getName()
     {
@@ -19,5 +15,25 @@ public class ServerDependency
     public String getVersion()
     {
         return this.version;
+    }
+
+
+    public String getType()
+    {
+        if (type == null)
+            return "plugin";
+        return type;
+    }
+
+    public String getExt()
+    {
+        if (ext == null)
+            return "jar";
+        return ext;
+    }
+
+    public boolean isExtractable()
+    {
+        return ext != null && !ext.equals("jar");
     }
 }

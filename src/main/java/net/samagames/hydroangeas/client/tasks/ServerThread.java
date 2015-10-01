@@ -52,7 +52,7 @@ public class ServerThread extends Thread
                         while (isServerProcessAlive && (line = reader.readLine()) != null)
                         {
                             RestAPI.getInstance().log(LogLevel.ERROR, instance.getServerName(), line);
-                            System.err.println(instance.getServerName() + "> " + line);
+                            System.err.println(instance.getServerName() + " > " + line);
                             //TODO handle errors
                         }
                     }
@@ -71,6 +71,14 @@ public class ServerThread extends Thread
                         while (isServerProcessAlive && (line = reader.readLine()) != null)
                         {
                             lastHeartbeat = System.currentTimeMillis();
+                            if (line.contains("WARN]"))
+                            {
+                                RestAPI.getInstance().log(line.contains(" at ") || line.contains("exception") ? LogLevel.ERROR : LogLevel.WARINING, instance.getServerName(), line);
+                            }
+                            else if (line.contains("SEVERE]"))
+                            {
+                                RestAPI.getInstance().log(LogLevel.ERROR, instance.getServerName(), line);
+                            }
                             //TODO: best crash detection
                         }
                     }

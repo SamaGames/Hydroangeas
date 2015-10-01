@@ -1,6 +1,7 @@
 package net.samagames.hydroangeas.client.resources;
 
 import net.samagames.hydroangeas.client.HydroangeasClient;
+import net.samagames.hydroangeas.client.servers.ServerDependency;
 import net.samagames.hydroangeas.utils.MiscUtils;
 import net.samagames.hydroangeas.utils.NetworkUtils;
 import org.apache.commons.io.FileUtils;
@@ -50,13 +51,13 @@ public class CacheManager
         return getCache(wgetURL, checksumURL, cache);
     }
 
-    public File getDebFiles(String debName, String debVersion)
+    public File getDebFiles(ServerDependency dependency)
     {
-        String fileName = debName + "_" + debVersion;
+        String fileName = dependency.getName() + "-" + dependency.getVersion();
 
-        String checksumURL = this.instance.getTemplatesDomain() + "dependencies/checksum.php?file=" + fileName;
-        String wgetURL = this.instance.getTemplatesDomain() + "dependencies/" + fileName + ".tar.gz";
-        File cache = new File(this.instance.getServerFolder(), "cache/dependencies/" + fileName + ".tar.gz");
+        String checksumURL = this.instance.getTemplatesDomain() + "dependencies/checksum.php?file=" + fileName + "." + dependency.getExt();
+        String wgetURL = this.instance.getTemplatesDomain() + "dependencies/" + fileName + "."  + dependency.getExt();
+        File cache = new File(this.instance.getServerFolder(), "cache/dependencies/" + fileName +  "."  + dependency.getExt());
 
         return getCache(wgetURL, checksumURL, cache);
     }

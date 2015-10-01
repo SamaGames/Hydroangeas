@@ -49,6 +49,7 @@ public class MinecraftServerC
         options = serverInfos.getOptions();
 
         this.serverFolder = new File(this.instance.getServerFolder(), serverInfos.getServerName());
+        this.serverFolder.deleteOnExit();
         this.port = port;
 
         this.weight = MiscUtils.calculServerWeight(game, maxSlot, isCoupaingServer());
