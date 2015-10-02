@@ -47,7 +47,7 @@ public class Configuration
         if (!configurationFile.exists())
         {
             this.instance.log(Level.SEVERE, "Configuration file don't exist!");
-            System.exit(-1);
+            System.exit(4);
         }
 
         JsonObject jsonRoot = new JsonParser().parse(new FileReader(new File(path))).getAsJsonObject();
@@ -56,7 +56,7 @@ public class Configuration
         if (!validateJson(jsonRoot))
         {
             this.instance.log(Level.SEVERE, "Configuration file isn't valid! Please just modify the default configuration file!");
-            System.exit(-1);
+            System.exit(5);
         }
 
         this.redisIp = jsonRoot.get("redis-ip").getAsString();
@@ -79,7 +79,7 @@ public class Configuration
         }
 
         this.instance.log(Level.INFO, "Default configuration file created.");
-        System.exit(0);
+        System.exit(3);
     }
 
     public JsonObject getJsonConfiguration()

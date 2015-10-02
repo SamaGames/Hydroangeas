@@ -127,17 +127,15 @@ public class MinecraftServerC
     {
         try
         {
-            //this.instance.getLinuxBridge().mark2Stop(getServerName());
             serverThread.forceStop();
+            serverFolder.delete();
         } catch (Exception e)
         {
             this.instance.log(Level.SEVERE, "Can't stop the server " + getServerName() + "!");
             e.printStackTrace();
             serverFolder.delete();
-
             return false;
         }
-
         return true;
     }
 
