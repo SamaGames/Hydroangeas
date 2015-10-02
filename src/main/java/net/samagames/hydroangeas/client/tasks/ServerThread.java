@@ -2,6 +2,7 @@ package net.samagames.hydroangeas.client.tasks;
 
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;
+import net.samagames.hydroangeas.common.log.StackTraceData;
 import net.samagames.restfull.LogLevel;
 import net.samagames.restfull.RestAPI;
 import org.apache.commons.io.FileUtils;
@@ -31,7 +32,11 @@ public class ServerThread extends Thread
     private long lastHeartbeat = System.currentTimeMillis();
     private ExecutorService executor;
     private MinecraftServerC instance;
-    private static final Pattern LOG_PATTERN = Pattern.compile("\\[\\d{1,2}:\\d{2}:\\d{2} (INFO|WARN|SEVERE)\\]: (.*)");
+    private static final Pattern LOG_PATTERN = Pattern.compile("\\[\\d{1,2}:\\d{2}:\\d{2} (INFO|WARN|ERROR)\\]: (.*)");
+    private static final Pattern BEGIN_OF_STACKTRACE_PATTERN = Pattern.compile("([a-zA-Z\\.]*Exception)");
+    private static final Pattern CONTENT_OF_STACKTRACE_PATTERN = Pattern.compile("((\\tat|Caused by).*)");
+    private static final Pattern END_OF_STACKTRACE_PATTERN = Pattern.compile("((\\t\\.\\.\\.).*)");
+    private StackTraceData stackTraceData;
 
     public ServerThread(MinecraftServerC instance, String[] command, String[] env, File directory)
     {
@@ -74,13 +79,15 @@ public class ServerThread extends Thread
                         while (isServerProcessAlive && (line = reader.readLine()) != null)
                         {
                             lastHeartbeat = System.currentTimeMillis();
-                            Matcher matcher = LOG_PATTERN.matcher(line);
-
+                            Matcher matcherLog = LOG_PATTERN.matcher(line);
+                            Matcher matcherContentStack = CONTENT_OF_STACKTRACE_PATTERN.matcher(line);
+                            Matcher matcherBeginStack = BEGIN_OF_STACKTRACE_PATTERN.matcher(line);
+                            Matcher matcherEndStack = END_OF_STACKTRACE_PATTERN.matcher(line);
                             // Correct logs
-                            if (matcher.matches())
+                            if (matcherLog.matches())
                             {
-                                String logType = matcher.group(1);
-                                String log = matcher.group(2);
+                                String logType = matcherLog.group(1);
+                                String log = matcherLog.group(2);
                                 switch (logType)
                                 {
                                     default:
@@ -88,14 +95,41 @@ public class ServerThread extends Thread
                                     case "SEVERE":
                                         RestAPI.getInstance().log(LogLevel.ERROR, "Client_" + instance.getInstance().getClientUUID() + "/" + instance.getServerName(), log);
                                         break;
-                                    case "WARN":
+                                    case "ERROR":
                                         RestAPI.getInstance().log(LogLevel.WARINING, "Client_" + instance.getInstance().getClientUUID() + "/" + instance.getServerName(), log);
                                         break;
                                 }
 
+                                // This should be impossible
+                                if (this.stackTraceData != null)
+                                {
+                                    this.stackTraceData.end("Client_" + instance.getInstance().getClientUUID() + "/" + instance.getServerName());
+                                    this.stackTraceData = null;
+                                }
 
-                            } else if (!line.equals("Loading libraries, please wait...")) {
-                                // Impossible for normal log, assuming stacktrace
+                            } else if (matcherContentStack.matches() && this.stackTraceData != null)
+                            {
+                                this.stackTraceData.addData(line);
+                            } else if (matcherBeginStack.matches())
+                            {
+                                // This should be impossible
+                                if (this.stackTraceData != null)
+                                {
+                                    this.stackTraceData.end("Client_" + instance.getInstance().getClientUUID() + "/" + instance.getServerName());
+                                }
+                                this.stackTraceData = new StackTraceData(line);
+
+                            } else if (matcherEndStack.matches())
+                            {
+                                if (this.stackTraceData != null)
+                                {
+                                    this.stackTraceData.addData(line);
+                                    this.stackTraceData.end("Client_" + instance.getInstance().getClientUUID() + "/" + instance.getServerName());
+                                    this.stackTraceData = null;
+                                }
+                            } else if (!line.equals("Loading libraries, please wait..."))
+                            {
+                                // Unknow content, JVM related?!
                                 RestAPI.getInstance().log(LogLevel.ERROR, "Client_" + instance.getInstance().getClientUUID() + "/" + instance.getServerName(), line);
                             }
                             //TODO: best crash detection
