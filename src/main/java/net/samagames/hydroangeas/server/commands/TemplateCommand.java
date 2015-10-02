@@ -33,7 +33,7 @@ public class TemplateCommand extends AbstractCommand
         {
             List<String> listTemplate = instance.getTemplateManager().getListTemplate();
             StringBuilder builder = new StringBuilder("Templates: ");
-            listTemplate.forEach(builder::append);
+            listTemplate.forEach((item) -> builder.append(item).append("\n"));
 
             instance.log(Level.INFO, builder.toString());
         } else
