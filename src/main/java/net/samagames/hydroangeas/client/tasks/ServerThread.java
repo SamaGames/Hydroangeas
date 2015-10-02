@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
@@ -29,6 +31,7 @@ public class ServerThread extends Thread
     private long lastHeartbeat = System.currentTimeMillis();
     private ExecutorService executor;
     private MinecraftServerC instance;
+    private static final Pattern LOG_PATTERN = Pattern.compile("\\[\\d{1,2}:\\d{2}:\\d{2} (INFO|WARN|SEVERE)\\]: (.*)");
 
     public ServerThread(MinecraftServerC instance, String[] command, String[] env, File directory)
     {
@@ -71,13 +74,29 @@ public class ServerThread extends Thread
                         while (isServerProcessAlive && (line = reader.readLine()) != null)
                         {
                             lastHeartbeat = System.currentTimeMillis();
-                            if (line.contains("WARN]"))
+                            Matcher matcher = LOG_PATTERN.matcher(line);
+
+                            // Correct logs
+                            if (matcher.matches())
                             {
-                                RestAPI.getInstance().log(line.contains(" at ") || line.contains("exception") ? LogLevel.ERROR : LogLevel.WARINING, instance.getServerName(), line);
-                            }
-                            else if (line.contains("SEVERE]"))
-                            {
-                                RestAPI.getInstance().log(LogLevel.ERROR, instance.getServerName(), line);
+                                String logType = matcher.group(1);
+                                String log = matcher.group(2);
+                                switch (logType)
+                                {
+                                    default:
+                                        break;
+                                    case "SEVERE":
+                                        RestAPI.getInstance().log(LogLevel.ERROR, "Client_" + instance.getInstance().getClientUUID() + "/" + instance.getServerName(), log);
+                                        break;
+                                    case "WARN":
+                                        RestAPI.getInstance().log(LogLevel.WARINING, "Client_" + instance.getInstance().getClientUUID() + "/" + instance.getServerName(), log);
+                                        break;
+                                }
+
+
+                            } else if (!line.equals("Loading libraries, please wait...")) {
+                                // Impossible for normal log, assuming stacktrace
+                                RestAPI.getInstance().log(LogLevel.ERROR, "Client_" + instance.getInstance().getClientUUID() + "/" + instance.getServerName(), line);
                             }
                             //TODO: best crash detection
                         }
