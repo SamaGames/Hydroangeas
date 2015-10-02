@@ -78,11 +78,17 @@ public class MiscUtils
         MessageDigest sha1 = MessageDigest.getInstance("SHA1");
         FileInputStream fis = new FileInputStream(f);
 
-        byte[] data = new byte[1024];
-        int read = 0;
-        while ((read = fis.read(data)) != -1)
+        try
         {
-            sha1.update(data, 0, read);
+            byte[] data = new byte[1024];
+            int read = 0;
+            while ((read = fis.read(data)) != -1)
+            {
+                sha1.update(data, 0, read);
+            }
+        } finally
+        {
+            fis.close();
         }
         byte[] hashBytes = sha1.digest();
 

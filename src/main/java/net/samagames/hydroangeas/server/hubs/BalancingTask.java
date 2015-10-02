@@ -18,7 +18,6 @@ public class BalancingTask extends Thread {
 
     public BalancingTask(HydroangeasServer instance, HubBalancer hubBalancer)
     {
-
         this.instance = instance;
         this.hubBalancer = hubBalancer;
     }

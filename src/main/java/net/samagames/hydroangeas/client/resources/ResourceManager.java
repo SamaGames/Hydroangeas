@@ -12,6 +12,7 @@ import org.rauschig.jarchivelib.ArchiverFactory;
 import org.rauschig.jarchivelib.FileType;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.List;
 
 public class ResourceManager
@@ -67,12 +68,26 @@ public class ResourceManager
     {
         File dependenciesFile = new File(serverPath, "dependencies.json");
 
-        List<ServerDependency> dependencies = GSON.fromJson(new FileReader(dependenciesFile), new TypeToken<List<ServerDependency>>() {}.getType());
-
-        for (ServerDependency dependency : dependencies)
+        InputStreamReader fileReader = null;
+        try
         {
-            this.downloadDependency(server, dependency, serverPath);
+            fileReader = new InputStreamReader(new FileInputStream(dependenciesFile), "UTF-8");
+            List<ServerDependency> dependencies = GSON.fromJson(fileReader, new TypeToken<List<ServerDependency>>() {}.getType());
+            for (ServerDependency dependency : dependencies)
+            {
+                this.downloadDependency(server, dependency, serverPath);
+            }
+        } finally
+        {
+            try {
+                fileReader.close();
+            } catch (IOException e)
+            {
+
+            }
         }
+
+
     }
 
     public void downloadDependency(MinecraftServerC server, ServerDependency dependency, File serverPath) throws IOException
@@ -106,14 +121,20 @@ public class ResourceManager
 
     public void patchServer(MinecraftServerC server, File serverPath, boolean isCoupaingServer) throws IOException
     {
+        FileOutputStream outputStream = null;
 
-        File file = new File(serverPath, "plugins" + File.separator + "SamaGamesAPI" + File.separator + "config.yml");
-        file.delete();
-        file.getParentFile().mkdirs();
-        file.createNewFile();
-        FileOutputStream outputStream = new FileOutputStream(file);
-        outputStream.write(("bungeename: " + server.getServerName()).getBytes());
-        outputStream.close();
+        try {
+            File file = new File(serverPath, "plugins" + File.separator + "SamaGamesAPI" + File.separator + "config.yml");
+            file.delete();
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+            outputStream = new FileOutputStream(file);
+            outputStream.write(("bungeename: " + server.getServerName()).getBytes(Charset.forName("UTF-8")));
+            outputStream.flush();
+        } finally
+        {
+            outputStream.close();
+        }
 
         this.instance.getLinuxBridge().sed("%serverPort%", String.valueOf(server.getPort()), new File(serverPath, "server.properties").getAbsolutePath());
         this.instance.getLinuxBridge().sed("%serverIp%", instance.getAsClient().getIP(), new File(serverPath, "server.properties").getAbsolutePath());
@@ -129,9 +150,21 @@ public class ResourceManager
 
         rootJson.add("options", server.getOptions());
 
-        FileOutputStream fOut = new FileOutputStream(gameFile);
-        fOut.write(new Gson().toJson(rootJson).getBytes());
-        fOut.close();
+        FileOutputStream fOut = null;
+        try {
+            fOut = new FileOutputStream(gameFile);
+            fOut.write(new Gson().toJson(rootJson).getBytes(Charset.forName("UTF-8")));
+            fOut.flush();
+        } finally
+        {
+            try
+            {
+                fOut.close();
+            } catch (IOException e)
+            {
+
+            }
+        }
     }
 
     public CacheManager getCacheManager()

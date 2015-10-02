@@ -7,12 +7,12 @@ import java.net.URL;
 
 public class NetworkUtils
 {
-    public static String readURL(String url)
+    public static String readURL(String rawURL)
     {
         try
         {
-            URL oracle = new URL(url);
-            BufferedReader in = new BufferedReader(new InputStreamReader(oracle.openStream()));
+            URL url = new URL(rawURL);
+            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"));
 
             String inputLine = in.readLine();
             in.close();
@@ -26,12 +26,12 @@ public class NetworkUtils
         return "";
     }
 
-    public static String readFullURL(String url)
+    public static String readFullURL(String rawURL)
     {
         try
         {
-            URL oracle = new URL(url);
-            BufferedReader in = new BufferedReader(new InputStreamReader(oracle.openStream()));
+            URL url = new URL(rawURL);
+            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"));
 
             StringBuilder builder = new StringBuilder();
 

@@ -31,7 +31,7 @@ public class HubBalancer {
     public boolean updateHubTemplate()
     {
         try{
-            hubTemplate = (SimpleGameTemplate) instance.getTemplateManager().getTemplateByID("Hub");
+            hubTemplate = (SimpleGameTemplate) instance.getTemplateManager().getTemplateByID("hub");
             if (hubTemplate == null)
                 throw new IOException("No Hub template found !");
         }catch (IOException e)

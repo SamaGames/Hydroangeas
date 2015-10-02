@@ -10,9 +10,7 @@ import net.samagames.hydroangeas.server.games.SimpleGameTemplate;
 import net.samagames.hydroangeas.utils.MiscUtils;
 import org.apache.commons.io.FilenameUtils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,7 +43,7 @@ public class TemplateManager
                 {
                     try
                     {
-                        JsonObject data = new JsonParser().parse(new FileReader(file)).getAsJsonObject();
+                        JsonObject data = new JsonParser().parse(new InputStreamReader(new FileInputStream(file), "UTF-8")).getAsJsonObject();
                         if (data.getAsJsonPrimitive("Type") != null && data.getAsJsonPrimitive("Type").getAsString().equals("Package"))
                         {
                             templates.add(new PackageGameTemplate(FilenameUtils.removeExtension(file.getName()), data));
@@ -53,7 +51,7 @@ public class TemplateManager
                         {
                             templates.add(new SimpleGameTemplate(FilenameUtils.removeExtension(file.getName()), data));
                         }
-                    } catch (JsonParseException e)
+                    } catch (JsonParseException | UnsupportedEncodingException e)
                     {
                         instance.getLogger().severe("Invalid template " + file.getName());
                         e.printStackTrace();

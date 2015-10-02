@@ -60,7 +60,7 @@ public abstract class ConnectionManager
         try
         {
             id = packet.split(":")[0];
-            if (id == null || packets[Integer.valueOf(id)] == null)
+            if (id == null || packets[Integer.parseInt(id)] == null)
             {
                 hydroangeas.log(Level.SEVERE, "Error bad packet ID in the channel");
                 return;
