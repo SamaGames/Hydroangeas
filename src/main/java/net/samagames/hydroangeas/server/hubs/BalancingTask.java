@@ -40,7 +40,7 @@ public class BalancingTask extends Thread {
                 {
                     for(MinecraftServerS serverS : hubBalancer.getBalancedHubList())
                     {
-                        if(hubBalancer.getNumberServer() <= requestNumber)
+                        if(hubBalancer.getNumberServer() == requestNumber)
                             break;
 
                         if(serverS.getActualSlots() < HUB_CONSIDERED_AS_EMPTY)

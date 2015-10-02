@@ -63,6 +63,17 @@ public class ServerConnectionManager extends ConnectionManager
             hydroangeas.log(Level.SEVERE, "An error occurred with the client '" + packet.getUUID() + "'!");
             hydroangeas.log(Level.SEVERE, "> Category: Server issue (" + packet.getIssueType().name() + ")");
 
+            HydroClient client = instance.getClientManager().getClientByUUID(packet.getUUID());
+            if (client == null)
+            {
+                return;
+            }
+
+            MinecraftServerS server = client.getServerManager().getServerByName(packet.getServerName());
+            if (server.isHub())
+            {
+                instance.getHubBalancer().onHubShutdown(server);
+            }
             ModMessage.sendError(InstanceType.SERVER, packet.getMessage());
         } else if (spacket instanceof MinecraftServerInfoPacket)
         {

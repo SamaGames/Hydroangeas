@@ -144,7 +144,7 @@ public class ServerThread extends Thread
             executor.execute(() -> {
                 while (true)
                 {
-                    if (System.currentTimeMillis() - lastHeartbeat > 120000)
+                    if (!instance.isHub() && System.currentTimeMillis() - lastHeartbeat > 120000)
                     {
                         instance.stopServer();
                     }

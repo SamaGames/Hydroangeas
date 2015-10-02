@@ -55,7 +55,9 @@ public class HubBalancer {
 
     public void startNewHub()
     {
-        hubs.add(instance.getAlgorithmicMachine().orderTemplate(hubTemplate));
+        MinecraftServerS ordered = instance.getAlgorithmicMachine().orderTemplate(hubTemplate);
+        if (ordered != null)
+            hubs.add(ordered);
     }
 
     public int getNumberServer()
