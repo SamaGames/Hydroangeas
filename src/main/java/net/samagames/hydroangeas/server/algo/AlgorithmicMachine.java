@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 public class AlgorithmicMachine
 {
-    private static final int FREE_SPACE = 5;
+    private static final int FREE_SPACE = 0;
     private final HydroangeasServer instance;
 
     public AlgorithmicMachine(HydroangeasServer instance)
@@ -32,7 +32,7 @@ public class AlgorithmicMachine
         for (HydroClient client : sortedClient)
         {
             int weight = template.getWeight();
-            if (client.getAvailableWeight() - weight > FREE_SPACE)
+            if (client.getAvailableWeight() - weight >= FREE_SPACE)
             {
                 return client;
             }

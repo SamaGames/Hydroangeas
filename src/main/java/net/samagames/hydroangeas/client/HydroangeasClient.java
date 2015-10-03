@@ -49,6 +49,7 @@ public class HydroangeasClient extends Hydroangeas
         commandManager = new ClientCommandManager(this);
 
         this.redisSubscriber.registerReceiver("global@" + getUUID() + "@hydroangeas-client", connectionManager::getPacket);
+        this.redisSubscriber.registerReceiver("globalSecurity@hydroangeas-client", connectionManager::getPacket);
 
         this.serverManager = new ServerManager(this);
         this.resourceManager = new ResourceManager(this);
