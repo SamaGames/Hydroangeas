@@ -26,7 +26,7 @@ public class StopCommand extends AbstractCommand
     {
 
         instance.getLogger().info("Stopping the server..");
-        System.exit(0);
+        instance.isRunning = false;
 
         return true;
     }

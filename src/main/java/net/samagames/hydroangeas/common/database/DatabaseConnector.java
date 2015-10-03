@@ -58,7 +58,7 @@ public class DatabaseConnector
         } catch (Exception e)
         {
             this.instance.log(Level.SEVERE, "Can't connect to the database!");
-            System.exit(-1);
+            System.exit(8);
         }
 
         this.instance.log(Level.INFO, "Connected to database.");

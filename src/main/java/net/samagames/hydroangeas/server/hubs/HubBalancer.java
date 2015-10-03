@@ -31,7 +31,7 @@ public class HubBalancer {
     public boolean updateHubTemplate()
     {
         try{
-            hubTemplate = (SimpleGameTemplate) instance.getTemplateManager().getTemplateByID("Hub");
+            hubTemplate = (SimpleGameTemplate) instance.getTemplateManager().getTemplateByID("hub");
             if (hubTemplate == null)
                 throw new IOException("No Hub template found !");
         }catch (IOException e)
@@ -55,7 +55,9 @@ public class HubBalancer {
 
     public void startNewHub()
     {
-        hubs.add(instance.getAlgorithmicMachine().orderTemplate(hubTemplate));
+        MinecraftServerS ordered = instance.getAlgorithmicMachine().orderTemplate(hubTemplate);
+        if (ordered != null)
+            hubs.add(ordered);
     }
 
     public int getNumberServer()

@@ -1,9 +1,7 @@
 package net.samagames.hydroangeas.client.resources;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;
 import net.samagames.hydroangeas.client.servers.ServerDependency;
@@ -11,12 +9,16 @@ import net.samagames.hydroangeas.utils.NetworkUtils;
 import org.apache.commons.io.FileUtils;
 import org.rauschig.jarchivelib.Archiver;
 import org.rauschig.jarchivelib.ArchiverFactory;
+import org.rauschig.jarchivelib.FileType;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.util.List;
 
 public class ResourceManager
 {
     private final HydroangeasClient instance;
+    private static final Gson GSON = new GsonBuilder().enableComplexMapKeySerialization().create();
 
     private CacheManager cacheManager;
 
@@ -66,23 +68,32 @@ public class ResourceManager
     {
         File dependenciesFile = new File(serverPath, "dependencies.json");
 
-        while (!dependenciesFile.exists())
+        InputStreamReader fileReader = null;
+        try
         {
+            fileReader = new InputStreamReader(new FileInputStream(dependenciesFile), "UTF-8");
+            List<ServerDependency> dependencies = GSON.fromJson(fileReader, new TypeToken<List<ServerDependency>>() {}.getType());
+            for (ServerDependency dependency : dependencies)
+            {
+                this.downloadDependency(server, dependency, serverPath);
+            }
+        } finally
+        {
+            try {
+                fileReader.close();
+            } catch (IOException e)
+            {
+
+            }
         }
 
-        JsonArray jsonRoot = new JsonParser().parse(new FileReader(dependenciesFile)).getAsJsonArray();
 
-        for (int i = 0; i < jsonRoot.size(); i++)
-        {
-            JsonObject jsonDependency = jsonRoot.get(i).getAsJsonObject();
-            this.downloadDependency(server, new ServerDependency(jsonDependency.get("name").getAsString(), jsonDependency.get("version").getAsString()), serverPath);
-        }
     }
 
     public void downloadDependency(MinecraftServerC server, ServerDependency dependency, File serverPath) throws IOException
     {
-        String existURL = this.instance.getTemplatesDomain() + "dependencies/exist.php?name=" + dependency.getName() + "&version=" + dependency.getVersion();
-        File pluginsPath = new File(serverPath, "plugins/");
+        String existURL = this.instance.getTemplatesDomain() + "dependencies/exist.php?name=" + dependency.getName() + "&version=" + dependency.getVersion() + "&ext=" + dependency.getExt();
+        File pluginsPath = new File(serverPath, "plugins");
 
         if (!pluginsPath.exists())
             pluginsPath.mkdirs();
@@ -92,16 +103,39 @@ public class ResourceManager
             throw new IllegalStateException("Servers' dependency '" + dependency.getName() + "' don't exist!");
         }
 
-        File dest = new File(pluginsPath, dependency.getName() + "_" + dependency.getVersion() + ".tar.gz");
+        File dest;
+        if (dependency.getType().equals("server") && !dependency.isExtractable())
+        {
+            dest = new File(serverPath, "spigot.jar");
+            if (dest.exists())
+                dest.delete();
+        } else {
+            dest = new File(pluginsPath, dependency.getName() + "-" + dependency.getVersion() + "." + dependency.getExt());
+        }
 
-        FileUtils.copyFile(cacheManager.getDebFiles(dependency.getName(), dependency.getVersion()), dest);
+        FileUtils.copyFile(cacheManager.getDebFiles(dependency), dest);
 
-        ArchiverFactory.createArchiver("tar", "gz").extract(dest, pluginsPath.getAbsoluteFile());
+        if (dependency.isExtractable())
+            ArchiverFactory.createArchiver(FileType.get(dest)).extract(dest, pluginsPath.getAbsoluteFile());
     }
 
     public void patchServer(MinecraftServerC server, File serverPath, boolean isCoupaingServer) throws IOException
     {
-        this.instance.getLinuxBridge().sed("%serverName%", server.getServerName(), new File(serverPath, "plugins" + File.separator + "SamaGamesAPI" + File.separator + "config.yml").getAbsolutePath());
+        FileOutputStream outputStream = null;
+
+        try {
+            File file = new File(serverPath, "plugins" + File.separator + "SamaGamesAPI" + File.separator + "config.yml");
+            file.delete();
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+            outputStream = new FileOutputStream(file);
+            outputStream.write(("bungeename: " + server.getServerName()).getBytes(Charset.forName("UTF-8")));
+            outputStream.flush();
+        } finally
+        {
+            outputStream.close();
+        }
+
         this.instance.getLinuxBridge().sed("%serverPort%", String.valueOf(server.getPort()), new File(serverPath, "server.properties").getAbsolutePath());
         this.instance.getLinuxBridge().sed("%serverIp%", instance.getAsClient().getIP(), new File(serverPath, "server.properties").getAbsolutePath());
         this.instance.getLinuxBridge().sed("%serverName%", server.getServerName(), new File(serverPath, "scripts.txt").getAbsolutePath());
@@ -116,12 +150,21 @@ public class ResourceManager
 
         rootJson.add("options", server.getOptions());
 
+        FileOutputStream fOut = null;
+        try {
+            fOut = new FileOutputStream(gameFile);
+            fOut.write(new Gson().toJson(rootJson).getBytes(Charset.forName("UTF-8")));
+            fOut.flush();
+        } finally
+        {
+            try
+            {
+                fOut.close();
+            } catch (IOException e)
+            {
 
-        FileOutputStream fOut = new FileOutputStream(gameFile);
-        OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
-        myOutWriter.append(new Gson().toJson(rootJson));
-        myOutWriter.close();
-        fOut.close();
+            }
+        }
     }
 
     public CacheManager getCacheManager()

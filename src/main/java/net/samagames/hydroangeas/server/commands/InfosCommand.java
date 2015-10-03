@@ -63,7 +63,7 @@ public class InfosCommand extends AbstractCommand
             int id;
             try
             {
-                id = Integer.valueOf(args[0]);
+                id = Integer.parseInt(args[0]);
                 HydroClient client = instance.getClientManager().getClients().get(id);
 
                 instance.log(Level.INFO, "#" + id + " " + client.getUUID() + ": ");

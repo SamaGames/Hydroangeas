@@ -49,6 +49,7 @@ public class MinecraftServerC
         options = serverInfos.getOptions();
 
         this.serverFolder = new File(this.instance.getServerFolder(), serverInfos.getServerName());
+        this.serverFolder.deleteOnExit();
         this.port = port;
 
         this.weight = MiscUtils.calculServerWeight(game, maxSlot, isCoupaingServer());
@@ -126,17 +127,15 @@ public class MinecraftServerC
     {
         try
         {
-            //this.instance.getLinuxBridge().mark2Stop(getServerName());
             serverThread.forceStop();
+            serverFolder.delete();
         } catch (Exception e)
         {
             this.instance.log(Level.SEVERE, "Can't stop the server " + getServerName() + "!");
             e.printStackTrace();
             serverFolder.delete();
-
             return false;
         }
-
         return true;
     }
 
