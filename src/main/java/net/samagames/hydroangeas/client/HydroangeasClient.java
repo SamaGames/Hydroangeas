@@ -11,6 +11,8 @@ import net.samagames.hydroangeas.utils.MiscUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.*;
+import java.util.Enumeration;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -99,7 +101,31 @@ public class HydroangeasClient extends Hydroangeas
 
     public String getIP()
     {
-        return "0.0.0.0";
+        try
+        {
+            return getInternalIpv4();
+        } catch (IOException e)
+        {
+            return "0.0.0.0";
+        }
+    }
+
+    private final String getInternalIpv4() throws IOException
+    {
+        NetworkInterface i = NetworkInterface.getByName("eth0");
+        for (Enumeration en2 = i.getInetAddresses(); en2.hasMoreElements(); )
+        {
+            InetAddress addr = (InetAddress) en2.nextElement();
+            if (!addr.isLoopbackAddress())
+            {
+                if (addr instanceof Inet4Address)
+                {
+                    return addr.getHostAddress();
+                }
+            }
+        }
+        InetAddress inet = Inet4Address.getLocalHost();
+        return inet == null ? "0.0.0.0" : inet.getHostAddress();
     }
 
     public ClientConnectionManager getConnectionManager()
