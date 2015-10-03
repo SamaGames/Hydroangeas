@@ -41,10 +41,11 @@ public class PriorityPlayerQueue extends PriorityBlockingQueue<QGroup>
         try
         {
             int check = maxElements;
+            int j = 0;
 
             for (int i = 0; i < this.size(); i++)
             {
-                QGroup group = (QGroup) this.toArray()[i];
+                QGroup group = (QGroup) this.toArray()[j];
 
                 if (check - group.getSize() >= 0)
                 {
@@ -53,13 +54,15 @@ public class PriorityPlayerQueue extends PriorityBlockingQueue<QGroup>
                     try
                     {
                         this.remoteAtMethod.setAccessible(true);
-                        this.remoteAtMethod.invoke(this, i);
+                        this.remoteAtMethod.invoke(this, j);
                     } catch (ReflectiveOperationException e)
                     {
                         e.printStackTrace();
                     }
 
                     check -= group.getSize();
+                }else{
+                    j++;
                 }
 
                 if (check <= 0)
