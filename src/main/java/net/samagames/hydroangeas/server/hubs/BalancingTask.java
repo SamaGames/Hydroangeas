@@ -36,7 +36,7 @@ public class BalancingTask extends Thread {
                     {
                         hubBalancer.startNewHub();
                     }
-                    coolDown += 7;
+                    coolDown += 15;
                 }else if(hubBalancer.getNumberServer() > requestNumber)
                 {
                     for(MinecraftServerS serverS : hubBalancer.getBalancedHubList())
