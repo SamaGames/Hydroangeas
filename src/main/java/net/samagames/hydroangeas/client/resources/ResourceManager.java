@@ -133,7 +133,11 @@ public class ResourceManager
             outputStream.flush();
         } finally
         {
-            outputStream.close();
+            try{
+                outputStream.close();
+            }catch(Exception e){
+
+            }
         }
 
         this.instance.getLinuxBridge().sed("%serverPort%", String.valueOf(server.getPort()), new File(serverPath, "server.properties").getAbsolutePath());

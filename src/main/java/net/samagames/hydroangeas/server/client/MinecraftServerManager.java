@@ -46,7 +46,7 @@ public class MinecraftServerManager
                 server.changeUUID();
             }
         }else{
-            for(int i = 0; ; i++)
+            for(int i = 1; ; i++)
             {
                 if(instance.getClientManager().getServerByName("Hub_"+i) == null)
                 {
