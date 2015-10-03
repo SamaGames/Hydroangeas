@@ -71,6 +71,14 @@ public class ClientManager
     public void onClientNoReachable(UUID clientUUID)
     {
         HydroClient client = this.getClientByUUID(clientUUID);
+        for(MinecraftServerS serverS : client.getServerManager().getServers())
+        {
+            if (serverS.isHub())
+            {
+                instance.getHubBalancer().onHubShutdown(serverS);
+            }
+            client.getServerManager().removeServer(serverS.getServerName());
+        }
         if (!clientList.remove(client)) instance.log(Level.INFO, "Not deleted !");
     }
 

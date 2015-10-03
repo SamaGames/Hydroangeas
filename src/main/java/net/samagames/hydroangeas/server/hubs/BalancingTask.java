@@ -20,6 +20,8 @@ public class BalancingTask extends Thread {
     {
         this.instance = instance;
         this.hubBalancer = hubBalancer;
+
+        coolDown = 600; //Wait a minute to load balance hub
     }
 
     @Override
@@ -27,6 +29,7 @@ public class BalancingTask extends Thread {
         while(true)
         {
             try {
+                checkCooldown();
                 int requestNumber = needNumberOfHub();
 
                 if(hubBalancer.getNumberServer() < requestNumber)
@@ -49,8 +52,6 @@ public class BalancingTask extends Thread {
                         }
                     }
                 }
-
-                checkCooldown();
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
