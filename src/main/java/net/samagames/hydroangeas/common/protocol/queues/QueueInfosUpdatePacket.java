@@ -17,7 +17,8 @@ public class QueueInfosUpdatePacket extends AbstractPacket
     private boolean success;
     private String errorMessage;
 
-    private String templateID;
+    private String game;
+    private String map;
 
     private QPlayer player;
 
@@ -27,19 +28,18 @@ public class QueueInfosUpdatePacket extends AbstractPacket
 
     public QueueInfosUpdatePacket(QPlayer player, Type type, boolean success, String errorMessage)
     {
-
         this.player = player;
         this.type = type;
         this.success = success;
         this.errorMessage = errorMessage;
     }
 
-    public QueueInfosUpdatePacket(QPlayer player, Type type, String templateID)
+    public QueueInfosUpdatePacket(QPlayer player, Type type, String game, String map)
     {
-
         this.player = player;
         this.type = type;
-        this.templateID = templateID;
+        this.game = game;
+        this.map = map;
     }
 
     public Type getType()
@@ -57,9 +57,14 @@ public class QueueInfosUpdatePacket extends AbstractPacket
         return errorMessage;
     }
 
-    public String getTemplateID()
+    public String getGame()
     {
-        return templateID;
+        return game;
+    }
+
+    public String getMap()
+    {
+        return map;
     }
 
     public QPlayer getPlayer()

@@ -28,7 +28,6 @@ public class TemplateCommand extends AbstractCommand
     @Override
     public boolean execute(String[] args)
     {
-
         if (args.length <= 0)
         {
             List<String> listTemplate = instance.getTemplateManager().getListTemplate();

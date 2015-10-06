@@ -84,7 +84,7 @@ public class QueueManager
         currentQueue.removeQPlayer(player);
 
         //PlayerMessager.sendMessage(player.getUUID(), ChatColor.YELLOW + "Vous quittez la queue " + currentQueue.getName());
-        sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, currentQueue.getTemplate().getId()));
+        sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, currentQueue.getGame(), currentQueue.getMap()));
     }
 
     public void handlepacket(QueueAttachPlayerPacket packet)
@@ -128,7 +128,7 @@ public class QueueManager
             {
                 designedQueue.removeQPlayer(player);
 
-                sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, designedQueue.getTemplate().getId()));
+                sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, designedQueue.getGame(), designedQueue.getMap()));
                 //PlayerMessager.sendMessage(player.getUUID(), "Vous avez été retiré de la queue " + designedQueue.getMap());
             }
         }
@@ -249,7 +249,7 @@ public class QueueManager
 
         for (QPlayer qPlayer : players)
         {
-            sendPacketHub(new QueueInfosUpdatePacket(qPlayer, QueueInfosUpdatePacket.Type.ADD, queue.getTemplate().getId()));
+            sendPacketHub(new QueueInfosUpdatePacket(qPlayer, QueueInfosUpdatePacket.Type.ADD, queue.getGame(), queue.getMap()));
             //PlayerMessager.sendMessage(qPlayer.getUUID(), ChatColor.GREEN + "Vous avez été ajouté à la queue " + ChatColor.RED + queue.getMap());
         }
     }
