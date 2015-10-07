@@ -8,6 +8,7 @@ import net.samagames.hydroangeas.client.servers.ServerManager;
 import net.samagames.hydroangeas.client.tasks.LifeThread;
 import net.samagames.hydroangeas.common.protocol.intranet.ByeFromClientPacket;
 import net.samagames.hydroangeas.utils.MiscUtils;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +42,13 @@ public class HydroangeasClient extends Hydroangeas
         this.maxWeight = this.configuration.getJsonConfiguration().get("max-weight").getAsInt();
         this.serverFolder = new File(MiscUtils.getJarFolder(), "servers");
 
-        this.serverFolder.delete();
+        try
+        {
+            FileUtils.forceDelete(serverFolder);
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
         this.serverFolder.mkdirs();
 
         connectionManager = new ClientConnectionManager(this);

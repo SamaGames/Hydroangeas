@@ -6,6 +6,7 @@ import net.samagames.hydroangeas.client.tasks.ServerThread;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerIssuePacket;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerOrderPacket;
 import net.samagames.hydroangeas.utils.MiscUtils;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -128,12 +129,18 @@ public class MinecraftServerC
         try
         {
             serverThread.forceStop();
-            serverFolder.delete();
+            FileUtils.forceDelete(serverFolder);
         } catch (Exception e)
         {
             this.instance.log(Level.SEVERE, "Can't stop the server " + getServerName() + "!");
             e.printStackTrace();
-            serverFolder.delete();
+            try
+            {
+                FileUtils.forceDelete(serverFolder);
+            } catch (IOException e1)
+            {
+                e1.printStackTrace();
+            }
             return false;
         }
         return true;
