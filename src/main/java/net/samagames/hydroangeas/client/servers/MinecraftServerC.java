@@ -50,7 +50,13 @@ public class MinecraftServerC
         options = serverInfos.getOptions();
 
         this.serverFolder = new File(this.instance.getServerFolder(), serverInfos.getServerName());
-        this.serverFolder.deleteOnExit();
+        try
+        {
+            FileUtils.forceDeleteOnExit(serverFolder);
+        } catch (IOException e)
+        {
+            this.instance.getLogger().warning(serverFolder + " will not be able to be deleted during JVM shutdown!");
+        }
         this.port = port;
 
         this.weight = MiscUtils.calculServerWeight(game, maxSlot, isCoupaingServer());
