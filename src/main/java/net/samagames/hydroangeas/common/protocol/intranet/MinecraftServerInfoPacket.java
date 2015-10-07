@@ -28,7 +28,7 @@ public class MinecraftServerInfoPacket extends AbstractPacket
     private String map;
     private int minSlot;
     private int maxSlot;
-    private JsonElement options;
+    private JsonElement options, startupOptions;
 
     private int weight;
 
@@ -120,5 +120,10 @@ public class MinecraftServerInfoPacket extends AbstractPacket
     public UUID getServerUUID()
     {
         return serverUUID;
+    }
+
+    public JsonElement getStartupOptions()
+    {
+        return startupOptions;
     }
 }

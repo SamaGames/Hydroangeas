@@ -1,6 +1,8 @@
 package net.samagames.hydroangeas.client.servers;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.tasks.ServerThread;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerIssuePacket;
@@ -24,7 +26,7 @@ public class MinecraftServerC
     private String map;
     private int minSlot;
     private int maxSlot;
-    private JsonElement options;
+    private JsonElement options, startupOptions;
     private int port;
 
     private Integer hubID;
@@ -48,6 +50,7 @@ public class MinecraftServerC
         this.maxSlot = serverInfos.getMaxSlot();
 
         options = serverInfos.getOptions();
+        startupOptions = serverInfos.getStartupOptions();
 
         this.serverFolder = new File(this.instance.getServerFolder(), serverInfos.getServerName());
         try
@@ -109,11 +112,12 @@ public class MinecraftServerC
     {
         try
         {
+            JsonObject startupOptionsObj = startupOptions.getAsJsonObject();
             serverThread = new ServerThread(this,
                     new String[]{"java",
-                            "-Xmx1152M",
-                            "-Xms512M",
-                            "-Xmn256M",
+                            "-Xmx" + startupOptionsObj.get("maxRAM").getAsString(),
+                            "-Xms" + startupOptionsObj.get("minRAM").getAsString(),
+                            "-Xmn" + startupOptionsObj.get("edenRAM").getAsString(),
                             "-XX:-OmitStackTraceInFastThrow",
                             "-XX:SurvivorRatio=2",
                             "-XX:-UseAdaptiveSizePolicy",

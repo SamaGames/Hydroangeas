@@ -4,6 +4,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.samagames.hydroangeas.utils.MiscUtils;
 
+import java.util.Map;
+
 /**
  * This file is a part of the SamaGames Project CodeBase
  * This code is absolutely confidential.
@@ -13,7 +15,13 @@ import net.samagames.hydroangeas.utils.MiscUtils;
  */
 public class SimpleGameTemplate implements AbstractGameTemplate
 {
-
+    private static JsonObject DEFAULT_STARTUP_OPTIONS;
+    static {
+         DEFAULT_STARTUP_OPTIONS = new JsonObject();
+        DEFAULT_STARTUP_OPTIONS.addProperty("minRAM", "512M");
+        DEFAULT_STARTUP_OPTIONS.addProperty("maxRAM", "1024M");
+        DEFAULT_STARTUP_OPTIONS.addProperty("edenRAM", "256M");
+    }
     private String id;
 
     private String gameName;
@@ -21,6 +29,7 @@ public class SimpleGameTemplate implements AbstractGameTemplate
     private int minSlot;
     private int maxSlot;
     private JsonElement options;
+    private JsonObject startupOptions;
     private boolean isCoupaing;
 
     private int weight;
@@ -36,6 +45,15 @@ public class SimpleGameTemplate implements AbstractGameTemplate
         this.minSlot = formated.get("min-slots").getAsInt();
         this.maxSlot = formated.get("max-slots").getAsInt();
         this.options = formated.get("options");
+        this.startupOptions = DEFAULT_STARTUP_OPTIONS;
+        JsonElement startupElement = formated.get("startupOptions");
+        if (startupElement != null)
+        {
+            for (Map.Entry<String, JsonElement> entry : startupElement.getAsJsonObject().entrySet())
+            {
+                startupOptions.add(entry.getKey(), entry.getValue());
+            }
+        }
         this.isCoupaing = formated.get("isCoupaing").getAsBoolean();
 
         calculateWeight();
@@ -138,5 +156,11 @@ public class SimpleGameTemplate implements AbstractGameTemplate
     public String toString()
     {
         return "Template id: " + id + ((isCoupaing) ? " Coupaing Server " : " ");
+    }
+
+    @Override
+    public JsonObject getStartupOptions()
+    {
+        return startupOptions;
     }
 }

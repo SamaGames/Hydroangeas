@@ -25,7 +25,7 @@ public class MinecraftServerS
     private String map;
     private int minSlot;
     private int maxSlot;
-    private JsonElement options;
+    private JsonElement options, startupOptions;
 
     private Integer hubID;
 
@@ -43,18 +43,18 @@ public class MinecraftServerS
 
     public MinecraftServerS(HydroClient client, AbstractGameTemplate template)
     {
-        this(client, UUID.randomUUID(), template.getGameName(), template.getMapName(), template.getMinSlot(), template.getMaxSlot(), template.getOptions());
+        this(client, UUID.randomUUID(), template.getGameName(), template.getMapName(), template.getMinSlot(), template.getMaxSlot(), template.getOptions(), template.getStartupOptions());
         this.coupaingServer = template.isCoupaing();
         this.templateID = template.getId();
     }
 
     public MinecraftServerS(HydroClient client, MinecraftServerInfoPacket packet)
     {
-        this(client, UUID.randomUUID(), packet.getGame(), packet.getMap(), packet.getMinSlot(), packet.getMaxSlot(), packet.getOptions());
+        this(client, UUID.randomUUID(), packet.getGame(), packet.getMap(), packet.getMinSlot(), packet.getMaxSlot(), packet.getOptions(), packet.getStartupOptions());
         this.port = packet.getPort();
     }
 
-    public MinecraftServerS(HydroClient client, UUID uuid, String game, String map, int minSlot, int maxSlot, JsonElement options)
+    public MinecraftServerS(HydroClient client, UUID uuid, String game, String map, int minSlot, int maxSlot, JsonElement options, JsonElement startupOptions)
     {
         this.client = client;
         this.uuid = uuid;
@@ -63,6 +63,7 @@ public class MinecraftServerS
         this.minSlot = minSlot;
         this.maxSlot = maxSlot;
         this.options = options;
+        this.startupOptions = startupOptions;
     }
 
     public void shutdown()
@@ -199,5 +200,10 @@ public class MinecraftServerS
     public void setHubID(int hubID)
     {
         this.hubID = hubID;
+    }
+
+    public JsonElement getStartupOptions()
+    {
+        return startupOptions;
     }
 }

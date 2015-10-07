@@ -100,4 +100,10 @@ public class PackageGameTemplate implements AbstractGameTemplate
     {
         return "Template id: " + id + ((isCoupaing()) ? " Coupaing Server " : " ");
     }
+
+    @Override
+    public JsonElement getStartupOptions()
+    {
+        return currentTemplate.getStartupOptions();
+    }
 }

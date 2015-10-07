@@ -25,4 +25,6 @@ public interface AbstractGameTemplate
     boolean isCoupaing();
 
     String toString();
+
+    JsonElement getStartupOptions();
 }
