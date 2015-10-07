@@ -56,8 +56,8 @@ public class CacheManager
         String fileName = dependency.getName() + "-" + dependency.getVersion();
 
         String checksumURL = this.instance.getTemplatesDomain() + "dependencies/checksum.php?file=" + fileName + "." + dependency.getExt();
-        String wgetURL = this.instance.getTemplatesDomain() + "dependencies/" + fileName + "."  + dependency.getExt();
-        File cache = new File(this.instance.getServerFolder(), "cache/dependencies/" + fileName +  "."  + dependency.getExt());
+        String wgetURL = this.instance.getTemplatesDomain() + "dependencies/" + fileName + "." + dependency.getExt();
+        File cache = new File(this.instance.getServerFolder(), "cache/dependencies/" + fileName + "." + dependency.getExt());
 
         return getCache(wgetURL, checksumURL, cache);
     }

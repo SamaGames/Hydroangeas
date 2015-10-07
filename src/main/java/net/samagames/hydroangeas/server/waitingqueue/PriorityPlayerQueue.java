@@ -61,7 +61,8 @@ public class PriorityPlayerQueue extends PriorityBlockingQueue<QGroup>
                     }
 
                     check -= group.getSize();
-                }else{
+                } else
+                {
                     j++;
                 }
 

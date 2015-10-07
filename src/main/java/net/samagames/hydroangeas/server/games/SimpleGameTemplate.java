@@ -11,7 +11,8 @@ import net.samagames.hydroangeas.utils.MiscUtils;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class SimpleGameTemplate implements AbstractGameTemplate{
+public class SimpleGameTemplate implements AbstractGameTemplate
+{
 
     private String id;
 
@@ -59,47 +60,58 @@ public class SimpleGameTemplate implements AbstractGameTemplate{
         calculateWeight();
     }
 
-    public String getId() {
+    public String getId()
+    {
         return id;
     }
 
-    public String getGameName() {
+    public String getGameName()
+    {
         return gameName;
     }
 
-    public void setGameName(String gameName) {
+    public void setGameName(String gameName)
+    {
         this.gameName = gameName;
     }
 
-    public String getMapName() {
+    public String getMapName()
+    {
         return mapName;
     }
 
-    public void setMapName(String mapName) {
+    public void setMapName(String mapName)
+    {
         this.mapName = mapName;
     }
 
-    public int getMinSlot() {
+    public int getMinSlot()
+    {
         return minSlot;
     }
 
-    public void setMinSlot(int minSlot) {
+    public void setMinSlot(int minSlot)
+    {
         this.minSlot = minSlot;
     }
 
-    public int getMaxSlot() {
+    public int getMaxSlot()
+    {
         return maxSlot;
     }
 
-    public void setMaxSlot(int maxSlot) {
+    public void setMaxSlot(int maxSlot)
+    {
         this.maxSlot = maxSlot;
     }
 
-    public JsonElement getOptions() {
+    public JsonElement getOptions()
+    {
         return options;
     }
 
-    public void setOptions(JsonElement options) {
+    public void setOptions(JsonElement options)
+    {
         this.options = options;
     }
 
@@ -108,20 +120,23 @@ public class SimpleGameTemplate implements AbstractGameTemplate{
         weight = MiscUtils.calculServerWeight(gameName, maxSlot, isCoupaing);
     }
 
-    public int getWeight() {
+    public int getWeight()
+    {
         return weight;
     }
 
-    public boolean isCoupaing() {
+    public boolean isCoupaing()
+    {
         return isCoupaing;
     }
 
-    public void setIsCoupaing(boolean isCoupaing) {
+    public void setIsCoupaing(boolean isCoupaing)
+    {
         this.isCoupaing = isCoupaing;
     }
 
     public String toString()
     {
-        return "Template id: " + id + ((isCoupaing)?" Coupaing Server ":" ");
+        return "Template id: " + id + ((isCoupaing) ? " Coupaing Server " : " ");
     }
 }

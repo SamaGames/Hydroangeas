@@ -6,7 +6,10 @@ import joptsimple.OptionSet;
 import net.samagames.hydroangeas.utils.MiscUtils;
 import org.apache.commons.io.FileUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.logging.Level;
 
 public class Configuration
@@ -53,7 +56,8 @@ public class Configuration
             this.jsonConfiguration = new JsonParser().parse(reader).getAsJsonObject();
         } finally
         {
-            try {
+            try
+            {
                 reader.close();
             } catch (IOException e)
             {

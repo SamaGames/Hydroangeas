@@ -1,6 +1,8 @@
 package net.samagames.hydroangeas.client.resources;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;
@@ -17,9 +19,8 @@ import java.util.List;
 
 public class ResourceManager
 {
-    private final HydroangeasClient instance;
     private static final Gson GSON = new GsonBuilder().enableComplexMapKeySerialization().create();
-
+    private final HydroangeasClient instance;
     private CacheManager cacheManager;
 
     public ResourceManager(HydroangeasClient instance)
@@ -72,15 +73,19 @@ public class ResourceManager
         try
         {
             fileReader = new InputStreamReader(new FileInputStream(dependenciesFile), "UTF-8");
-            List<ServerDependency> dependencies = GSON.fromJson(fileReader, new TypeToken<List<ServerDependency>>() {}.getType());
+            List<ServerDependency> dependencies = GSON.fromJson(fileReader, new TypeToken<List<ServerDependency>>()
+            {
+            }.getType());
             for (ServerDependency dependency : dependencies)
             {
                 this.downloadDependency(server, dependency, serverPath);
             }
         } finally
         {
-            try {
-                fileReader.close();
+            try
+            {
+                if (fileReader != null)
+                    fileReader.close();
             } catch (IOException e)
             {
 
@@ -96,7 +101,7 @@ public class ResourceManager
         File pluginsPath = new File(serverPath, "plugins");
 
         if (!pluginsPath.exists())
-            pluginsPath.mkdirs();
+            FileUtils.forceMkdir(pluginsPath);
 
         if (!Boolean.parseBoolean(NetworkUtils.readURL(existURL)))
         {
@@ -108,8 +113,9 @@ public class ResourceManager
         {
             dest = new File(serverPath, "spigot.jar");
             if (dest.exists())
-                dest.delete();
-        } else {
+                FileUtils.deleteQuietly(dest);
+        } else
+        {
             dest = new File(pluginsPath, dependency.getName() + "-" + dependency.getVersion() + "." + dependency.getExt());
         }
 
@@ -123,19 +129,22 @@ public class ResourceManager
     {
         FileOutputStream outputStream = null;
 
-        try {
+        try
+        {
             File file = new File(serverPath, "plugins" + File.separator + "SamaGamesAPI" + File.separator + "config.yml");
-            file.delete();
-            file.getParentFile().mkdirs();
+            FileUtils.deleteQuietly(file);
+            FileUtils.forceMkdir(file.getParentFile());
             file.createNewFile();
             outputStream = new FileOutputStream(file);
             outputStream.write(("bungeename: " + server.getServerName()).getBytes(Charset.forName("UTF-8")));
             outputStream.flush();
         } finally
         {
-            try{
+            try
+            {
                 outputStream.close();
-            }catch(Exception e){
+            } catch (Exception e)
+            {
 
             }
         }
@@ -155,7 +164,8 @@ public class ResourceManager
         rootJson.add("options", server.getOptions());
 
         FileOutputStream fOut = null;
-        try {
+        try
+        {
             fOut = new FileOutputStream(gameFile);
             fOut.write(new Gson().toJson(rootJson).getBytes(Charset.forName("UTF-8")));
             fOut.flush();
@@ -163,7 +173,8 @@ public class ResourceManager
         {
             try
             {
-                fOut.close();
+                if (fOut != null)
+                    fOut.close();
             } catch (IOException e)
             {
 

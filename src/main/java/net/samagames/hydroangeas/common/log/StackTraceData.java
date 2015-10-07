@@ -16,6 +16,7 @@ import java.util.List;
 public class StackTraceData
 {
     private List<String> data;
+
     public StackTraceData(String header)
     {
         this.data = new ArrayList<>();

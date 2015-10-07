@@ -1,6 +1,5 @@
 package net.samagames.hydroangeas;
 
-import jline.UnsupportedTerminal;
 import jline.console.ConsoleReader;
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.client.HydroangeasClient;
@@ -14,8 +13,6 @@ import net.samagames.restfull.RestAPI;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

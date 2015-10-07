@@ -60,7 +60,7 @@ public class MinecraftServerC
     {
         try
         {
-            this.serverFolder.mkdir();
+            FileUtils.forceMkdir(serverFolder);
             this.instance.getResourceManager().downloadServer(this, this.serverFolder);
             this.instance.getResourceManager().downloadMap(this, this.serverFolder);
             this.instance.getResourceManager().downloadDependencies(this, this.serverFolder);
@@ -69,7 +69,13 @@ public class MinecraftServerC
             this.instance.log(Level.SEVERE, "Can't make the server " + getServerName() + "!");
             instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), this.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
             e.printStackTrace();
-            serverFolder.delete();
+            try
+            {
+                FileUtils.forceDeleteOnExit(serverFolder);
+            } catch (IOException e1)
+            {
+                e1.printStackTrace();
+            }
             return false;
         }
 
@@ -80,7 +86,13 @@ public class MinecraftServerC
         {
             instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), this.getServerName(), MinecraftServerIssuePacket.Type.PATCH));
             e.printStackTrace();
-            serverFolder.delete();
+            try
+            {
+                FileUtils.forceDelete(serverFolder);
+            } catch (IOException e1)
+            {
+                e1.printStackTrace();
+            }
             return false;
         }
 
@@ -116,7 +128,13 @@ public class MinecraftServerC
         {
             this.instance.log(Level.SEVERE, "Can't start the server " + getServerName() + "!");
             e.printStackTrace();
-            serverFolder.delete();
+            try
+            {
+                FileUtils.forceDelete(serverFolder);
+            } catch (IOException e1)
+            {
+                e1.printStackTrace();
+            }
 
             return false;
         }
@@ -178,7 +196,7 @@ public class MinecraftServerC
 
     public String getServerName()
     {
-        return this.game + "_" + ((hubID == null)?this.uuid.toString().split("-")[0]: hubID);
+        return this.game + "_" + ((hubID == null) ? this.uuid.toString().split("-")[0] : hubID);
     }
 
     public int getMinSlot()
@@ -206,11 +224,13 @@ public class MinecraftServerC
         return instance;
     }
 
-    public boolean isHub() {
+    public boolean isHub()
+    {
         return hubID != null;
     }
 
-    public Integer getHubID() {
+    public Integer getHubID()
+    {
         return hubID;
     }
 }

@@ -76,9 +76,8 @@ public class MiscUtils
     public static String getSHA1(File f) throws NoSuchAlgorithmException, IOException
     {
         MessageDigest sha1 = MessageDigest.getInstance("SHA1");
-        FileInputStream fis = new FileInputStream(f);
 
-        try
+        try (FileInputStream fis = new FileInputStream(f))
         {
             byte[] data = new byte[1024];
             int read = 0;
@@ -86,9 +85,6 @@ public class MiscUtils
             {
                 sha1.update(data, 0, read);
             }
-        } finally
-        {
-            fis.close();
         }
         byte[] hashBytes = sha1.digest();
 
@@ -127,7 +123,7 @@ public class MiscUtils
                 weight += 30;
                 break;
             default:
-            break;
+                break;
         }
 
         //SlotNumber

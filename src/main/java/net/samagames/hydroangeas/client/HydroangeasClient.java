@@ -12,7 +12,9 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.*;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.util.Enumeration;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -45,11 +47,11 @@ public class HydroangeasClient extends Hydroangeas
         try
         {
             FileUtils.forceDelete(serverFolder);
+            FileUtils.forceMkdir(serverFolder);
         } catch (IOException e)
         {
             e.printStackTrace();
         }
-        this.serverFolder.mkdirs();
 
         connectionManager = new ClientConnectionManager(this);
 

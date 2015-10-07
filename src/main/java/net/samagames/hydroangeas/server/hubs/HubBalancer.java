@@ -11,7 +11,8 @@ import java.util.List;
 /**
  * Created by Silva on 13/09/2015.
  */
-public class HubBalancer {
+public class HubBalancer
+{
 
     private HydroangeasServer instance;
 
@@ -30,23 +31,24 @@ public class HubBalancer {
 
     public boolean updateHubTemplate()
     {
-        try{
+        try
+        {
             hubTemplate = (SimpleGameTemplate) instance.getTemplateManager().getTemplateByID("hub");
             if (hubTemplate == null)
                 throw new IOException("No Hub template found !");
-        }catch (IOException e)
+        } catch (IOException e)
         {
             e.printStackTrace();
             instance.getLogger().severe("Add one and reboot HydroServer or no hub will be start on the network!");
             return false;
         }
 
-        if(balancer == null)
+        if (balancer == null)
         {
             balancer = new BalancingTask(instance, this);
         }
 
-        if(!balancer.isAlive())
+        if (!balancer.isAlive())
         {
             balancer.start();
         }
@@ -68,9 +70,9 @@ public class HubBalancer {
     public int getUsedSlots()
     {
         int i = 0;
-        for(MinecraftServerS serverS : hubs)
+        for (MinecraftServerS serverS : hubs)
         {
-            i+= serverS.getActualSlots();
+            i += serverS.getActualSlots();
         }
         return i;
     }
@@ -78,9 +80,9 @@ public class HubBalancer {
     public int getTotalSlot()
     {
         int i = 0;
-        for(MinecraftServerS serverS : hubs)
+        for (MinecraftServerS serverS : hubs)
         {
-            i+= serverS.getMaxSlot();
+            i += serverS.getMaxSlot();
         }
         return i;
     }
@@ -92,7 +94,7 @@ public class HubBalancer {
 
     public void stopBalancing()
     {
-        if(balancer != null) balancer.interrupt();
+        if (balancer != null) balancer.interrupt();
     }
 
     public void onHubShutdown(MinecraftServerS serverS)

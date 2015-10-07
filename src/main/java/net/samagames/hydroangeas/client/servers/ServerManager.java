@@ -56,17 +56,8 @@ public class ServerManager
 
     public void stopAll()
     {
-        for (MinecraftServerC server : this.servers)
-        {
-            if (!server.stopServer())
-            {
-                instance.getConnectionManager().sendPacket(
-                        new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.STOP));
-            } else
-            {
-                instance.getConnectionManager().sendPacket(new MinecraftServerUpdatePacket(instance, server.getServerName(), MinecraftServerUpdatePacket.UType.END));
-            }
-        }
+        for (MinecraftServerC server : servers)
+            instance.getConnectionManager().sendPacket(!server.stopServer() ? new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.STOP) : new MinecraftServerUpdatePacket(instance, server.getServerName(), MinecraftServerUpdatePacket.UType.END));
     }
 
     public void onServerStop(MinecraftServerC server)

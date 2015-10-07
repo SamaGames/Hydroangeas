@@ -1,6 +1,6 @@
 package net.samagames.hydroangeas.server.algo;
 
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import net.samagames.hydroangeas.server.HydroangeasServer;
@@ -37,14 +37,19 @@ public class TemplateManager
 
         try
         {
-            for (File file : directory.listFiles())
+            File[] files = directory.listFiles();
+            if (files == null) // Internal IO Exception
+                throw new IOException("Internal IO Exception during listing of templates directory!");
+            for (File file : files)
             {
                 if (file.isFile() && file.getName().endsWith(".json"))
                 {
                     try
                     {
-                        JsonObject data = new JsonParser().parse(new InputStreamReader(new FileInputStream(file), "UTF-8")).getAsJsonObject();
-                        if (data.getAsJsonPrimitive("Type") != null && data.getAsJsonPrimitive("Type").getAsString().equals("Package"))
+                        JsonElement data = new JsonParser().parse(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+                        if (data == null)
+                            throw new JsonParseException("JSON object return null");
+                        if (data.getAsJsonObject().getAsJsonPrimitive("Type") != null && data.getAsJsonObject().getAsJsonPrimitive("Type").getAsString().equals("Package"))
                         {
                             templates.add(new PackageGameTemplate(FilenameUtils.removeExtension(file.getName()), data));
                         } else
@@ -58,7 +63,7 @@ public class TemplateManager
                     }
                 }
             }
-        } catch (FileNotFoundException e)
+        } catch (IOException e)
         {
             e.printStackTrace();
         }

@@ -43,7 +43,7 @@ public class ServerStatusReceiver implements PacketReceiver
         server.setStatus(data.getStatus());
 
         Queue queue = instance.getQueueManager().getQueueByTemplate(server.getTemplateID());
-        if(queue != null)
+        if (queue != null)
         {
             queue.updateInfosToHub();
         }

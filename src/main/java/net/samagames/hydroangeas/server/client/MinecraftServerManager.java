@@ -38,17 +38,18 @@ public class MinecraftServerManager
     {
         MinecraftServerS server = new MinecraftServerS(client, template);
 
-        if(!hub)
+        if (!hub)
         {
             //Comme on prend que la première partie de l'uuid on check si un serveur a déja un nom identique
-            while(instance.getClientManager().getServerByName(server.getServerName()) != null)
+            while (instance.getClientManager().getServerByName(server.getServerName()) != null)
             {
                 server.changeUUID();
             }
-        }else{
-            for(int i = 1; ; i++)
+        } else
+        {
+            for (int i = 1; ; i++)
             {
-                if(instance.getClientManager().getServerByName("Hub_"+i) == null)
+                if (instance.getClientManager().getServerByName("Hub_" + i) == null)
                 {
                     server.setHubID(i);
                     break;

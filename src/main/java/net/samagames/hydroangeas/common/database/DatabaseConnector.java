@@ -10,9 +10,8 @@ import java.util.logging.Logger;
 public class DatabaseConnector
 {
     private final Hydroangeas instance;
-    private JedisPool jedisPool;
-
     public Thread reconnection;
+    private JedisPool jedisPool;
 
     public DatabaseConnector(Hydroangeas instance)
     {
@@ -20,19 +19,21 @@ public class DatabaseConnector
         this.connect();
 
         this.reconnection = new Thread(() -> {
-            while(true)
+            while (true)
             {
-                try{
-                    try{
+                try
+                {
+                    try
+                    {
                         jedisPool.getResource().close();
-                    }catch(Exception e)
+                    } catch (Exception e)
                     {
                         e.printStackTrace();
                         instance.getLogger().severe("Error redis connection, Try to reconnect!");
                         connect();
                     }
-                    Thread.sleep(10*1000);
-                }catch (Exception e)
+                    Thread.sleep(10 * 1000);
+                } catch (Exception e)
                 {
                     break;
                 }

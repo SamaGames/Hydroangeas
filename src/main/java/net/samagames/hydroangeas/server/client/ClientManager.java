@@ -8,7 +8,6 @@ import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
 import net.samagames.hydroangeas.server.games.SimpleGameTemplate;
 import net.samagames.hydroangeas.server.tasks.KeepUpdatedThread;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -65,13 +64,13 @@ public class ClientManager
             return;
         }
 
-        client.setTimestamp(new Timestamp(System.currentTimeMillis()));
+        client.setTimestamp(System.currentTimeMillis());
     }
 
     public void onClientNoReachable(UUID clientUUID)
     {
         HydroClient client = this.getClientByUUID(clientUUID);
-        for(MinecraftServerS serverS : client.getServerManager().getServers())
+        for (MinecraftServerS serverS : client.getServerManager().getServers())
         {
             if (serverS.isHub())
             {

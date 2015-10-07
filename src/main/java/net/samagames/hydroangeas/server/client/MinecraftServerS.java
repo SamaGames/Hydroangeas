@@ -98,7 +98,7 @@ public class MinecraftServerS
 
     public String getServerName()
     {
-        return this.game + "_" + ((hubID == null)?this.uuid.toString().split("-")[0]: hubID);
+        return this.game + "_" + ((hubID == null) ? this.uuid.toString().split("-")[0] : hubID);
     }
 
     public int getMinSlot()
@@ -186,15 +186,18 @@ public class MinecraftServerS
         this.actualSlots = actualSlots;
     }
 
-    public boolean isHub() {
+    public boolean isHub()
+    {
         return hubID != null;
     }
 
-    public void setHubID(int hubID) {
-        this.hubID = hubID;
+    public Integer getHubID()
+    {
+        return hubID;
     }
 
-    public Integer getHubID() {
-        return hubID;
+    public void setHubID(int hubID)
+    {
+        this.hubID = hubID;
     }
 }

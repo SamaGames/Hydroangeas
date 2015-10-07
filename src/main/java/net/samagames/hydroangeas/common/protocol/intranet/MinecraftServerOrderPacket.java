@@ -67,7 +67,7 @@ public class MinecraftServerOrderPacket extends AbstractPacket
 
     public String getServerName()
     {
-        return this.game + "_" + ((hubID == null)?this.uuid.toString().split("-")[0]: hubID);
+        return this.game + "_" + ((hubID == null) ? this.uuid.toString().split("-")[0] : hubID);
     }
 
     public int getMinSlot()
@@ -90,7 +90,8 @@ public class MinecraftServerOrderPacket extends AbstractPacket
         return this.isCoupaing;
     }
 
-    public Integer getHubID() {
+    public Integer getHubID()
+    {
         return hubID;
     }
 }

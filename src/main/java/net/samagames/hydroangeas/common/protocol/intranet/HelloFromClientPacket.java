@@ -3,7 +3,6 @@ package net.samagames.hydroangeas.common.protocol.intranet;
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
 
-import java.sql.Timestamp;
 import java.util.UUID;
 
 /**
@@ -20,7 +19,7 @@ public class HelloFromClientPacket extends AbstractPacket
     private String ip;
     private int maxWeight;
     private int actualWeight;
-    private Timestamp timestamp;
+    private long timestamp;
 
     public HelloFromClientPacket()
     {
@@ -29,10 +28,10 @@ public class HelloFromClientPacket extends AbstractPacket
 
     public HelloFromClientPacket(HydroangeasClient instance)
     {
-        this(instance.getClientUUID(), instance.getIP(), instance.getMaxWeight(), instance.getActualWeight(), new Timestamp(System.currentTimeMillis()));
+        this(instance.getClientUUID(), instance.getIP(), instance.getMaxWeight(), instance.getActualWeight(), System.currentTimeMillis());
     }
 
-    public HelloFromClientPacket(UUID uuid, String ip, int maxWeight, int actualWeight, Timestamp timestamp)
+    public HelloFromClientPacket(UUID uuid, String ip, int maxWeight, int actualWeight, long timestamp)
     {
         this.uuid = uuid;
         this.ip = ip;
@@ -61,7 +60,7 @@ public class HelloFromClientPacket extends AbstractPacket
         return actualWeight;
     }
 
-    public Timestamp getTimestamp()
+    public long getTimestamp()
     {
         return timestamp;
     }

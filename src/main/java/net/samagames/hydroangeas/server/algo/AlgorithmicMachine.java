@@ -6,8 +6,6 @@ import net.samagames.hydroangeas.server.client.HydroClient;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.server.data.Status;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
-import net.samagames.hydroangeas.utils.InstanceType;
-import net.samagames.hydroangeas.utils.ModMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +41,7 @@ public class AlgorithmicMachine
     public MinecraftServerS orderBasic(String game, String map)
     {
         AbstractGameTemplate template = instance.getTemplateManager().getTemplateByGameAndMap(game, map);
-        if(template == null)
+        if (template == null)
         {
             instance.getLogger().warning("Error template " + game + " " + map + " doesn't exist!");
             return null;
@@ -77,7 +75,7 @@ public class AlgorithmicMachine
         {
             instance.log(Level.INFO, "Server ended on " + client.getIp() + " servername: " + serverStatus.getServerName());
 
-            if(oldServer.isHub())
+            if (oldServer.isHub())
             {
                 instance.getHubBalancer().onHubShutdown(oldServer);
             }

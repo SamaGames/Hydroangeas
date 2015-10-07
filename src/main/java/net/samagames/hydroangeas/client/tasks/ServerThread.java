@@ -26,16 +26,16 @@ import java.util.regex.Pattern;
 public class ServerThread extends Thread
 {
 
+    private static final Pattern LOG_PATTERN = Pattern.compile("\\[\\d{1,2}:\\d{2}:\\d{2} (INFO|WARN|ERROR)\\]: (.*)");
+    private static final Pattern BEGIN_OF_STACKTRACE_PATTERN = Pattern.compile("([a-zA-Z\\.]*Exception)");
+    private static final Pattern CONTENT_OF_STACKTRACE_PATTERN = Pattern.compile("((\\tat|Caused by).*)");
+    private static final Pattern END_OF_STACKTRACE_PATTERN = Pattern.compile("((\\t\\.\\.\\.).*)");
     public boolean isServerProcessAlive;
     public Process server;
     public File directory;
     private long lastHeartbeat = System.currentTimeMillis();
     private ExecutorService executor;
     private MinecraftServerC instance;
-    private static final Pattern LOG_PATTERN = Pattern.compile("\\[\\d{1,2}:\\d{2}:\\d{2} (INFO|WARN|ERROR)\\]: (.*)");
-    private static final Pattern BEGIN_OF_STACKTRACE_PATTERN = Pattern.compile("([a-zA-Z\\.]*Exception)");
-    private static final Pattern CONTENT_OF_STACKTRACE_PATTERN = Pattern.compile("((\\tat|Caused by).*)");
-    private static final Pattern END_OF_STACKTRACE_PATTERN = Pattern.compile("((\\t\\.\\.\\.).*)");
     private StackTraceData stackTraceData;
 
     public ServerThread(MinecraftServerC instance, String[] command, String[] env, File directory)

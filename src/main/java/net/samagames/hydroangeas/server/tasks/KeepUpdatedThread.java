@@ -6,7 +6,6 @@ import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
 
-import java.sql.Timestamp;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -31,8 +30,7 @@ public class KeepUpdatedThread
             try
             {
                 instance.getConnectionManager().sendPacket(client, new HeartbeatPacket(instance.getServerUUID()));
-                Timestamp actualTime = new Timestamp(System.currentTimeMillis());
-                if (actualTime.getTime() - client.getTimestamp().getTime() > TIMEOUT)
+                if (System.currentTimeMillis() - client.getTimestamp() > TIMEOUT)
                 {
                     Hydroangeas.getInstance().log(Level.WARNING, "Lost connection with client " + client.getUUID() + "!");
                     ModMessage.sendMessage(InstanceType.SERVER, "Connexion perdue avec le client " + client.getUUID() + " !");

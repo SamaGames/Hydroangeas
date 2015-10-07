@@ -6,54 +6,52 @@ import net.samagames.hydroangeas.server.client.MinecraftServerS;
 /**
  * Created by Silva on 13/09/2015.
  */
-public class BalancingTask extends Thread {
-
-    private HydroangeasServer instance;
-    private HubBalancer hubBalancer;
-
+public class BalancingTask extends Thread
+{
     public static final int HUB_SAFETY_MARGIN = 2;
     public static final int HUB_CONSIDERED_AS_EMPTY = 5; //Number minimum of player on a HUB we can stop
-
+    private HubBalancer hubBalancer;
     private int coolDown = 0; //*100ms
 
     public BalancingTask(HydroangeasServer instance, HubBalancer hubBalancer)
     {
-        this.instance = instance;
         this.hubBalancer = hubBalancer;
-
-        coolDown = 200; //Wait a minute to load balance hub
+        coolDown = 200; //Wait 20s to load balance hub
     }
 
     @Override
-    public void run() {
-        while(true)
+    public void run()
+    {
+        while (true)
         {
-            try {
+            try
+            {
                 checkCooldown();
                 int requestNumber = needNumberOfHub();
 
-                if(hubBalancer.getNumberServer() < requestNumber)
+                if (hubBalancer.getNumberServer() < requestNumber)
                 {
-                    for(int i = requestNumber - hubBalancer.getNumberServer(); i > 0; i--)
+                    for (int i = requestNumber - hubBalancer.getNumberServer(); i > 0; i--)
                     {
                         hubBalancer.startNewHub();
                     }
                     coolDown += 15;
-                }else if(hubBalancer.getNumberServer() > requestNumber)
+                } else if (hubBalancer.getNumberServer() > requestNumber)
                 {
-                    for(MinecraftServerS serverS : hubBalancer.getBalancedHubList())
+                    for (MinecraftServerS serverS : hubBalancer.getBalancedHubList())
                     {
-                        if(hubBalancer.getNumberServer() == requestNumber)
+                        if (hubBalancer.getNumberServer() == requestNumber)
                             break;
 
-                        if(serverS.getActualSlots() < HUB_CONSIDERED_AS_EMPTY)
+                        if (serverS.getActualSlots() < HUB_CONSIDERED_AS_EMPTY)
                         {
                             serverS.shutdown();
                         }
                     }
                 }
                 Thread.sleep(1000);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException e)
+            {
                 e.printStackTrace();
             }
         }
@@ -64,7 +62,8 @@ public class BalancingTask extends Thread {
         return (hubBalancer.getUsedSlots() / hubBalancer.getHubTemplate().getMaxSlot()) + HUB_SAFETY_MARGIN;
     }
 
-    public void checkCooldown() throws InterruptedException {
+    public void checkCooldown() throws InterruptedException
+    {
         while (coolDown > 0)
         {
             coolDown--;

@@ -16,7 +16,6 @@ import net.samagames.hydroangeas.utils.ModMessage;
 
 import java.io.IOException;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class HydroangeasServer extends Hydroangeas
@@ -110,7 +109,8 @@ public class HydroangeasServer extends Hydroangeas
         return templateManager;
     }
 
-    public HubBalancer getHubBalancer() {
+    public HubBalancer getHubBalancer()
+    {
         return hubBalancer;
     }
 }

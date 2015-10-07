@@ -100,11 +100,14 @@ public class ServerConnectionManager extends ConnectionManager
             MinecraftServerS server = client.getServerManager().getServerByName(packet.getServerName());
 
             //Handle pour l'algo avant de prendre les action
-            try{
+            try
+            {
                 instance.getAlgorithmicMachine().onServerUpdate(client, server, packet);
-            }catch(Exception e) {}
+            } catch (Exception e)
+            {
+            }
 
-            switch(packet.getAction())
+            switch (packet.getAction())
             {
                 case START:
                     server.setStarted(true);
@@ -117,34 +120,25 @@ public class ServerConnectionManager extends ConnectionManager
 
         } else if (spacket instanceof ByeFromClientPacket)
         {
-            ByeFromClientPacket packet = (ByeFromClientPacket) spacket;
-            instance.getClientManager().onClientNoReachable(packet.getUUID());
-
+            instance.getClientManager().onClientNoReachable(((ByeFromClientPacket) spacket).getUUID());
         } else if (spacket instanceof CoupaingServerPacket)
         {
-            CoupaingServerPacket packet = (CoupaingServerPacket) spacket;
-            instance.getClientManager().orderServerForCoupaing(packet);
-
+            instance.getClientManager().orderServerForCoupaing((CoupaingServerPacket) spacket);
         } else if (spacket instanceof HelloFromClientPacket)
         {
-            HelloFromClientPacket packet = (HelloFromClientPacket) spacket;
-            instance.getClientManager().updateClient(packet);
+            instance.getClientManager().updateClient((HelloFromClientPacket) spacket);
         } else if (spacket instanceof QueueAddPlayerPacket)
         {
-            QueueAddPlayerPacket packet = (QueueAddPlayerPacket) spacket;
-            instance.getQueueManager().handlepacket(packet);
+            instance.getQueueManager().handlePacket((QueueAddPlayerPacket) spacket);
         } else if (spacket instanceof QueueRemovePlayerPacket)
         {
-            QueueRemovePlayerPacket packet = (QueueRemovePlayerPacket) spacket;
-            instance.getQueueManager().handlepacket(packet);
+            instance.getQueueManager().handlePacket((QueueRemovePlayerPacket) spacket);
         } else if (spacket instanceof QueueAttachPlayerPacket)
         {
-            QueueAttachPlayerPacket packet = (QueueAttachPlayerPacket) spacket;
-            instance.getQueueManager().handlepacket(packet);
+            instance.getQueueManager().handlePacket((QueueAttachPlayerPacket) spacket);
         } else if (spacket instanceof QueueDetachPlayerPacket)
         {
-            QueueDetachPlayerPacket packet = (QueueDetachPlayerPacket) spacket;
-            instance.getQueueManager().handlepacket(packet);
+            instance.getQueueManager().handlePacket((QueueDetachPlayerPacket) spacket);
         }
     }
 }

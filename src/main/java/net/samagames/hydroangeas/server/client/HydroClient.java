@@ -4,7 +4,6 @@ import net.samagames.hydroangeas.common.protocol.intranet.AskForClientActionPack
 import net.samagames.hydroangeas.common.protocol.intranet.HelloFromClientPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 
-import java.sql.Timestamp;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -22,7 +21,7 @@ public class HydroClient
     private UUID uuid;
     private String ip;
     private int maxWeight;
-    private Timestamp timestamp;
+    private long timestamp;
 
     private MinecraftServerManager serverManager;
 
@@ -31,7 +30,7 @@ public class HydroClient
         this.instance = instance;
         this.uuid = uuid;
 
-        this.timestamp = new Timestamp(System.currentTimeMillis());
+        this.timestamp = System.currentTimeMillis();
 
         serverManager = new MinecraftServerManager(instance, this);
     }
@@ -50,7 +49,7 @@ public class HydroClient
             instance.log(Level.SEVERE, "Error client and server not sync about weight! client:" + packet.getActualWeight() + " server:" + getActualWeight());
         }
 
-        this.timestamp = new Timestamp(System.currentTimeMillis());
+        this.timestamp = System.currentTimeMillis();
 
     }
 
@@ -94,12 +93,12 @@ public class HydroClient
         return getMaxWeight() - getActualWeight();
     }
 
-    public Timestamp getTimestamp()
+    public long getTimestamp()
     {
         return this.timestamp;
     }
 
-    public void setTimestamp(Timestamp timestamp)
+    public void setTimestamp(long timestamp)
     {
         this.timestamp = timestamp;
     }
@@ -125,5 +124,11 @@ public class HydroClient
             }
         }
         return false;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return this.getUUID().hashCode();
     }
 }

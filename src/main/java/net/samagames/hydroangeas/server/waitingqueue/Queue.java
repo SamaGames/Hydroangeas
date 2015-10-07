@@ -47,7 +47,7 @@ public class Queue
         this.game = template.getGameName();
         this.map = template.getMapName();
 
-        if(template instanceof PackageGameTemplate)//Assuming that the package template have not selected a template we force it
+        if (template instanceof PackageGameTemplate)//Assuming that the package template have not selected a template we force it
         {
             ((PackageGameTemplate) template).selectTemplate();
         }
@@ -68,16 +68,16 @@ public class Queue
             servers.stream().filter(server -> server.getStatus().isAllowJoin()).forEach(server -> {
                 List<QGroup> groups = new ArrayList<>();
                 queue.drainTo(groups, server.getMaxSlot());
-                for(QGroup group : groups)
+                for (QGroup group : groups)
                 {
                     group.sendTo(server.getServerName());
                 }
             });
 
-            if(servers.size() <= 0 && queue.size() >= template.getMinSlot())
+            if (servers.size() <= 0 && queue.size() >= template.getMinSlot())
             {
                 Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
-                if(template instanceof PackageGameTemplate) // If it's a package template we change it now
+                if (template instanceof PackageGameTemplate) // If it's a package template we change it now
                 {
                     ((PackageGameTemplate) template).selectTemplate();
                 }

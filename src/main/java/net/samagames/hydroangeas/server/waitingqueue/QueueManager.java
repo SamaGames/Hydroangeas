@@ -30,7 +30,7 @@ public class QueueManager
         this.instance = instance;
     }
 
-    public void handlepacket(QueueAddPlayerPacket packet)
+    public void handlePacket(QueueAddPlayerPacket packet)
     {
 
         QPlayer player = packet.getPlayer();
@@ -62,7 +62,7 @@ public class QueueManager
         addPlayerToQueue(designedQueue, player, players);
     }
 
-    public void handlepacket(QueueRemovePlayerPacket packet)
+    public void handlePacket(QueueRemovePlayerPacket packet)
     {
         QPlayer player = packet.getPlayer();
         //Queue designedQueue = getQueue(packet);
@@ -87,7 +87,7 @@ public class QueueManager
         sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, currentQueue.getGame(), currentQueue.getMap()));
     }
 
-    public void handlepacket(QueueAttachPlayerPacket packet)
+    public void handlePacket(QueueAttachPlayerPacket packet)
     {
         QPlayer leader = packet.getLeader();
         Queue designedQueue = getQueueByLeader(leader.getUUID());
@@ -119,7 +119,7 @@ public class QueueManager
         designedQueue.addGroup(group);
     }
 
-    public void handlepacket(QueueDetachPlayerPacket packet)
+    public void handlePacket(QueueDetachPlayerPacket packet)
     {
         for (QPlayer player : packet.getPlayers())
         {
@@ -171,7 +171,7 @@ public class QueueManager
         return queue;
     }
 
-   /* public void handlepacket(QueueUpdateFromHub packet)
+   /* public void handlePacket(QueueUpdateFromHub packet)
     {
         if(packet.getGroupLeader() == null)
         {
