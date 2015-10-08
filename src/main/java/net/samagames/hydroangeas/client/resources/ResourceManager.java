@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
+import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;
 import net.samagames.hydroangeas.client.servers.ServerDependency;
@@ -14,6 +15,7 @@ import org.rauschig.jarchivelib.ArchiverFactory;
 import org.rauschig.jarchivelib.FileType;
 
 import java.io.*;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.List;
 
@@ -131,12 +133,36 @@ public class ResourceManager
 
         try
         {
-            File file = new File(serverPath, "plugins" + File.separator + "SamaGamesAPI" + File.separator + "config.yml");
-            FileUtils.deleteQuietly(file);
-            FileUtils.forceMkdir(file.getParentFile());
-            file.createNewFile();
-            outputStream = new FileOutputStream(file);
+            // Generate API configuration
+            File apiConfiguration = new File(serverPath, "plugins" + File.separator + "SamaGamesAPI" + File.separator + "config.yml");
+            FileUtils.deleteQuietly(apiConfiguration);
+            FileUtils.forceMkdir(apiConfiguration.getParentFile());
+            apiConfiguration.createNewFile();
+            outputStream = new FileOutputStream(apiConfiguration);
             outputStream.write(("bungeename: " + server.getServerName()).getBytes(Charset.forName("UTF-8")));
+            outputStream.flush();
+
+            // Generate data.yml
+            File credentialsFile = new File("data.yml");
+            FileUtils.deleteQuietly(credentialsFile);
+            outputStream.close();
+            outputStream = new FileOutputStream(credentialsFile);
+            outputStream.write(("redis-bungee-ip: " + Hydroangeas.getInstance().getConfiguration().redisIp).getBytes(Charset.forName("UTF-8")));
+            outputStream.write(System.getProperty("line.separator").getBytes());
+            outputStream.write(("redis-bungee-port: " + Hydroangeas.getInstance().getConfiguration().redisPort).getBytes(Charset.forName("UTF-8")));
+            outputStream.write(System.getProperty("line.separator").getBytes());
+            outputStream.write(("redis-bungee-password: " + Hydroangeas.getInstance().getConfiguration().redisPassword).getBytes(Charset.forName("UTF-8")));
+            outputStream.write(System.getProperty("line.separator").getBytes());
+
+            URL url = new URL(Hydroangeas.getInstance().getConfiguration().restfullURL);
+            outputStream.write(("restfull-ip: " + url.getHost()).getBytes(Charset.forName("UTF-8")));
+            outputStream.write(System.getProperty("line.separator").getBytes());
+            outputStream.write(("restfull-port: " + url.getPort()).getBytes(Charset.forName("UTF-8")));
+            outputStream.write(System.getProperty("line.separator").getBytes());
+            outputStream.write(("restfull-user: " + Hydroangeas.getInstance().getConfiguration().restfullUser).getBytes(Charset.forName("UTF-8")));
+            outputStream.write(System.getProperty("line.separator").getBytes());
+            outputStream.write(("restfull-pass: " + Hydroangeas.getInstance().getConfiguration().restfullPassword).getBytes(Charset.forName("UTF-8")));
+            outputStream.write(System.getProperty("line.separator").getBytes());
             outputStream.flush();
         } finally
         {
