@@ -23,6 +23,8 @@ public class MinecraftServerInfoPacket extends AbstractPacket
     private UUID serverUUID;
     private int port;
 
+    private Integer hubID;
+
     private boolean coupaingServer;
     private String game;
     private String map;
@@ -48,10 +50,11 @@ public class MinecraftServerInfoPacket extends AbstractPacket
                 server.isCoupaingServer(),
                 server.getOptions(),
                 server.getPort(),
-                server.getWeight());
+                server.getWeight(),
+                server.getHubID());
     }
 
-    public MinecraftServerInfoPacket(UUID uuid, String serverName, UUID serverUUID, String game, String map, int minSlot, int maxSlot, boolean coupaingServer, JsonElement options, int port, int weight)
+    public MinecraftServerInfoPacket(UUID uuid, String serverName, UUID serverUUID, String game, String map, int minSlot, int maxSlot, boolean coupaingServer, JsonElement options, int port, int weight, Integer hubID)
     {
         this.uuid = uuid;
         this.serverName = serverName;
@@ -65,6 +68,7 @@ public class MinecraftServerInfoPacket extends AbstractPacket
         this.weight = weight;
 
         this.options = options;
+        this.hubID = hubID;
     }
 
     public UUID getUUID()
@@ -75,6 +79,16 @@ public class MinecraftServerInfoPacket extends AbstractPacket
     public boolean isCoupaingServer()
     {
         return coupaingServer;
+    }
+
+    public boolean isHub()
+    {
+        return hubID != null;
+    }
+
+    public Integer getHubID()
+    {
+        return hubID;
     }
 
     public String getGame()
