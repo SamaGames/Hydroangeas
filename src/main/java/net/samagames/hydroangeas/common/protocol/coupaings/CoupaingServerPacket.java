@@ -21,6 +21,7 @@ public class CoupaingServerPacket extends AbstractPacket
     private int maxSlot;
 
     private JsonElement options;
+    private int weight;
 
     public CoupaingServerPacket()
     {
@@ -50,5 +51,10 @@ public class CoupaingServerPacket extends AbstractPacket
     public JsonElement getOptions()
     {
         return options;
+    }
+
+    public int getWeight()
+    {
+        return weight;
     }
 }

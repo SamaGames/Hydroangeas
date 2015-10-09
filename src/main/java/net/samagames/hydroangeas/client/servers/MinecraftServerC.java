@@ -62,7 +62,7 @@ public class MinecraftServerC
         }
         this.port = port;
 
-        this.weight = MiscUtils.calculServerWeight(game, maxSlot, isCoupaingServer());
+        this.weight = serverInfos.getWeight();
     }
 
     public boolean makeServer()
