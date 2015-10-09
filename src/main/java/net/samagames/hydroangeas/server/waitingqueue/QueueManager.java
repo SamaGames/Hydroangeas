@@ -1,6 +1,7 @@
 package net.samagames.hydroangeas.server.waitingqueue;
 
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
+import net.samagames.hydroangeas.common.packets.CommandPacket;
 import net.samagames.hydroangeas.common.protocol.queues.*;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
@@ -347,5 +348,6 @@ public class QueueManager
     {
         instance.getConnectionManager().sendPacket("hydroHubReceiver", packet);
     }
+
 
 }

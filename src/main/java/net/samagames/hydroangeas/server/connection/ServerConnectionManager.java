@@ -1,7 +1,9 @@
 package net.samagames.hydroangeas.server.connection;
 
 import net.samagames.hydroangeas.Hydroangeas;
+import net.samagames.hydroangeas.common.commands.CommandManager;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
+import net.samagames.hydroangeas.common.packets.CommandPacket;
 import net.samagames.hydroangeas.common.packets.ConnectionManager;
 import net.samagames.hydroangeas.common.protocol.coupaings.CoupaingServerPacket;
 import net.samagames.hydroangeas.common.protocol.intranet.*;
@@ -139,6 +141,9 @@ public class ServerConnectionManager extends ConnectionManager
         } else if (spacket instanceof QueueDetachPlayerPacket)
         {
             instance.getQueueManager().handlePacket((QueueDetachPlayerPacket) spacket);
+        } else if (spacket instanceof CommandPacket)
+        {
+            instance.getCommandManager().inputCommand(((CommandPacket) spacket).getAction());
         }
     }
 }
