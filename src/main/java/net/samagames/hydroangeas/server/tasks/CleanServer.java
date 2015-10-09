@@ -31,19 +31,13 @@ public class CleanServer {
     {
         for(HydroClient client : instance.getClientManager().getClients())
         {
-            for(MinecraftServerS server : client.getServerManager().getServers())
-            {
-                if(System.currentTimeMillis() - server.getStartedTime() > LIVETIME)
-                {
-                    if(server.isHub())
-                    {
-                        server.dispatchCommand("evacuate lobby");
-                    }else
-                    {
-                        server.shutdown();
-                    }
+            client.getServerManager().getServers().stream().filter(server -> System.currentTimeMillis() - server.getStartedTime() > LIVETIME).forEach(server -> {
+                if (server.isHub()) {
+                    server.dispatchCommand("evacuate lobby");
+                } else {
+                    server.shutdown();
                 }
-            }
+            });
         }
     }
 
