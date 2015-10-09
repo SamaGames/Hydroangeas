@@ -49,6 +49,8 @@ public abstract class ConnectionManager
         //HubInfos
         packets[110] = new GameInfosToHubPacket();
 
+        packets[200] = new CommandPacket();
+
         this.hydroangeas = hydroangeas;
 
         gson = new Gson();

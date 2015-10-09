@@ -25,12 +25,9 @@ public class Queue
 {
 
     private final ScheduledFuture workerTask, hubRefreshTask;
-    private final String map;
     private QueueManager manager;
 
     private HydroangeasServer instance;
-
-    private String game;
 
     private PriorityPlayerQueue queue;
     private volatile boolean sendInfo = true;
@@ -44,8 +41,6 @@ public class Queue
         this.instance = Hydroangeas.getInstance().getAsServer();
         this.manager = manager;
         this.template = template;
-        this.game = template.getGameName();
-        this.map = template.getMapName();
 
         if (template instanceof PackageGameTemplate)//Assuming that the package template have not selected a template we force it
         {
@@ -293,6 +288,14 @@ public class Queue
         }
     }
 
+    public void reload(AbstractGameTemplate template)
+    {
+        synchronized (this.template)
+        {
+            this.template = template;
+        }
+    }
+
     public String getName()
     {
         return template.getId();
@@ -300,12 +303,12 @@ public class Queue
 
     public String getGame()
     {
-        return game;
+        return template.getGameName();
     }
 
     public String getMap()
     {
-        return map;
+        return template.getMapName();
     }
 
     public AbstractGameTemplate getTemplate()

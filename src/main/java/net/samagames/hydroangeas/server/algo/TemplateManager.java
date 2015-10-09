@@ -7,6 +7,7 @@ import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
 import net.samagames.hydroangeas.server.games.PackageGameTemplate;
 import net.samagames.hydroangeas.server.games.SimpleGameTemplate;
+import net.samagames.hydroangeas.server.waitingqueue.Queue;
 import net.samagames.hydroangeas.utils.MiscUtils;
 import org.apache.commons.io.FilenameUtils;
 
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 public class TemplateManager
 {
 
-    private List<AbstractGameTemplate> templates = new ArrayList<>();
+    private final List<AbstractGameTemplate> templates;
     private HydroangeasServer instance;
 
     public TemplateManager(HydroangeasServer instance)
@@ -33,8 +34,36 @@ public class TemplateManager
 
         this.instance = instance;
 
-        File directory = new File(MiscUtils.getApplicationDirectory(), "templates");
 
+
+        templates = loadTemplates();
+
+        loadQueues();
+    }
+
+    public void loadQueues()
+    {
+        instance.getLogger().info("Ajout des queues pour chaque Template:");
+        for (AbstractGameTemplate template : templates)
+        {
+            Queue queue = instance.getQueueManager().getQueueByName(template.getId());
+            if (queue == null)
+            {
+                instance.getQueueManager().addQueue(template);
+            }
+            else
+            {
+                queue.reload(template);
+            }
+
+            instance.getLogger().info("ID: " + template.getId() + " Jeu: " + template.getGameName() + " Map: " + template.getMapName());
+        }
+    }
+
+    public List<AbstractGameTemplate> loadTemplates()
+    {
+        List<AbstractGameTemplate> result = new ArrayList<>();
+        File directory = new File(MiscUtils.getApplicationDirectory(), "templates");
         try
         {
             File[] files = directory.listFiles();
@@ -51,10 +80,10 @@ public class TemplateManager
                             throw new JsonParseException("JSON object return null");
                         if (data.getAsJsonObject().getAsJsonPrimitive("Type") != null && data.getAsJsonObject().getAsJsonPrimitive("Type").getAsString().equals("Package"))
                         {
-                            templates.add(new PackageGameTemplate(FilenameUtils.removeExtension(file.getName()), data));
+                            result.add(new PackageGameTemplate(FilenameUtils.removeExtension(file.getName()), data));
                         } else
                         {
-                            templates.add(new SimpleGameTemplate(FilenameUtils.removeExtension(file.getName()), data));
+                            result.add(new SimpleGameTemplate(FilenameUtils.removeExtension(file.getName()), data));
                         }
                     } catch (JsonParseException | UnsupportedEncodingException e)
                     {
@@ -68,17 +97,14 @@ public class TemplateManager
             e.printStackTrace();
         }
 
-        loadQueues();
+        return result;
     }
 
-    public void loadQueues()
+    public void reload()
     {
-        instance.getLogger().info("Ajout des queues pour chaque Template:");
-        for (AbstractGameTemplate template : templates)
-        {
-            instance.getQueueManager().addQueue(template);
-            instance.getLogger().info("ID: " + template.getId() + " Jeu: " + template.getGameName() + " Map: " + template.getMapName());
-        }
+        templates.clear();
+        templates.addAll(loadTemplates());
+        loadQueues();
     }
 
     public AbstractGameTemplate getTemplateByID(String id)
