@@ -33,7 +33,7 @@ public class KeepUpdatedThread
                 if (System.currentTimeMillis() - client.getTimestamp() > TIMEOUT)
                 {
                     Hydroangeas.getInstance().log(Level.WARNING, "Lost connection with client " + client.getUUID() + "!");
-                    ModMessage.sendMessage(InstanceType.SERVER, "Connexion perdue avec le client " + client.getUUID() + " !");
+                    //ModMessage.sendMessage(InstanceType.SERVER, "Connexion perdue avec le client " + client.getUUID() + " !");
 
                     instance.getClientManager().onClientNoReachable(client.getUUID());
                 }

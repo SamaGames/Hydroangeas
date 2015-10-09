@@ -29,6 +29,8 @@ public class MinecraftServerC
     private JsonElement options, startupOptions;
     private int port;
 
+    private String templateID;
+
     private Integer hubID;
 
     private int weight;
@@ -46,6 +48,7 @@ public class MinecraftServerC
 
         this.game = serverInfos.getGame();
         this.map = serverInfos.getMap();
+        this.templateID = serverInfos.getTemplateID();
         this.minSlot = serverInfos.getMinSlot();
         this.maxSlot = serverInfos.getMaxSlot();
 
@@ -242,5 +245,9 @@ public class MinecraftServerC
     public Integer getHubID()
     {
         return hubID;
+    }
+
+    public String getTemplateID() {
+        return templateID;
     }
 }

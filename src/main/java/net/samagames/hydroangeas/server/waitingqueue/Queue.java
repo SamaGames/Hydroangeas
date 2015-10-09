@@ -265,6 +265,9 @@ public class Queue
     {
         try
         {
+            if(template == null)
+                return;
+
             if (System.currentTimeMillis() - lastSend > 60000 || sendInfo)
             {
                 GameInfosToHubPacket packet = new GameInfosToHubPacket(template.getId());

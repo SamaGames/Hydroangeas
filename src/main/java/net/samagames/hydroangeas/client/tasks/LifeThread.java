@@ -27,7 +27,11 @@ public class LifeThread
 
     public void start()
     {
-        sendData(true);
+        try {
+            sendData(true);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         instance.getScheduler().scheduleAtFixedRate(this::check, 2, 10, TimeUnit.SECONDS);
     }
 
@@ -47,21 +51,27 @@ public class LifeThread
         {
             ModMessage.sendMessage(InstanceType.CLIENT, "[" + this.instance.getClientUUID() + "] Retour à la normale !");
 
-            this.instance.log(Level.INFO, "Hydroangeas Server has responded! Resync data...");
-            sendData(true);
+            this.instance.log(Level.INFO, "Hydroangeas Server has responded!");
+            try {
+                sendData(true);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
             connected = true;
         }
     }
 
-    public void sendData(boolean all)
-    {
+    public void sendData(boolean all) throws InterruptedException {
+        instance.getLogger().info("Resync data...");
         instance.getConnectionManager().sendPacket(new HelloFromClientPacket(instance));
         if (all)
         {
+            Thread.sleep(3);
             for (MinecraftServerC server : instance.getServerManager().getServers())
             {
                 instance.getConnectionManager().sendPacket(new MinecraftServerInfoPacket(instance, server));
+                Thread.sleep(1);
             }
         }
     }

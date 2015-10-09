@@ -25,21 +25,24 @@ public class MinecraftServerOrderPacket extends AbstractPacket
     private int minSlot;
     private int maxSlot;
 
+    private String templateID;
+
     private boolean isCoupaing = true;
 
     private JsonElement options, startupOptions;
 
     public MinecraftServerOrderPacket(MinecraftServerS server)
     {
-        this(server.getUUID(), server.getHubID(), server.getGame(), server.getMap(), server.getMinSlot(), server.getMaxSlot(), server.getOptions(), server.getStartupOptions());
+        this(server.getUUID(), server.getHubID(), server.getGame(), server.getMap(), server.getTemplateID(), server.getMinSlot(), server.getMaxSlot(), server.getOptions(), server.getStartupOptions());
     }
 
-    public MinecraftServerOrderPacket(UUID uuid, Integer hubID, String game, String map, int minSlot, int maxSlot, JsonElement options, JsonElement startupOptions)
+    public MinecraftServerOrderPacket(UUID uuid, Integer hubID, String game, String map, String templateID, int minSlot, int maxSlot, JsonElement options, JsonElement startupOptions)
     {
         this.uuid = uuid;
         this.hubID = hubID;
         this.game = game;
         this.map = map;
+        this.templateID = templateID;
         this.minSlot = minSlot;
         this.maxSlot = maxSlot;
         this.options = options;
@@ -99,5 +102,9 @@ public class MinecraftServerOrderPacket extends AbstractPacket
     public JsonElement getStartupOptions()
     {
         return startupOptions;
+    }
+
+    public String getTemplateID() {
+        return templateID;
     }
 }

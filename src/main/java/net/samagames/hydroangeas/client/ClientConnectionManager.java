@@ -9,6 +9,8 @@ import net.samagames.hydroangeas.common.protocol.intranet.AskForClientDataPacket
 import net.samagames.hydroangeas.common.protocol.intranet.HeartbeatPacket;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerOrderPacket;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * This file is a part of the SamaGames Project CodeBase
  * This code is absolutely confidential.
@@ -48,10 +50,16 @@ public class ClientConnectionManager extends ConnectionManager
             MinecraftServerOrderPacket packet = (MinecraftServerOrderPacket) spacket;
 
             Hydroangeas.getInstance().getAsClient().getServerManager().newServer(packet);
-        } else if (spacket instanceof AskForClientDataPacket)
+        }else if (spacket instanceof AskForClientDataPacket)
         {
             AskForClientDataPacket packet = (AskForClientDataPacket) spacket;
-            Hydroangeas.getInstance().getAsClient().getLifeThread().sendData(true);
+            instance.getScheduler().schedule(() -> {
+                try {
+                    Hydroangeas.getInstance().getAsClient().getLifeThread().sendData(true);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }, 6, TimeUnit.SECONDS);
         } else if (spacket instanceof AskForClientActionPacket)
         {
             AskForClientActionPacket packet = (AskForClientActionPacket) spacket;

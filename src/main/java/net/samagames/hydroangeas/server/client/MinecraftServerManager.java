@@ -68,6 +68,9 @@ public class MinecraftServerManager
 
     public void handleServerData(MinecraftServerInfoPacket packet)
     {
+        if(packet.getServerName() == null)
+            return;
+
         MinecraftServerS server = getServerByName(packet.getServerName());
         //Server not in here so add it
         if (server == null)
@@ -88,6 +91,11 @@ public class MinecraftServerManager
             server.setWeight(MiscUtils.calculServerWeight(server.getGame(), server.getMaxSlot(), server.isCoupaingServer()));
             servers.add(server);
             instance.getLogger().info("Added " + packet.getServerName());
+
+            if(server.isHub())
+            {
+                instance.getHubBalancer().addStartedHub(server);
+            }
         } else
         {//Server here ! so update it !
 
@@ -100,6 +108,7 @@ public class MinecraftServerManager
                 return;
             }
             server.setPort(packet.getPort());
+            server.setHubID(packet.getHubID());
         }
     }
 
@@ -135,7 +144,7 @@ public class MinecraftServerManager
 
     public List<MinecraftServerS> getServersByTemplate(AbstractGameTemplate template)
     {
-        return servers.stream().filter(server -> server.getTemplateID().equals(template.getId())).collect(Collectors.toList());
+        return servers.stream().filter(server -> server.getTemplateID() != null && server.getTemplateID().equalsIgnoreCase(template.getId())).collect(Collectors.toList());
     }
 
     public int getTotalWeight()

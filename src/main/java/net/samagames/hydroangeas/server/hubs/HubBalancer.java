@@ -7,6 +7,8 @@ import net.samagames.hydroangeas.server.games.SimpleGameTemplate;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Silva on 13/09/2015.
@@ -20,15 +22,15 @@ public class HubBalancer
 
     private SimpleGameTemplate hubTemplate;
 
-    private List<MinecraftServerS> hubs = new ArrayList<>();
+    private CopyOnWriteArrayList<MinecraftServerS> hubs = new CopyOnWriteArrayList<>();
 
     public HubBalancer(HydroangeasServer instance)
     {
         this.instance = instance;
 
-        updateHubTemplate();
+        //instance.getScheduler().schedule(() -> loadStartedHubs(), 18, TimeUnit.SECONDS);
 
-        loadStartedHubs();
+        updateHubTemplate();
 
     }
 
@@ -56,6 +58,18 @@ public class HubBalancer
             balancer.start();
         }
         return true;
+    }
+
+    public void addStartedHub(MinecraftServerS server)
+    {
+        if(hubTemplate != null)
+        {
+            if(hubTemplate.getId().equalsIgnoreCase(server.getTemplateID()))
+            {
+                hubs.add(server);
+                instance.getLogger().info("[HubBalancer] Add already started hub: " + server.getServerName());
+            }
+        }
     }
 
     public void loadStartedHubs()
@@ -114,7 +128,7 @@ public class HubBalancer
 
     public void onHubShutdown(MinecraftServerS serverS)
     {
-        hubs.remove(serverS);
+        hubs.stream().filter(server -> server.getServerName().equals(serverS.getServerName())).forEach(server -> hubs.remove(serverS));
     }
 
     public SimpleGameTemplate getHubTemplate()

@@ -25,6 +25,7 @@ public class MinecraftServerInfoPacket extends AbstractPacket
 
     private Integer hubID;
 
+    private String templateID;
     private boolean coupaingServer;
     private String game;
     private String map;
@@ -45,6 +46,7 @@ public class MinecraftServerInfoPacket extends AbstractPacket
                 server.getUUID(),
                 server.getGame(),
                 server.getMap(),
+                server.getTemplateID(),
                 server.getMinSlot(),
                 server.getMaxSlot(),
                 server.isCoupaingServer(),
@@ -54,11 +56,12 @@ public class MinecraftServerInfoPacket extends AbstractPacket
                 server.getHubID());
     }
 
-    public MinecraftServerInfoPacket(UUID uuid, String serverName, UUID serverUUID, String game, String map, int minSlot, int maxSlot, boolean coupaingServer, JsonElement options, int port, int weight, Integer hubID)
+    public MinecraftServerInfoPacket(UUID uuid, String serverName, UUID serverUUID, String game, String map, String templateID, int minSlot, int maxSlot, boolean coupaingServer, JsonElement options, int port, int weight, Integer hubID)
     {
         this.uuid = uuid;
         this.serverName = serverName;
         this.serverUUID = serverUUID;
+        this.templateID = templateID;
         this.coupaingServer = coupaingServer;
         this.game = game;
         this.map = map;
@@ -139,5 +142,9 @@ public class MinecraftServerInfoPacket extends AbstractPacket
     public JsonElement getStartupOptions()
     {
         return startupOptions;
+    }
+
+    public String getTemplateID() {
+        return templateID;
     }
 }

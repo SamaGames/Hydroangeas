@@ -16,7 +16,7 @@ public class BalancingTask extends Thread
     public BalancingTask(HydroangeasServer instance, HubBalancer hubBalancer)
     {
         this.hubBalancer = hubBalancer;
-        coolDown = 200; //Wait 20s to load balance hub
+        coolDown = 350; //Wait 20s to load balance hub
     }
 
     @Override
@@ -27,6 +27,7 @@ public class BalancingTask extends Thread
             try
             {
                 checkCooldown();
+
                 int requestNumber = needNumberOfHub();
 
                 if (hubBalancer.getNumberServer() < requestNumber)

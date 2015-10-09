@@ -59,7 +59,7 @@ public class AlgorithmicMachine
             return null;
         }
 
-        MinecraftServerS server = client.getServerManager().addServer(template, template.getGameName().startsWith("Hub"));
+        MinecraftServerS server = client.getServerManager().addServer(template, template.getGameName().toLowerCase().startsWith("hub"));
         instance.log(Level.INFO, template + " created on " + client.getIp());
         return server;
     }

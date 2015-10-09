@@ -1,6 +1,7 @@
 package net.samagames.hydroangeas.server.client;
 
 import com.google.gson.JsonElement;
+import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.protocol.intranet.AskForClientActionPacket;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerInfoPacket;
 import net.samagames.hydroangeas.server.data.Status;
@@ -40,6 +41,8 @@ public class MinecraftServerS
     private Status status = Status.STARTING;
     private int actualSlots;
 
+    private long startedTime;
+
 
     public MinecraftServerS(HydroClient client, AbstractGameTemplate template)
     {
@@ -50,7 +53,8 @@ public class MinecraftServerS
 
     public MinecraftServerS(HydroClient client, MinecraftServerInfoPacket packet)
     {
-        this(client, UUID.randomUUID(), packet.getGame(), packet.getMap(), packet.getMinSlot(), packet.getMaxSlot(), packet.getOptions(), packet.getStartupOptions());
+        this(client, packet.getServerUUID(), packet.getGame(), packet.getMap(), packet.getMinSlot(), packet.getMaxSlot(), packet.getOptions(), packet.getStartupOptions());
+        this.templateID = packet.getTemplateID();
         this.port = packet.getPort();
         this.hubID = packet.getHubID();
     }
@@ -65,6 +69,8 @@ public class MinecraftServerS
         this.maxSlot = maxSlot;
         this.options = options;
         this.startupOptions = startupOptions;
+
+        this.startedTime = System.currentTimeMillis();
     }
 
     public void shutdown()
@@ -76,6 +82,11 @@ public class MinecraftServerS
     public void onShutdown()
     {
         //If we need to save some data after shutdown
+    }
+
+    public void dispatchCommand(String command)
+    {
+        Hydroangeas.getInstance().getRedisSubscriber().send("commands.servers."+getServerName(), command);
     }
 
     public void changeUUID()
@@ -198,7 +209,7 @@ public class MinecraftServerS
         return hubID;
     }
 
-    public void setHubID(int hubID)
+    public void setHubID(Integer hubID)
     {
         this.hubID = hubID;
     }
@@ -206,5 +217,9 @@ public class MinecraftServerS
     public JsonElement getStartupOptions()
     {
         return startupOptions;
+    }
+
+    public long getStartedTime() {
+        return startedTime;
     }
 }
