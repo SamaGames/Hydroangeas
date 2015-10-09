@@ -52,6 +52,7 @@ public class MinecraftServerS
     {
         this(client, UUID.randomUUID(), packet.getGame(), packet.getMap(), packet.getMinSlot(), packet.getMaxSlot(), packet.getOptions(), packet.getStartupOptions());
         this.port = packet.getPort();
+        this.hubID = packet.getHubID();
     }
 
     public MinecraftServerS(HydroClient client, UUID uuid, String game, String map, int minSlot, int maxSlot, JsonElement options, JsonElement startupOptions)

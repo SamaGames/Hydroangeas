@@ -27,6 +27,9 @@ public class HubBalancer
         this.instance = instance;
 
         updateHubTemplate();
+
+        loadStartedHubs();
+
     }
 
     public boolean updateHubTemplate()
@@ -53,6 +56,18 @@ public class HubBalancer
             balancer.start();
         }
         return true;
+    }
+
+    public void loadStartedHubs()
+    {
+        if(hubTemplate != null)
+        {
+            for(MinecraftServerS server : instance.getClientManager().getServersByTemplate(hubTemplate))
+            {
+                hubs.add(server);
+                instance.getLogger().info("[HubBalancer] Add already started hub: " + server.getServerName());
+            }
+        }
     }
 
     public void startNewHub()

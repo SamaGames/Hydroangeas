@@ -76,13 +76,15 @@ public class MinecraftServerManager
 
             server = new MinecraftServerS(client, packet);
 
-            if (getServerByUUID(server.getUUID()) != null)
+            if (getServerByUUID(server.getUUID()) != null || getServerByName(server.getServerName()) != null)
             {
-                instance.getLogger().severe("Error duplicated UUID ! Not saving server !");
+                instance.getLogger().severe("Error duplicated UUID ! Not saving server and ask Shutdown !");
+                instance.getLogger().severe("For information, Server Name: " + server.getServerName());
                 instance.getConnectionManager().sendPacket(client,
                         new AskForClientActionPacket(instance.getUUID(), AskForClientActionPacket.ActionCommand.SERVEREND, packet.getServerName()));
                 return;
             }
+
             server.setWeight(MiscUtils.calculServerWeight(server.getGame(), server.getMaxSlot(), server.isCoupaingServer()));
             servers.add(server);
             instance.getLogger().info("Added " + packet.getServerName());
