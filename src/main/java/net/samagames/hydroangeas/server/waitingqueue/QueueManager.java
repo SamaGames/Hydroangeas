@@ -48,7 +48,10 @@ public class QueueManager
         if (designedQueue.equals(currentQueue))
         {
             //PlayerMessager.sendMessage(player.getUUID(), ChatColor.GREEN + "Tu es déjà dans la queue!");
-            sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, false, ChatColor.GREEN + "Vous êtes déjà dans la queue!"));
+            currentQueue.removeQPlayer(player);
+
+            //PlayerMessager.sendMessage(player.getUUID(), ChatColor.YELLOW + "Vous quittez la queue " + currentQueue.getName());
+            sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, currentQueue.getGame(), currentQueue.getMap()));
             return;
         }
 

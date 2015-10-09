@@ -17,7 +17,7 @@ public class SimpleGameTemplate implements AbstractGameTemplate
 {
     private static JsonObject DEFAULT_STARTUP_OPTIONS;
     static {
-         DEFAULT_STARTUP_OPTIONS = new JsonObject();
+        DEFAULT_STARTUP_OPTIONS = new JsonObject();
         DEFAULT_STARTUP_OPTIONS.addProperty("minRAM", "512M");
         DEFAULT_STARTUP_OPTIONS.addProperty("maxRAM", "1024M");
         DEFAULT_STARTUP_OPTIONS.addProperty("edenRAM", "256M");
