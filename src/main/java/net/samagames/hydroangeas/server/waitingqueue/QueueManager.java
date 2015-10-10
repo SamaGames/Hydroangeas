@@ -312,7 +312,7 @@ public class QueueManager
     {
         for (Queue queue : queues)
         {
-            if (queue.getTemplate().getId().equals(templateID))
+            if (queue.getTemplate().getId().equalsIgnoreCase(templateID))
             {
                 return queue;
             }
