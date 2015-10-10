@@ -8,9 +8,9 @@ public class ModMessage
 {
     public static void sendModMessage(JsonModMessage message)
     {
-        Jedis jedis = Hydroangeas.getInstance().getDatabaseConnector().getJedisPool().getResource();
+        /*Jedis jedis = Hydroangeas.getInstance().getDatabaseConnector().getJedisPool().getResource();
         jedis.publish("moderationchan", new GsonBuilder().serializeNulls().create().toJson(message));
-        jedis.close();
+        jedis.close();*/
     }
 
     public static void sendMessage(InstanceType type, String message)
