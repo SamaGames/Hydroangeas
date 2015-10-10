@@ -69,7 +69,7 @@ public class Queue
                 }
             });
 
-            if (servers.size() <= 0 && queue.size() >= template.getMinSlot())
+            if (servers.size() <= 0 && getSize() >= template.getMinSlot())
             {
                 Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
                 if (template instanceof PackageGameTemplate) // If it's a package template we change it now
