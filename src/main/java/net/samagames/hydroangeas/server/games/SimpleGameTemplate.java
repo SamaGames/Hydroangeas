@@ -56,17 +56,20 @@ public class SimpleGameTemplate implements AbstractGameTemplate
         }
         this.isCoupaing = formated.get("isCoupaing").getAsBoolean();
 
-        calculateWeight();
+        JsonElement weightObj = formated.get("weight");
+        if (weightObj == null)
+        {
+            this.weight = MiscUtils.calculServerWeight(gameName, maxSlot, isCoupaing);
+        }
     }
 
-    public SimpleGameTemplate(String id, String gameName, String mapName, int minSlot, int maxSlot, JsonElement options)
+    public SimpleGameTemplate(String id, String gameName, String mapName, int minSlot, int maxSlot, int weight, JsonElement options)
     {
-        this(id, gameName, mapName, minSlot, maxSlot, options, false);
+        this(id, gameName, mapName, minSlot, maxSlot, options, weight, false);
     }
 
-    public SimpleGameTemplate(String id, String gameName, String mapName, int minSlot, int maxSlot, JsonElement options, boolean isCoupaing)
+    public SimpleGameTemplate(String id, String gameName, String mapName, int minSlot, int maxSlot, JsonElement options, int weight, boolean isCoupaing)
     {
-
         this.id = id;
         this.gameName = gameName;
         this.mapName = mapName;
@@ -74,8 +77,6 @@ public class SimpleGameTemplate implements AbstractGameTemplate
         this.maxSlot = maxSlot;
         this.options = options;
         this.isCoupaing = isCoupaing;
-
-        calculateWeight();
     }
 
     public String getId()
@@ -131,11 +132,6 @@ public class SimpleGameTemplate implements AbstractGameTemplate
     public void setOptions(JsonElement options)
     {
         this.options = options;
-    }
-
-    public void calculateWeight()
-    {
-        weight = MiscUtils.calculServerWeight(gameName, maxSlot, isCoupaing);
     }
 
     public int getWeight()

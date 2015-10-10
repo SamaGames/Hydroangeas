@@ -57,7 +57,7 @@ public class MinecraftServerManager
             }
         }
 
-        server.setWeight(MiscUtils.calculServerWeight(server.getGame(), server.getMaxSlot(), server.isCoupaingServer()));
+        server.setWeight(template.getWeight());
 
         servers.add(server);
 

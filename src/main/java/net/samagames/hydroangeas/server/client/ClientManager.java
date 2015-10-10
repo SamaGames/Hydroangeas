@@ -50,6 +50,7 @@ public class ClientManager
                 packet.getMinSlot(),
                 packet.getMaxSlot(),
                 packet.getOptions(),
+                packet.getWeight(),
                 true);
 
         instance.getAlgorithmicMachine().orderTemplate(template);
