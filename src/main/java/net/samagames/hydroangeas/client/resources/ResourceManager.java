@@ -93,8 +93,6 @@ public class ResourceManager
 
             }
         }
-
-
     }
 
     public void downloadDependency(MinecraftServerC server, ServerDependency dependency, File serverPath) throws IOException
@@ -143,7 +141,7 @@ public class ResourceManager
             outputStream.flush();
 
             // Generate data.yml
-            File credentialsFile = new File("data.yml");
+            File credentialsFile = new File(serverPath,"data.yml");
             FileUtils.deleteQuietly(credentialsFile);
             outputStream.close();
             outputStream = new FileOutputStream(credentialsFile);
