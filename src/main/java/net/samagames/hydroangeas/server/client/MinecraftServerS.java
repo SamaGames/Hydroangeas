@@ -82,6 +82,10 @@ public class MinecraftServerS
     public void onShutdown()
     {
         //If we need to save some data after shutdown
+        if (isHub())
+        {
+            Hydroangeas.getInstance().getAsServer().getHubBalancer().onHubShutdown(this);
+        }
     }
 
     public void dispatchCommand(String command)

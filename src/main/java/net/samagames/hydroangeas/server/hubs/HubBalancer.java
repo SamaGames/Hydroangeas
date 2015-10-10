@@ -128,7 +128,7 @@ public class HubBalancer
 
     public void onHubShutdown(MinecraftServerS serverS)
     {
-        hubs.stream().filter(server -> server.getServerName().equals(serverS.getServerName())).forEach(server -> hubs.remove(serverS));
+        hubs.remove(serverS);
     }
 
     public SimpleGameTemplate getHubTemplate()

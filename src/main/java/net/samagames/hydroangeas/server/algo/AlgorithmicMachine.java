@@ -75,10 +75,6 @@ public class AlgorithmicMachine
         {
             instance.log(Level.INFO, "Server ended on " + client.getIp() + " servername: " + serverStatus.getServerName());
 
-            if (oldServer.isHub())
-            {
-                instance.getHubBalancer().onHubShutdown(oldServer);
-            }
         }
     }
 

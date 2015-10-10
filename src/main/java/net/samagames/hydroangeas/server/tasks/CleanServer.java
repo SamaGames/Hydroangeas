@@ -15,6 +15,7 @@ import java.util.logging.Level;
 public class CleanServer {
 
     private final static long LIVETIME = 14400000L; //4 heures
+    //private final static long LIVETIME = 60000L; //60 secondes for test
     private final HydroangeasServer instance;
 
     public CleanServer(HydroangeasServer instance)
@@ -32,6 +33,7 @@ public class CleanServer {
         for(HydroClient client : instance.getClientManager().getClients())
         {
             client.getServerManager().getServers().stream().filter(server -> System.currentTimeMillis() - server.getStartedTime() > LIVETIME).forEach(server -> {
+                instance.getLogger().info("Shutdown server for live more than 4 hours: " + server.getServerName());
                 if (server.isHub()) {
                     server.dispatchCommand("evacuate lobby");
                 } else {
