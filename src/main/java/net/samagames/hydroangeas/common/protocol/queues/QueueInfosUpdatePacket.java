@@ -40,6 +40,7 @@ public class QueueInfosUpdatePacket extends AbstractPacket
         this.type = type;
         this.game = game;
         this.map = map;
+        this.success = true;
     }
 
     public Type getType()
