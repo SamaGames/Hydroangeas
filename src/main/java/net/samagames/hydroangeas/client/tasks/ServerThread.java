@@ -174,9 +174,9 @@ public class ServerThread extends Thread
             e.printStackTrace();
         }finally {
             Hydroangeas.getInstance().getAsClient().getServerManager().onServerStop(instance);
+            normalStop();
+            server.destroy();
         }
-        normalStop();
-        server.destroy();
     }
 
     public void normalStop()
