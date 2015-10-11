@@ -39,6 +39,9 @@ public class ServerStatusReceiver implements PacketReceiver
             return;
         }
 
+        instance.getLogger().info("Server: " + serverName);
+        instance.getLogger().info("Joueurs: " + data.getPlayers());
+
         server.setActualSlots(data.getPlayers());
         server.setStatus(data.getStatus());
 

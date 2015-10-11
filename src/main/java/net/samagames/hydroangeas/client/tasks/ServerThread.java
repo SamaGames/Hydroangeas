@@ -172,9 +172,10 @@ public class ServerThread extends Thread
         } catch (InterruptedException e)
         {
             e.printStackTrace();
+        }finally {
+            Hydroangeas.getInstance().getAsClient().getServerManager().onServerStop(instance);
         }
         normalStop();
-        Hydroangeas.getInstance().getAsClient().getServerManager().onServerStop(instance);
         server.destroy();
     }
 
