@@ -50,7 +50,7 @@ public class BalancingTask extends Thread
                         }
                     }
                 }
-                Thread.sleep(3000);
+                Thread.sleep(1500);
             } catch (InterruptedException e)
             {
                 e.printStackTrace();
