@@ -57,6 +57,7 @@ public class MinecraftServerS
         this.templateID = packet.getTemplateID();
         this.port = packet.getPort();
         this.hubID = packet.getHubID();
+        this.weight = packet.getWeight();
     }
 
     public MinecraftServerS(HydroClient client, UUID uuid, String game, String map, int minSlot, int maxSlot, JsonElement options, JsonElement startupOptions)
