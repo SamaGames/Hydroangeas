@@ -141,7 +141,7 @@ public class ResourceManager
             outputStream.flush();
 
             // Generate data.yml
-            File credentialsFile = new File(serverPath,"data.yml");
+            File credentialsFile = new File(serverPath, "data.yml");
             FileUtils.deleteQuietly(credentialsFile);
             outputStream.close();
             outputStream = new FileOutputStream(credentialsFile);

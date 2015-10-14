@@ -60,7 +60,8 @@ public class SimpleGameTemplate implements AbstractGameTemplate
         if (weightObj == null)
         {
             this.weight = MiscUtils.calculServerWeight(gameName, maxSlot, isCoupaing);
-        }
+        } else
+            weight = weightObj.getAsInt();
     }
 
     public SimpleGameTemplate(String id, String gameName, String mapName, int minSlot, int maxSlot, int weight, JsonElement options)
