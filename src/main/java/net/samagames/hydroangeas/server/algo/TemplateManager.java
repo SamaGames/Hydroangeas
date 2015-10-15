@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 public class TemplateManager
 {
 
-    private final List<AbstractGameTemplate> templates;
+    private List<AbstractGameTemplate> templates;
     private HydroangeasServer instance;
 
     public TemplateManager(HydroangeasServer instance)
@@ -103,7 +103,7 @@ public class TemplateManager
     public void reload()
     {
         templates.clear();
-        templates.addAll(loadTemplates());
+        templates = loadTemplates();
         loadQueues();
     }
 
