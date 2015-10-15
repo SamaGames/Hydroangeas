@@ -68,7 +68,10 @@ public class ClientConnectionManager extends ConnectionManager
             {
                 case SERVEREND:
                     MinecraftServerC server = instance.getServerManager().getServerByName(packet.getData());
-                    server.stopServer();
+                    if(server != null)
+                    {
+                        server.stopServer();
+                    }
                     break;
                 case CLIENTSHUTDOWN:
                     System.exit(0);
