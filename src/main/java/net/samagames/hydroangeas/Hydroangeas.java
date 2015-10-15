@@ -163,4 +163,34 @@ public abstract class Hydroangeas
     {
         return uuid;
     }
+
+    public enum RestrictionMode
+    {
+        NONE("none"),
+        WHITELIST("whitelist"),
+        BLACKLIST("blacklist");
+
+        private String mode;
+
+        RestrictionMode(String mode)
+        {
+
+            this.mode = mode;
+        }
+
+        public String getMode() {
+            return mode;
+        }
+
+        static public RestrictionMode valueFrom(String mode)
+        {
+            for(RestrictionMode data : RestrictionMode.values())
+            {
+                if(data.getMode().equalsIgnoreCase(mode))
+                    return data;
+            }
+
+            return RestrictionMode.NONE;
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package net.samagames.hydroangeas.client;
 
+import com.google.gson.JsonElement;
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.client.commands.ClientCommandManager;
@@ -15,7 +16,9 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -24,6 +27,10 @@ public class HydroangeasClient extends Hydroangeas
     private String templatesDomain;
     private int maxWeight;
     private File serverFolder;
+
+    private RestrictionMode restrictionMode;
+    private List<String> whitelist;
+    private List<String> blacklist;
 
     private ClientConnectionManager connectionManager;
     private LifeThread lifeThread;
@@ -40,9 +47,51 @@ public class HydroangeasClient extends Hydroangeas
     {
         this.log(Level.INFO, "Starting Hydroangeas client...");
 
+        blacklist = new ArrayList<>();
+        whitelist = new ArrayList<>();
+
         this.templatesDomain = this.configuration.getJsonConfiguration().get("web-domain").getAsString() + "templates/";
         this.maxWeight = this.configuration.getJsonConfiguration().get("max-weight").getAsInt();
         this.serverFolder = new File(MiscUtils.getJarFolder(), "servers");
+
+        try{
+            this.restrictionMode = RestrictionMode.valueFrom(configuration.getJsonConfiguration().get("RestrictionMode").getAsString());
+            getLogger().info("Server restriction is set to: " + restrictionMode.getMode());
+        }catch (Exception e)
+        {
+            this.restrictionMode = RestrictionMode.NONE;
+            getLogger().warning("Restriction mode not set ! Default: none");
+        }
+
+        try{
+            for(JsonElement data : configuration.getJsonConfiguration().get("Whitelist").getAsJsonArray())
+            {
+                String templateID = data.getAsString();
+                if(templateID != null)
+                {
+                    whitelist.add(templateID);
+                    getLogger().info("Adding to whitelist: " + templateID);
+                }
+            }
+        }catch(Exception e)
+        {
+            getLogger().info("No whitelist load !");
+        }
+
+        try{
+            for(JsonElement data : configuration.getJsonConfiguration().get("Blacklist").getAsJsonArray())
+            {
+                String templateID = data.getAsString();
+                if(templateID != null)
+                {
+                    blacklist.add(templateID);
+                    getLogger().info("Adding to blacklist: " + templateID);
+                }
+            }
+        }catch(Exception e)
+        {
+            getLogger().info("No blacklist load !");
+        }
 
         try
         {
@@ -146,5 +195,23 @@ public class HydroangeasClient extends Hydroangeas
     public ResourceManager getResourceManager()
     {
         return this.resourceManager;
+    }
+
+    public List<String> getWhitelist()
+    {
+        return whitelist;
+    }
+
+    public List<String> getBlacklist()
+    {
+        return blacklist;
+    }
+
+    public RestrictionMode getRestrictionMode() {
+        return restrictionMode;
+    }
+
+    public void setRestrictionMode(RestrictionMode restrictionMode) {
+        this.restrictionMode = restrictionMode;
     }
 }

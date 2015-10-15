@@ -25,6 +25,9 @@ public class ServerManager
     {
         try
         {
+            //Check state of hydro
+            checkTemplate(serverInfos.getTemplateID());
+
             int port = getAvailablePort();
             MinecraftServerC server = new MinecraftServerC(this.instance, serverInfos, port);
 
@@ -109,6 +112,25 @@ public class ServerManager
     public List<MinecraftServerC> getServers()
     {
         return this.servers;
+    }
+
+    public void checkTemplate(String template) throws Exception {
+        if(instance.getRestrictionMode().equals(HydroangeasClient.RestrictionMode.NONE))
+            return;
+
+        if(instance.getRestrictionMode().equals(HydroangeasClient.RestrictionMode.WHITELIST))
+        {
+            if(!instance.getWhitelist().contains(template))
+            {
+                throw new Exception("Try to start a server with template not whitelisted !");
+            }
+        }
+
+        if(instance.getRestrictionMode().equals(HydroangeasClient.RestrictionMode.BLACKLIST)) {
+            if (!instance.getBlacklist().contains(template)) {
+                throw new Exception("Try to start a server with a template blacklisted !");
+            }
+        }
     }
 
 }

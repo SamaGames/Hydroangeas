@@ -61,7 +61,7 @@ public class ClientManager
         executorService.execute(() -> {
             HydroClient client = getClientByUUID(packet.getUUID());
             if (client == null) {
-                client = new HydroClient(instance, packet.getUUID());
+                client = new HydroClient(instance, packet.getUUID(), packet.getRestrictionMode(), packet.getWhitelist(), packet.getBlacklist());
                 instance.log(Level.INFO, "New client " + client.getUUID() + " connected!");
                 if (!clientList.add(client)) instance.log(Level.INFO, "Not added !");
             }

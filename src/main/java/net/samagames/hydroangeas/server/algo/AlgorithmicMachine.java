@@ -1,5 +1,6 @@
 package net.samagames.hydroangeas.server.algo;
 
+import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerUpdatePacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.HydroClient;
@@ -30,7 +31,7 @@ public class AlgorithmicMachine
         for (HydroClient client : sortedClient)
         {
             int weight = template.getWeight();
-            if (client.getAvailableWeight() - weight >= FREE_SPACE)
+            if (client.getAvailableWeight() - weight >= FREE_SPACE && hasNoRestriction(client, template))
             {
                 return client;
             }
@@ -86,5 +87,32 @@ public class AlgorithmicMachine
             servers.addAll(client.getServerManager().getServers().stream().filter(server -> server.getTemplateID().equalsIgnoreCase(templateID) && (server.getStatus().isAllowJoin() || server.getStatus().equals(Status.STARTING)) && server.getActualSlots() < server.getMaxSlot() * 0.90).collect(Collectors.toList()));
         }
         return servers;
+    }
+
+    private boolean hasNoRestriction(HydroClient client, AbstractGameTemplate template)
+    {
+        //useless but in mainly cases we do only one check
+        if(client.getRestrictionMode().equals(Hydroangeas.RestrictionMode.NONE))
+            return true;
+
+        if(client.getRestrictionMode().equals(Hydroangeas.RestrictionMode.WHITELIST))
+        {
+            if(client.getWhitelist().contains(template.getId()))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        if(client.getRestrictionMode().equals(Hydroangeas.RestrictionMode.BLACKLIST))
+        {
+            if(client.getBlacklist().contains(template.getId()))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        return true;
     }
 }

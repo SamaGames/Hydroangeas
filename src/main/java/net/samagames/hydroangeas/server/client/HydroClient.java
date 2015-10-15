@@ -1,9 +1,11 @@
 package net.samagames.hydroangeas.server.client;
 
+import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.protocol.intranet.AskForClientActionPacket;
 import net.samagames.hydroangeas.common.protocol.intranet.HelloFromClientPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -23,12 +25,19 @@ public class HydroClient
     private int maxWeight;
     private long timestamp;
 
+    private Hydroangeas.RestrictionMode restrictionMode;
+    private List<String> whitelist;
+    private List<String> blacklist;
+
     private MinecraftServerManager serverManager;
 
-    public HydroClient(HydroangeasServer instance, UUID uuid)
+    public HydroClient(HydroangeasServer instance, UUID uuid, Hydroangeas.RestrictionMode restrictionMode, List<String> whitelist, List<String> blacklist)
     {
         this.instance = instance;
         this.uuid = uuid;
+        this.restrictionMode = restrictionMode;
+        this.whitelist = whitelist;
+        this.blacklist = blacklist;
 
         this.timestamp = System.currentTimeMillis();
 
@@ -130,5 +139,17 @@ public class HydroClient
     public int hashCode()
     {
         return this.getUUID().hashCode();
+    }
+
+    public List<String> getWhitelist() {
+        return whitelist;
+    }
+
+    public List<String> getBlacklist() {
+        return blacklist;
+    }
+
+    public Hydroangeas.RestrictionMode getRestrictionMode() {
+        return restrictionMode;
     }
 }
