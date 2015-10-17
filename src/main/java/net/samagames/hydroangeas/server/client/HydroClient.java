@@ -122,6 +122,16 @@ public class HydroClient
         return instance;
     }
 
+    public int getPlayer()
+    {
+        int data = 0;
+        for(MinecraftServerS server : serverManager.getServers())
+        {
+            data += server.getActualSlots();
+        }
+        return data;
+    }
+
     @Override
     public boolean equals(Object obj)
     {
