@@ -52,6 +52,7 @@ public class HydroangeasServer extends Hydroangeas
             }
         });
         this.redisSubscriber.registerReceiver("serverUpdateChannel", new ServerStatusReceiver(this));
+        this.redisSubscriber.registerReceiver("hubUpdateChannel", new ServerStatusReceiver(this));
         this.redisSubscriber.registerReceiver("hubsChannel", new ServerStatusReceiver(this));
 
         this.clientManager = new ClientManager(this);
