@@ -173,14 +173,14 @@ public class ServerThread extends Thread
         {
             e.printStackTrace();
         }finally {
-            Hydroangeas.getInstance().getAsClient().getServerManager().onServerStop(instance);
-            normalStop();
             server.destroy();
+            normalStop();
         }
     }
 
     public void normalStop()
     {
+        Hydroangeas.getInstance().getAsClient().getServerManager().onServerStop(instance);
         isServerProcessAlive = false;
         instance.getInstance().getScheduler().execute(() -> {
             try

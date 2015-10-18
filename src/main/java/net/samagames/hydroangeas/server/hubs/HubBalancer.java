@@ -136,4 +136,9 @@ public class HubBalancer
         return hubTemplate;
     }
 
+    public HydroangeasServer getInstance()
+    {
+        return instance;
+    }
+
 }

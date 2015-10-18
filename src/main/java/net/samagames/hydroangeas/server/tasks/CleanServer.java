@@ -34,9 +34,16 @@ public class CleanServer {
         {
             client.getServerManager().getServers().stream().filter(server -> System.currentTimeMillis() - server.getStartedTime() > LIVETIME).forEach(server -> {
                 instance.getLogger().info("Shutdown server for live more than 4 hours: " + server.getServerName());
-                if (server.isHub() && System.currentTimeMillis() - server.getStartedTime() - LIVETIME < 600000L) {
-                    server.dispatchCommand("evacuate lobby");
-                } else {
+                if(System.currentTimeMillis() - server.getStartedTime() - LIVETIME < 600000L)
+                {
+
+                    if (server.isHub()) {
+                        server.dispatchCommand("evacuate lobby");
+                    } else {
+                        server.dispatchCommand("stop");
+                    }
+                }else
+                {
                     server.shutdown();
                 }
             });

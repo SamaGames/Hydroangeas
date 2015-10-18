@@ -3,6 +3,10 @@ package net.samagames.hydroangeas.server.hubs;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by Silva on 13/09/2015.
  */
@@ -32,21 +36,26 @@ public class BalancingTask extends Thread
 
                 if (hubBalancer.getNumberServer() < requestNumber)
                 {
-                    for (int i = requestNumber - hubBalancer.getNumberServer(); i > 0; i--)
+                    for (int i = requestNumber - hubBalancer.getNumberServer(); i >= 0; i--)
                     {
                         hubBalancer.startNewHub();
                     }
                     coolDown += 15;
                 } else if (hubBalancer.getNumberServer() > requestNumber)
                 {
-                    for (MinecraftServerS serverS : hubBalancer.getBalancedHubList())
+                    List<MinecraftServerS> balancedHubList = new ArrayList<>();
+                    balancedHubList.addAll(hubBalancer.getBalancedHubList());
+                    for (MinecraftServerS serverS : balancedHubList)
                     {
                         if (hubBalancer.getNumberServer() == requestNumber)
                             break;
 
                         if (serverS.getActualSlots() < HUB_CONSIDERED_AS_EMPTY)
                         {
-                            serverS.shutdown();
+                            serverS.dispatchCommand("evacuate lobby");
+                            hubBalancer.onHubShutdown(serverS);
+                            hubBalancer.getInstance().getScheduler().schedule(() -> serverS.shutdown(), 65, TimeUnit.SECONDS);
+
                         }
                     }
                 }
@@ -60,7 +69,7 @@ public class BalancingTask extends Thread
 
     public int needNumberOfHub()
     {
-        return (hubBalancer.getUsedSlots() / hubBalancer.getHubTemplate().getMaxSlot()) + HUB_SAFETY_MARGIN;
+        return (hubBalancer.getUsedSlots() / hubBalancer.getHubTemplate().getMaxSlot()) + HUB_SAFETY_MARGIN + 1;
     }
 
     public void checkCooldown() throws InterruptedException
