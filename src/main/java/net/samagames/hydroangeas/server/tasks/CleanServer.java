@@ -33,19 +33,20 @@ public class CleanServer {
         for(HydroClient client : instance.getClientManager().getClients())
         {
             client.getServerManager().getServers().stream().filter(server -> System.currentTimeMillis() - server.getStartedTime() > LIVETIME).forEach(server -> {
-                instance.getLogger().info("Shutdown server for live more than 4 hours: " + server.getServerName());
-                if(System.currentTimeMillis() - server.getStartedTime() - LIVETIME < 600000L)
-                {
+                instance.getLogger().info("Scheduled shutdown for: " + server.getServerName());
 
-                    if (server.isHub()) {
-                        server.dispatchCommand("evacuate lobby");
-                    } else {
-                        server.dispatchCommand("stop");
-                    }
-                }else
-                {
-                    server.shutdown();
+                int timeToStop = 0;
+                if (server.isHub()) {
+                    server.dispatchCommand("evacuate lobby");
+                    instance.getHubBalancer().onHubShutdown(server);
+                    timeToStop = 65;
+                } else {
+                    server.dispatchCommand("stop");
+                    timeToStop = 15;
                 }
+
+                instance.getScheduler().schedule(() -> server.shutdown(), timeToStop, TimeUnit.SECONDS);
+
             });
         }
     }

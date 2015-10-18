@@ -7,6 +7,7 @@ import net.samagames.hydroangeas.server.client.HydroClient;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.server.data.Status;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
+import net.samagames.hydroangeas.utils.ConsoleColor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +57,7 @@ public class AlgorithmicMachine
 
         if (client == null)
         {
-            instance.log(Level.SEVERE, "Major error ! No Hydroclient available !");
+            instance.log(Level.SEVERE, ConsoleColor. RED + "No Hydroclient available !"+  ConsoleColor.RESET);
             return null;
         }
 
