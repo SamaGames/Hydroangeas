@@ -40,7 +40,7 @@ public class BalancingTask extends Thread
                 if (hubBalancer.getNumberServer() < requestNumber)
                 {
                     //Start them !
-                    for (int i = requestNumber - hubBalancer.getNumberServer(); i >= 0; i--)
+                    for (int i = requestNumber - hubBalancer.getNumberServer(); i > 0; i--)
                     {
                         hubBalancer.startNewHub();
                     }
