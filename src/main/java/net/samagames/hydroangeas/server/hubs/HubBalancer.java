@@ -128,6 +128,7 @@ public class HubBalancer
 
     public void onHubShutdown(MinecraftServerS serverS)
     {
+        instance.getRedisSubscriber().send("balancerConnectingInfo", "REMOVE###"+serverS.getServerName());
         hubs.remove(serverS);
     }
 
