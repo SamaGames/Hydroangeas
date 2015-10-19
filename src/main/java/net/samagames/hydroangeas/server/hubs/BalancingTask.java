@@ -45,7 +45,7 @@ public class BalancingTask extends Thread
                         hubBalancer.startNewHub();
                     }
                     //Wait until started
-                    coolDown += 18;
+                    coolDown += 23;
 
                     //Are they too much lobby ?
                 } else if (hubBalancer.getNumberServer() > requestNumber)
@@ -68,7 +68,7 @@ public class BalancingTask extends Thread
                         }
                     }
                 }
-                Thread.sleep(700);//Need to be very reactive
+                Thread.sleep(300);//Need to be very reactive
             } catch (InterruptedException e)
             {
                 e.printStackTrace();
