@@ -1,6 +1,7 @@
 package net.samagames.hydroangeas.server.waitingqueue;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -30,7 +31,7 @@ public class PriorityPlayerQueue extends PriorityBlockingQueue<QGroup>
         }
     }
 
-    public int drainPlayerTo(List<QGroup> c, int maxElements)
+    public int drainPlayerTo(Collection<? super QGroup> c, int maxElements)
     {
         if (c == null)
             throw new NullPointerException();

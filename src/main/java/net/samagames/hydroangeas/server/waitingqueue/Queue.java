@@ -62,7 +62,7 @@ public class Queue
 
             servers.stream().filter(server -> server.getStatus().isAllowJoin()).forEach(server -> {
                 List<QGroup> groups = new ArrayList<>();
-                queue.drainTo(groups, server.getMaxSlot());
+                queue.drainPlayerTo(groups, server.getMaxSlot());
                 for (QGroup group : groups)
                 {
                     group.sendTo(server.getServerName());
