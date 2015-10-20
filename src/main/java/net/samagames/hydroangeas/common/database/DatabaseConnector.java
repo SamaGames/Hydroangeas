@@ -39,6 +39,7 @@ public class DatabaseConnector
                 }
             }
         }, "Redis reconnect");
+        reconnection.start();
     }
 
     public void connect()
