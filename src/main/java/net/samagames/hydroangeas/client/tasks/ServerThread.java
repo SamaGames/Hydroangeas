@@ -5,6 +5,7 @@ import net.samagames.hydroangeas.client.servers.MinecraftServerC;
 import net.samagames.hydroangeas.common.log.StackTraceData;
 import net.samagames.restfull.LogLevel;
 import net.samagames.restfull.RestAPI;
+import org.apache.commons.io.FileDeleteStrategy;
 import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
@@ -185,6 +186,7 @@ public class ServerThread extends Thread
         instance.getInstance().getScheduler().execute(() -> {
             try
             {
+                FileDeleteStrategy.FORCE.delete(directory);
                 FileUtils.deleteDirectory(directory);
             } catch (IOException e)
             {
