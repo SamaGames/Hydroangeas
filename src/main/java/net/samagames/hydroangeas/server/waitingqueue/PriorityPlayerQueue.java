@@ -37,6 +37,7 @@ public class PriorityPlayerQueue extends PriorityBlockingQueue<QGroup>
             throw new NullPointerException();
         if (maxElements <= 0)
             return 0;
+
         final ReentrantLock lock = this.lock;
         lock.lock();
         try
