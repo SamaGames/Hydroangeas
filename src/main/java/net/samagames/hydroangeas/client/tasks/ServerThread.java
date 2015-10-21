@@ -71,7 +71,7 @@ public class ServerThread extends Thread
                 }
             });
 
-            executor.execute(() -> {
+            /*executor.execute(() -> {
                 try
                 {
                     String line = null;
@@ -140,7 +140,7 @@ public class ServerThread extends Thread
                 {
                     ioe.printStackTrace();
                 }
-            });
+            });*/
 
             executor.execute(() -> {
                 while (true)
