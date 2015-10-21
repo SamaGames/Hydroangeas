@@ -49,7 +49,6 @@ public class DatabaseConnector
         JedisPoolConfig jedisConfiguration = new JedisPoolConfig();
         jedisConfiguration.setMaxTotal(-1);
         jedisConfiguration.setJmxEnabled(false);
-        jedisConfiguration.setMaxWaitMillis(0);
 
         Logger logger = Logger.getLogger(JedisPool.class.getName());
         logger.setLevel(Level.OFF);
