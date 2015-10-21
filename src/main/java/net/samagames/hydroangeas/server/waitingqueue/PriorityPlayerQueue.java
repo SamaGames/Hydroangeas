@@ -19,6 +19,8 @@ public class PriorityPlayerQueue extends PriorityBlockingQueue<QGroup>
     private final ReentrantLock lock = new ReentrantLock();
     private Method remoteAtMethod;
 
+    public int gsize = 0;
+
     public PriorityPlayerQueue(int initialCapacity, Comparator<? super QGroup> comparator)
     {
         super(initialCapacity, comparator);
@@ -77,5 +79,15 @@ public class PriorityPlayerQueue extends PriorityBlockingQueue<QGroup>
         {
             lock.unlock();
         }
+    }
+
+    public boolean add(QGroup e) {
+        gsize += e.getSize();
+        return super.add(e);
+    }
+
+    public boolean remove(QGroup o) {
+        gsize -= o.getSize();
+        return super.remove(o);
     }
 }

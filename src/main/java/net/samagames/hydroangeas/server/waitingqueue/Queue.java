@@ -4,6 +4,7 @@ import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.protocol.hubinfo.GameInfosToHubPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
+import net.samagames.hydroangeas.server.data.Status;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
 import net.samagames.hydroangeas.server.games.PackageGameTemplate;
 import net.samagames.hydroangeas.server.tasks.CleanServer;
@@ -69,7 +70,7 @@ public class Queue
 
             List<MinecraftServerS> servers = instance.getAlgorithmicMachine().getServerByTemplatesAndAvailable(template.getId());
 
-            servers.stream().filter(server -> server.getStatus().isAllowJoin()).forEach(server -> {
+            servers.stream().filter(server -> server.getStatus().equals(Status.WAITING_FOR_PLAYERS) || server.getStatus().equals(Status.READY_TO_START)).forEach(server -> {
                 server.setTimeToLive(CleanServer.LIVETIME);
                 List<QGroup> groups = new ArrayList<>();
                 queue.drainPlayerTo(groups, server.getMaxSlot());
@@ -77,7 +78,7 @@ public class Queue
                 {
                     group.sendTo(server.getServerName());
                 }
-                coolDown += 20;
+                coolDown += 11;
             });
 
             if (servers.size() <= 0 && getSize() >= template.getMinSlot())
@@ -271,7 +272,9 @@ public class Queue
     public int getSize()
     {
         int i = 0;
-        for (QGroup group : queue)
+        List<QGroup> cache = new ArrayList<>();
+        cache.addAll(queue);
+        for(QGroup group : cache)
         {
             i += group.getSize();
         }
