@@ -190,7 +190,7 @@ public class ServerThread extends Thread
                 FileUtils.deleteDirectory(directory);
             } catch (IOException e)
             {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         });
         executor.shutdownNow();
