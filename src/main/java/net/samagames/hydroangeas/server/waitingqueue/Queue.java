@@ -62,7 +62,7 @@ public class Queue
             List<MinecraftServerS> servers = instance.getAlgorithmicMachine().getServerByTemplatesAndAvailable(template.getId());
 
             servers.stream().filter(server -> server.getStatus().isAllowJoin()).forEach(server -> {
-                server.setTimeToLive(CleanServer.LIVETIME);
+                //server.setTimeToLive(CleanServer.LIVETIME);
                 List<QGroup> groups = new ArrayList<>();
                 queue.drainPlayerTo(groups, server.getMaxSlot());
                 for (QGroup group : groups)
@@ -74,7 +74,7 @@ public class Queue
             if (servers.size() <= 0 && getSize() >= template.getMinSlot())
             {
                 MinecraftServerS server = Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
-                server.setTimeToLive(150000L);
+                //server.setTimeToLive(150000L);
                 if (template instanceof PackageGameTemplate) // If it's a package template we change it now
                 {
                     ((PackageGameTemplate) template).selectTemplate();
