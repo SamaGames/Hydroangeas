@@ -68,7 +68,7 @@ public class PriorityPlayerQueue extends PriorityBlockingQueue<QGroup>
                     j++;
                 }
 
-                if (check <= 0)
+                if (check < 0)
                     break;
 
             }

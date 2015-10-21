@@ -34,8 +34,6 @@ public class TemplateManager
 
         this.instance = instance;
 
-
-
         templates = loadTemplates();
 
         loadQueues();

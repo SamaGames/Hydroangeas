@@ -37,6 +37,8 @@ public class Queue
 
     private long lastSend = System.currentTimeMillis();
 
+    private int coolDown = 2; //*100ms
+
     public Queue(QueueManager manager, AbstractGameTemplate template)
     {
         this.instance = Hydroangeas.getInstance().getAsServer();
@@ -59,6 +61,12 @@ public class Queue
                 return;
             }
 
+            try {
+                checkCooldown();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             List<MinecraftServerS> servers = instance.getAlgorithmicMachine().getServerByTemplatesAndAvailable(template.getId());
 
             servers.stream().filter(server -> server.getStatus().isAllowJoin()).forEach(server -> {
@@ -69,6 +77,7 @@ public class Queue
                 {
                     group.sendTo(server.getServerName());
                 }
+                coolDown += 20;
             });
 
             if (servers.size() <= 0 && getSize() >= template.getMinSlot())
@@ -80,9 +89,19 @@ public class Queue
                     ((PackageGameTemplate) template).selectTemplate();
                 }
             }
-        }, 0, 900, TimeUnit.MILLISECONDS);
+        }, 0, 1000, TimeUnit.MILLISECONDS);
         hubRefreshTask = instance.getScheduler().scheduleAtFixedRate(this::sendInfoToHub, 0, 750, TimeUnit.MILLISECONDS);
 
+    }
+
+    public void checkCooldown() throws InterruptedException
+    {
+        while (coolDown > 0)
+        {
+            coolDown--;
+            Thread.sleep(100);
+        }
+        coolDown = 0;//Security in case of forgot
     }
 
     public void remove()
@@ -321,4 +340,5 @@ public class Queue
     {
         return template;
     }
+
 }
