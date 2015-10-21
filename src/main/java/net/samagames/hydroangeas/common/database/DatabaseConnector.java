@@ -49,12 +49,12 @@ public class DatabaseConnector
         JedisPoolConfig jedisConfiguration = new JedisPoolConfig();
         jedisConfiguration.setMaxTotal(-1);
         jedisConfiguration.setJmxEnabled(false);
-        jedisConfiguration.setMaxWaitMillis(5000);
+        jedisConfiguration.setMaxWaitMillis(0);
 
         Logger logger = Logger.getLogger(JedisPool.class.getName());
         logger.setLevel(Level.OFF);
 
-        this.jedisPool = new JedisPool(jedisConfiguration, this.instance.getConfiguration().redisIp, this.instance.getConfiguration().redisPort, 5000, this.instance.getConfiguration().redisPassword);
+        this.jedisPool = new JedisPool(jedisConfiguration, this.instance.getConfiguration().redisIp, this.instance.getConfiguration().redisPort, 0, this.instance.getConfiguration().redisPassword);
         try
         {
             this.jedisPool.getResource().close();
