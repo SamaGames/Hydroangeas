@@ -71,7 +71,7 @@ public class ServerThread extends Thread
                 }
             });
 
-            executor.execute(() -> {
+            /*executor.execute(() -> {
                 try
                 {
                     String line = null;
@@ -140,9 +140,9 @@ public class ServerThread extends Thread
                 {
                     ioe.printStackTrace();
                 }
-            });
+            });*/
 
-            executor.execute(() -> {
+            /*executor.execute(() -> {
                 while (true)
                 {
                     if (!instance.isHub() && System.currentTimeMillis() - lastHeartbeat > 120000)
@@ -157,7 +157,7 @@ public class ServerThread extends Thread
                         break;
                     }
                 }
-            });
+            });*/
         } catch (IOException | InterruptedException e)
         {
             e.printStackTrace();
