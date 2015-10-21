@@ -8,6 +8,7 @@ import net.samagames.hydroangeas.client.tasks.ServerThread;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerIssuePacket;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerOrderPacket;
 import net.samagames.hydroangeas.utils.MiscUtils;
+import org.apache.commons.io.FileDeleteStrategy;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -64,6 +65,7 @@ public class MinecraftServerC
         this.serverFolder = new File(this.instance.getServerFolder(), serverInfos.getServerName());
         try
         {
+            FileDeleteStrategy.FORCE.delete(serverFolder);
             FileUtils.forceDeleteOnExit(serverFolder);
         } catch (IOException e)
         {
@@ -89,6 +91,7 @@ public class MinecraftServerC
             e.printStackTrace();
             try
             {
+                FileDeleteStrategy.FORCE.delete(serverFolder);
                 FileUtils.forceDeleteOnExit(serverFolder);
             } catch (IOException e1)
             {
@@ -149,6 +152,7 @@ public class MinecraftServerC
             e.printStackTrace();
             try
             {
+                FileDeleteStrategy.FORCE.delete(serverFolder);
                 FileUtils.forceDelete(serverFolder);
             } catch (IOException e1)
             {
