@@ -47,7 +47,8 @@ public class DatabaseConnector
         this.instance.log(Level.INFO, "Connecting to database...");
 
         JedisPoolConfig jedisConfiguration = new JedisPoolConfig();
-        jedisConfiguration.setMaxTotal(1024);
+        jedisConfiguration.setMaxTotal(-1);
+        jedisConfiguration.setJmxEnabled(false);
         jedisConfiguration.setMaxWaitMillis(5000);
 
         Logger logger = Logger.getLogger(JedisPool.class.getName());
@@ -56,7 +57,7 @@ public class DatabaseConnector
         this.jedisPool = new JedisPool(jedisConfiguration, this.instance.getConfiguration().redisIp, this.instance.getConfiguration().redisPort, 5000, this.instance.getConfiguration().redisPassword);
         try
         {
-            this.jedisPool.getResource();
+            this.jedisPool.getResource().close();
         } catch (Exception e)
         {
             this.instance.log(Level.SEVERE, "Can't connect to the database!");
