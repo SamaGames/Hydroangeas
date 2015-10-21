@@ -51,6 +51,7 @@ public class MinecraftServerS
         this(client, UUID.randomUUID(), template.getGameName(), template.getMapName(), template.getMinSlot(), template.getMaxSlot(), template.getOptions(), template.getStartupOptions());
         this.coupaingServer = template.isCoupaing();
         this.templateID = template.getId();
+        this.weight = template.getWeight();
     }
 
     public MinecraftServerS(HydroClient client, MinecraftServerInfoPacket packet)
