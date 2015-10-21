@@ -53,6 +53,7 @@ public class HydroangeasClient extends Hydroangeas
         this.templatesDomain = this.configuration.getJsonConfiguration().get("web-domain").getAsString() + "templates/";
         this.maxWeight = this.configuration.getJsonConfiguration().get("max-weight").getAsInt();
         this.serverFolder = new File(MiscUtils.getJarFolder(), "servers");
+        serverFolder.mkdir();
 
         try{
             this.restrictionMode = RestrictionMode.valueFrom(configuration.getJsonConfiguration().get("RestrictionMode").getAsString());
