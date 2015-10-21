@@ -14,7 +14,7 @@ import java.util.logging.Level;
  */
 public class CleanServer {
 
-    private final static long LIVETIME = 14400000L; //4 heures
+    public final static long LIVETIME = 14400000L; //4 heures
     //private final static long LIVETIME = 60000L; //60 secondes for test
     private final HydroangeasServer instance;
 
@@ -32,7 +32,7 @@ public class CleanServer {
     {
         for(HydroClient client : instance.getClientManager().getClients())
         {
-            client.getServerManager().getServers().stream().filter(server -> System.currentTimeMillis() - server.getStartedTime() > LIVETIME).forEach(server -> {
+            client.getServerManager().getServers().stream().filter(server -> System.currentTimeMillis() - server.getStartedTime() > server.getTimeToLive()).forEach(server -> {
                 instance.getLogger().info("Scheduled shutdown for: " + server.getServerName());
 
                 int timeToStop = 0;

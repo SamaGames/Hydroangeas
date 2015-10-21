@@ -32,6 +32,9 @@ public class MinecraftServerOrderPacket extends AbstractPacket
     private JsonElement options, startupOptions;
     private int weight;
 
+    private long timeToLive = 14400000L;
+    private long startedTime;
+
     public MinecraftServerOrderPacket(MinecraftServerS server)
     {
         this(server.getUUID(), server.getHubID(), server.getGame(), server.getMap(), server.getTemplateID(), server.getMinSlot(), server.getMaxSlot(), server.getOptions(), server.getStartupOptions(), server.getWeight());
@@ -113,5 +116,21 @@ public class MinecraftServerOrderPacket extends AbstractPacket
 
     public String getTemplateID() {
         return templateID;
+    }
+
+    public long getTimeToLive() {
+        return timeToLive;
+    }
+
+    public void setTimeToLive(long timeToLive) {
+        this.timeToLive = timeToLive;
+    }
+
+    public long getStartedTime() {
+        return startedTime;
+    }
+
+    public void setStartedTime(long startedTime) {
+        this.startedTime = startedTime;
     }
 }

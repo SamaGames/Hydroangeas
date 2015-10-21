@@ -6,6 +6,7 @@ import net.samagames.hydroangeas.common.protocol.intranet.AskForClientActionPack
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerInfoPacket;
 import net.samagames.hydroangeas.server.data.Status;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
+import net.samagames.hydroangeas.server.tasks.CleanServer;
 
 import java.util.UUID;
 
@@ -41,6 +42,7 @@ public class MinecraftServerS
     private Status status = Status.STARTING;
     private int actualSlots;
 
+    private long timeToLive = CleanServer.LIVETIME;
     private long startedTime;
 
 
@@ -226,5 +228,17 @@ public class MinecraftServerS
 
     public long getStartedTime() {
         return startedTime;
+    }
+
+    public void setStartedTime(long startedTime) {
+        this.startedTime = startedTime;
+    }
+
+    public long getTimeToLive() {
+        return timeToLive;
+    }
+
+    public void setTimeToLive(long timeToLive) {
+        this.timeToLive = timeToLive;
     }
 }

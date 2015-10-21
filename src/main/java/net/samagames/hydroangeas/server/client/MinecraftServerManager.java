@@ -60,8 +60,11 @@ public class MinecraftServerManager
         server.setWeight(template.getWeight());
 
         servers.add(server);
+        MinecraftServerOrderPacket packet = new MinecraftServerOrderPacket(server);
+        packet.setTimeToLive(server.getTimeToLive());
+        packet.setStartedTime(server.getStartedTime());
 
-        instance.getConnectionManager().sendPacket(client, new MinecraftServerOrderPacket(server));
+        instance.getConnectionManager().sendPacket(client, packet);
 
         return server;
     }
@@ -89,6 +92,9 @@ public class MinecraftServerManager
             }
 
             server.setWeight(MiscUtils.calculServerWeight(server.getGame(), server.getMaxSlot(), server.isCoupaingServer()));
+            server.setTimeToLive(packet.getTimeToLive());
+            server.setStartedTime(packet.getStartedTime());
+
             servers.add(server);
             instance.getLogger().info("Added " + packet.getServerName());
 

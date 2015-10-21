@@ -6,6 +6,7 @@ import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
 import net.samagames.hydroangeas.server.games.PackageGameTemplate;
+import net.samagames.hydroangeas.server.tasks.CleanServer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,6 +62,7 @@ public class Queue
             List<MinecraftServerS> servers = instance.getAlgorithmicMachine().getServerByTemplatesAndAvailable(template.getId());
 
             servers.stream().filter(server -> server.getStatus().isAllowJoin()).forEach(server -> {
+                server.setTimeToLive(CleanServer.LIVETIME);
                 List<QGroup> groups = new ArrayList<>();
                 queue.drainPlayerTo(groups, server.getMaxSlot());
                 for (QGroup group : groups)
@@ -71,7 +73,8 @@ public class Queue
 
             if (servers.size() <= 0 && getSize() >= template.getMinSlot())
             {
-                Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
+                MinecraftServerS server = Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
+                server.setTimeToLive(150000L);
                 if (template instanceof PackageGameTemplate) // If it's a package template we change it now
                 {
                     ((PackageGameTemplate) template).selectTemplate();

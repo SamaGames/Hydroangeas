@@ -37,6 +37,9 @@ public class MinecraftServerC
 
     private ServerThread serverThread;
 
+    private long timeToLive = 14400000L;
+    private long startedTime;
+
     public MinecraftServerC(HydroangeasClient instance, MinecraftServerOrderPacket serverInfos, int port)
     {
         this.instance = instance;
@@ -54,6 +57,9 @@ public class MinecraftServerC
 
         options = serverInfos.getOptions();
         startupOptions = serverInfos.getStartupOptions();
+
+        this.timeToLive = serverInfos.getTimeToLive();
+        this.startedTime = serverInfos.getStartedTime();
 
         this.serverFolder = new File(this.instance.getServerFolder(), serverInfos.getServerName());
         try
@@ -249,5 +255,21 @@ public class MinecraftServerC
 
     public String getTemplateID() {
         return templateID;
+    }
+
+    public long getTimeToLive() {
+        return timeToLive;
+    }
+
+    public void setTimeToLive(long timeToLive) {
+        this.timeToLive = timeToLive;
+    }
+
+    public long getStartedTime() {
+        return startedTime;
+    }
+
+    public void setStartedTime(long startedTime) {
+        this.startedTime = startedTime;
     }
 }

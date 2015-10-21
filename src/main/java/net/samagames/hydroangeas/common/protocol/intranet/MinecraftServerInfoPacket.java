@@ -35,6 +35,9 @@ public class MinecraftServerInfoPacket extends AbstractPacket
 
     private int weight;
 
+    private long timeToLive = 14400000L;
+    private long startedTime;
+
     public MinecraftServerInfoPacket()
     {
     }
@@ -53,10 +56,26 @@ public class MinecraftServerInfoPacket extends AbstractPacket
                 server.getOptions(),
                 server.getPort(),
                 server.getWeight(),
+                server.getTimeToLive(),
+                server.getTimeToLive(),
                 server.getHubID());
     }
 
-    public MinecraftServerInfoPacket(UUID uuid, String serverName, UUID serverUUID, String game, String map, String templateID, int minSlot, int maxSlot, boolean coupaingServer, JsonElement options, int port, int weight, Integer hubID)
+    public MinecraftServerInfoPacket(UUID uuid,
+                                     String serverName,
+                                     UUID serverUUID,
+                                     String game,
+                                     String map,
+                                     String templateID,
+                                     int minSlot,
+                                     int maxSlot,
+                                     boolean coupaingServer,
+                                     JsonElement options,
+                                     int port,
+                                     int weight,
+                                     long timeToLive,
+                                     long startedTime,
+                                     Integer hubID)
     {
         this.uuid = uuid;
         this.serverName = serverName;
@@ -71,6 +90,8 @@ public class MinecraftServerInfoPacket extends AbstractPacket
         this.weight = weight;
 
         this.options = options;
+        this.timeToLive = timeToLive;
+        this.startedTime = startedTime;
         this.hubID = hubID;
     }
 
@@ -146,5 +167,21 @@ public class MinecraftServerInfoPacket extends AbstractPacket
 
     public String getTemplateID() {
         return templateID;
+    }
+
+    public long getTimeToLive() {
+        return timeToLive;
+    }
+
+    public void setTimeToLive(long timeToLive) {
+        this.timeToLive = timeToLive;
+    }
+
+    public long getStartedTime() {
+        return startedTime;
+    }
+
+    public void setStartedTime(long startedTime) {
+        this.startedTime = startedTime;
     }
 }
