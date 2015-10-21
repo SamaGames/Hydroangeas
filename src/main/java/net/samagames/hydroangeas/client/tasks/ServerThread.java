@@ -142,7 +142,25 @@ public class ServerThread extends Thread
                 }
             });*/
 
-            /*executor.execute(() -> {
+            executor.execute(() -> {
+                try
+                {
+                    String line = null;
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(server.getInputStream())))
+                    {
+                        while (isServerProcessAlive && (line = reader.readLine()) != null)
+                        {
+                            lastHeartbeat = System.currentTimeMillis();
+                            //TODO: best crash detection
+                        }
+                    }
+                } catch (IOException ioe)
+                {
+                    ioe.printStackTrace();
+                }
+            });
+
+            executor.execute(() -> {
                 while (true)
                 {
                     if (!instance.isHub() && System.currentTimeMillis() - lastHeartbeat > 120000)
@@ -157,7 +175,7 @@ public class ServerThread extends Thread
                         break;
                     }
                 }
-            });*/
+            });
         } catch (IOException | InterruptedException e)
         {
             e.printStackTrace();
