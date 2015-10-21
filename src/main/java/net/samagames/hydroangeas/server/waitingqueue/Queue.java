@@ -52,7 +52,7 @@ public class Queue
         }
 
         //Si priority plus grande alors tu passe devant.
-        this.queue = new PriorityPlayerQueue(100000, (o1, o2) -> -Integer.compare(o1.getPriority(), o2.getPriority()));
+        this.queue = new PriorityPlayerQueue(100000, (o1, o2) -> Integer.compare(o1.getPriority(), o2.getPriority()));
 
         workerTask = instance.getScheduler().scheduleAtFixedRate(() ->
         {
