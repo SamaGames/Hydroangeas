@@ -52,7 +52,7 @@ public class ServerThread extends Thread
             server = Runtime.getRuntime().exec(command, env, directory);
             isServerProcessAlive = true;
 
-            executor.execute(() -> {
+            /*executor.execute(() -> {
                 try
                 {
                     String line = null;
@@ -69,7 +69,7 @@ public class ServerThread extends Thread
                 {
                     ioe.printStackTrace();
                 }
-            });
+            });*/
 
             /*executor.execute(() -> {
                 try
