@@ -70,12 +70,12 @@ public class Queue
 
             List<MinecraftServerS> servers = instance.getAlgorithmicMachine().getServerByTemplatesAndAvailable(template.getId());
 
-            servers.stream().filter(server -> server.getStatus().equals(Status.WAITING_FOR_PLAYERS) || server.getStatus().equals(Status.READY_TO_START)).forEach(server -> {
+            servers.stream().filter(server -> (server.getStatus().equals(Status.WAITING_FOR_PLAYERS) || server.getStatus().equals(Status.READY_TO_START))
+                    && server.getMaxSlot() - server.getActualSlots() > 0).forEach(server -> {
                 server.setTimeToLive(CleanServer.LIVETIME);
                 List<QGroup> groups = new ArrayList<>();
-                queue.drainPlayerTo(groups, server.getMaxSlot());
-                for (QGroup group : groups)
-                {
+                queue.drainPlayerTo(groups, server.getMaxSlot() - server.getActualSlots());
+                for (QGroup group : groups) {
                     group.sendTo(server.getServerName());
                 }
                 coolDown += 11;
@@ -90,7 +90,7 @@ public class Queue
                     ((PackageGameTemplate) template).selectTemplate();
                 }
             }
-        }, 0, 1000, TimeUnit.MILLISECONDS);
+        }, 0, 800, TimeUnit.MILLISECONDS);
         hubRefreshTask = instance.getScheduler().scheduleAtFixedRate(this::sendInfoToHub, 0, 750, TimeUnit.MILLISECONDS);
 
     }
