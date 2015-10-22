@@ -43,7 +43,11 @@ public class ServerStatusReceiver implements PacketReceiver
         }
 
         server.setActualSlots(data.getPlayers());
-        server.setStatus(Status.valueOf(data.getStatus().getId()));
+        if(data.getStatus() == null)
+        {
+            instance.getLogger().info("Server: " + serverName + " has a null status.");
+        }
+        server.setStatus(data.getStatus());
 
         Queue queue = instance.getQueueManager().getQueueByTemplate(server.getTemplateID());
         if (queue != null)
