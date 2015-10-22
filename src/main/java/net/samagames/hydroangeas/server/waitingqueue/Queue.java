@@ -59,7 +59,7 @@ public class Queue
         queueChecker = instance.getScheduler().scheduleAtFixedRate(() -> {
             if(workerTask != null)
             {
-                if(workerTask.isCancelled() || workerTask.isDone())
+                if(workerTask.isDone())
                 {
                     instance.getLogger().info("Queue worker stopped ! For: " + template.getId());
                     instance.getLogger().info("Restarting task..");
