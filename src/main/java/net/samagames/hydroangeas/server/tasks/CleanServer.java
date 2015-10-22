@@ -25,7 +25,7 @@ public class CleanServer {
 
     public void start()
     {
-        instance.getScheduler().scheduleAtFixedRate(this::check, 10, 300, TimeUnit.SECONDS);
+        instance.getScheduler().scheduleAtFixedRate(this::check, 300, 300, TimeUnit.SECONDS);
     }
 
     public void check()
