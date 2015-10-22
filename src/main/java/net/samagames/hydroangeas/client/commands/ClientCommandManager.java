@@ -23,5 +23,6 @@ public class ClientCommandManager extends CommandManager
         instance = hydroangeas.getAsClient();
 
         commands.add(new StopCommand(instance));
+        commands.add(new CleanupCommand(instance));
     }
 }

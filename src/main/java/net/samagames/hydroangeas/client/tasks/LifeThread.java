@@ -71,7 +71,6 @@ public class LifeThread
             for (MinecraftServerC server : instance.getServerManager().getServers())
             {
                 instance.getConnectionManager().sendPacket(new MinecraftServerInfoPacket(instance, server));
-                Thread.sleep(1);
             }
         }
     }

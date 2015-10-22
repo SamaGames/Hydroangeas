@@ -5,6 +5,7 @@ import net.samagames.hydroangeas.common.packets.PacketReceiver;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.server.data.ServerStatus;
+import net.samagames.hydroangeas.server.data.Status;
 import net.samagames.hydroangeas.server.waitingqueue.Queue;
 
 /**
@@ -36,11 +37,13 @@ public class ServerStatusReceiver implements PacketReceiver
         if (server == null)
         {
             instance.getLogger().info("Server: " + serverName + " not handled by Hydro");
+            instance.getLogger().info("Fetching all clients!");
+            instance.getClientManager().globalCheckData();
             return;
         }
 
         server.setActualSlots(data.getPlayers());
-        server.setStatus(data.getStatus());
+        server.setStatus(Status.valueOf(data.getStatus().getId()));
 
         Queue queue = instance.getQueueManager().getQueueByTemplate(server.getTemplateID());
         if (queue != null)

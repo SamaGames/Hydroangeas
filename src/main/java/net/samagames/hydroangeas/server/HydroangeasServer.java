@@ -70,7 +70,7 @@ public class HydroangeasServer extends Hydroangeas
 
         this.hubBalancer = new HubBalancer(this);
 
-        connectionManager.sendPacket("globalSecurity@hydroangeas-client", new AskForClientDataPacket(getServerUUID()));
+        clientManager.globalCheckData();
     }
 
     @Override

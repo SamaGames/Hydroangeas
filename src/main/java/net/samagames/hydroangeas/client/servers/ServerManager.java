@@ -37,12 +37,14 @@ public class ServerManager
             {
                 instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), serverInfos.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
                 instance.getConnectionManager().sendPacket(new MinecraftServerUpdatePacket(instance, server.getServerName(), MinecraftServerUpdatePacket.UType.END));
+                server.stopServer();
                 return;
             }
             if (!server.startServer())
             {
                 instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), serverInfos.getServerName(), MinecraftServerIssuePacket.Type.START));
                 instance.getConnectionManager().sendPacket(new MinecraftServerUpdatePacket(instance, server.getServerName(), MinecraftServerUpdatePacket.UType.END));
+                server.stopServer();
                 return;
             }
             this.servers.add(server);
@@ -56,6 +58,7 @@ public class ServerManager
         {
             e.printStackTrace();
             instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), serverInfos.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
+            instance.getConnectionManager().sendPacket(new MinecraftServerUpdatePacket(instance, serverInfos.getServerName(), MinecraftServerUpdatePacket.UType.END));
         }
     }
 

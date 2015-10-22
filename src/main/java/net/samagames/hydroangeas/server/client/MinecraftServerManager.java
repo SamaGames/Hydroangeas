@@ -91,9 +91,11 @@ public class MinecraftServerManager
                 return;
             }
 
-            server.setWeight(MiscUtils.calculServerWeight(server.getGame(), server.getMaxSlot(), server.isCoupaingServer()));
+            server.setWeight(packet.getWeight());
             server.setTimeToLive(packet.getTimeToLive());
             server.setStartedTime(packet.getStartedTime());
+            server.setTemplateID(packet.getTemplateID());
+            server.setHubID(packet.getHubID());
 
             servers.add(server);
             instance.getLogger().info("Added " + packet.getServerName());
@@ -114,7 +116,6 @@ public class MinecraftServerManager
                 return;
             }
             server.setPort(packet.getPort());
-            server.setHubID(packet.getHubID());
         }
     }
 

@@ -96,6 +96,7 @@ public class ServerConnectionManager extends ConnectionManager
             HydroClient client = instance.getClientManager().getClientByUUID(packet.getUUID());
             if (client == null)
             {
+                instance.getLogger().info("Received an update from unknown client: " + packet.getUUID());
                 return;
             }
 
@@ -113,6 +114,7 @@ public class ServerConnectionManager extends ConnectionManager
             {
                 case START:
                     server.setStarted(true);
+                    instance.getLogger().info("Server: " + server.getServerName() + " started!");
                     //TODO add event ?
                     break;
                 case END:

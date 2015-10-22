@@ -87,14 +87,18 @@ public class ClientManager
         executorService.execute(() -> {
             HydroClient client = getClientByUUID(clientUUID);
 
-            if(client.getUUID().equals(clientUUID))
-            {
+            if (client.getUUID().equals(clientUUID)) {
                 client.getServerManager().getServers().stream().filter(serverS -> serverS.isHub()).forEach(serverS -> {
                     instance.getHubBalancer().onHubShutdown(serverS);
                 });
                 if (!clientList.remove(client)) instance.log(Level.INFO, "Not deleted !");
             }
         });
+    }
+
+    public void globalCheckData()
+    {
+        instance.getConnectionManager().sendPacket("globalSecurity@hydroangeas-client", new AskForClientDataPacket(instance.getServerUUID()));
     }
 
     public KeepUpdatedThread getKeepUpdatedThread()
