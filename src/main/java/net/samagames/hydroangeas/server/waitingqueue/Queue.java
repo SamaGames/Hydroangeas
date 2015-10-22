@@ -56,39 +56,47 @@ public class Queue
 
         workerTask = instance.getScheduler().scheduleAtFixedRate(() ->
         {
-            if (template == null)
-            {
-                Hydroangeas.getInstance().getLogger().info("Template null!");
-                return;
-            }
-
-            try {
-                checkCooldown();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            List<MinecraftServerS> servers = instance.getAlgorithmicMachine().getServerByTemplatesAndAvailable(template.getId());
-
-            servers.stream().filter(server -> (server.getStatus().equals(Status.WAITING_FOR_PLAYERS) || server.getStatus().equals(Status.READY_TO_START))
-                    && server.getMaxSlot() - server.getActualSlots() > 0).forEach(server -> {
-                server.setTimeToLive(CleanServer.LIVETIME);
-                List<QGroup> groups = new ArrayList<>();
-                queue.drainPlayerTo(groups, server.getMaxSlot() - server.getActualSlots());
-                for (QGroup group : groups) {
-                    group.sendTo(server.getServerName());
-                }
-                coolDown += 11;
-            });
-
-            if (servers.size() <= 0 && getSize() >= template.getMinSlot())
-            {
-                MinecraftServerS server = Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
-                server.setTimeToLive(150000L);
-                if (template instanceof PackageGameTemplate) // If it's a package template we change it now
+            try{
+                if (template == null)
                 {
-                    ((PackageGameTemplate) template).selectTemplate();
+                    Hydroangeas.getInstance().getLogger().info("Template null!");
+                    return;
                 }
+
+                try {
+                    checkCooldown();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                List<MinecraftServerS> servers = instance.getAlgorithmicMachine().getServerByTemplatesAndAvailable(template.getId());
+
+                servers.stream().filter(server -> (server.getStatus().equals(Status.WAITING_FOR_PLAYERS) || server.getStatus().equals(Status.READY_TO_START))
+                        && server.getMaxSlot() - server.getActualSlots() > 0).forEach(server -> {
+                    server.setTimeToLive(CleanServer.LIVETIME);
+                    List<QGroup> groups = new ArrayList<>();
+                    queue.drainPlayerTo(groups, server.getMaxSlot() - server.getActualSlots());
+                    for (QGroup group : groups) {
+                        group.sendTo(server.getServerName());
+                    }
+                    coolDown += 11;
+                });
+
+                if (servers.size() <= 0 && getSize() >= template.getMinSlot())
+                {
+                    MinecraftServerS server = Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
+                    if(server != null)
+                    {
+                        server.setTimeToLive(150000L);
+                    }
+                    if (template instanceof PackageGameTemplate) // If it's a package template we change it now
+                    {
+                        ((PackageGameTemplate) template).selectTemplate();
+                    }
+                }
+            }catch (Exception e)
+            {
+                e.printStackTrace();
             }
         }, 0, 800, TimeUnit.MILLISECONDS);
         hubRefreshTask = instance.getScheduler().scheduleAtFixedRate(this::sendInfoToHub, 0, 750, TimeUnit.MILLISECONDS);
