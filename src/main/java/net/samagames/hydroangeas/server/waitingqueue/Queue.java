@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class Queue
 {
 
-    private final ScheduledFuture workerTask, hubRefreshTask;
+    private ScheduledFuture workerTask, hubRefreshTask, queueChecker;
     private QueueManager manager;
 
     private HydroangeasServer instance;
@@ -54,6 +54,25 @@ public class Queue
         //Si priority plus grande alors tu passe devant.
         this.queue = new PriorityPlayerQueue(100000, (o1, o2) -> Integer.compare(o1.getPriority(), o2.getPriority()));
 
+        startQueueWorker();
+
+        queueChecker = instance.getScheduler().scheduleAtFixedRate(() -> {
+            if(workerTask != null)
+            {
+                if(workerTask.isCancelled() || workerTask.isDone())
+                {
+                    instance.getLogger().info("Queue worker stopped ! For: " + template.getId());
+                    instance.getLogger().info("Restarting task..");
+                    startQueueWorker();
+                }
+            }
+        }, 0, 100, TimeUnit.MILLISECONDS);
+        hubRefreshTask = instance.getScheduler().scheduleAtFixedRate(this::sendInfoToHub, 0, 750, TimeUnit.MILLISECONDS);
+
+    }
+
+    public void startQueueWorker()
+    {
         workerTask = instance.getScheduler().scheduleAtFixedRate(() ->
         {
             try{
@@ -99,8 +118,6 @@ public class Queue
                 e.printStackTrace();
             }
         }, 0, 800, TimeUnit.MILLISECONDS);
-        hubRefreshTask = instance.getScheduler().scheduleAtFixedRate(this::sendInfoToHub, 0, 750, TimeUnit.MILLISECONDS);
-
     }
 
     public void checkCooldown() throws InterruptedException
