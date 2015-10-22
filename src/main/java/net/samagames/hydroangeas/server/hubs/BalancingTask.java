@@ -20,7 +20,7 @@ public class BalancingTask extends Thread
     public BalancingTask(HydroangeasServer instance, HubBalancer hubBalancer)
     {
         this.hubBalancer = hubBalancer;
-        coolDown = 350; //Wait 20s to load balance hub
+        coolDown = 400; //Wait 20s to load balance hub
     }
 
     @Override
