@@ -57,7 +57,7 @@ public class MinecraftServerInfoPacket extends AbstractPacket
                 server.getPort(),
                 server.getWeight(),
                 server.getTimeToLive(),
-                server.getTimeToLive(),
+                server.getStartedTime(),
                 server.getHubID());
     }
 
