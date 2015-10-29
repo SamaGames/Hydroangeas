@@ -78,7 +78,7 @@ public class BalancingTask extends Thread
 
     public double needNumberOfHub()
     {
-        return ( (((double) hubBalancer.getUsedSlots())*2) / (double) hubBalancer.getHubTemplate().getMaxSlot()) + HUB_SAFETY_MARGIN;
+        return ( (((double) hubBalancer.getUsedSlots())*1.6) / (double) hubBalancer.getHubTemplate().getMaxSlot()) + HUB_SAFETY_MARGIN;
     }
 
     public void checkCooldown() throws InterruptedException

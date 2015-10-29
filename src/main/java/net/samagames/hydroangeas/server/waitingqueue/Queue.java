@@ -1,13 +1,16 @@
 package net.samagames.hydroangeas.server.waitingqueue;
 
 import net.samagames.hydroangeas.Hydroangeas;
+import net.samagames.hydroangeas.common.packets.AbstractPacket;
 import net.samagames.hydroangeas.common.protocol.hubinfo.GameInfosToHubPacket;
+import net.samagames.hydroangeas.common.protocol.queues.QueueInfosUpdatePacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.server.data.Status;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
 import net.samagames.hydroangeas.server.games.PackageGameTemplate;
 import net.samagames.hydroangeas.server.tasks.CleanServer;
+import net.samagames.hydroangeas.utils.ChatColor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
@@ -40,6 +44,8 @@ public class Queue
 
     private int coolDown = 2; //*100ms
 
+    private AtomicInteger lastServerStartNB = new AtomicInteger(0);
+
     public Queue(QueueManager manager, AbstractGameTemplate template)
     {
         this.instance = Hydroangeas.getInstance().getAsServer();
@@ -57,6 +63,7 @@ public class Queue
         startQueueWorker();
 
         queueChecker = instance.getScheduler().scheduleAtFixedRate(() -> {
+            //Control check
             if(workerTask != null)
             {
                 if(workerTask.isDone())
@@ -66,7 +73,39 @@ public class Queue
                     startQueueWorker();
                 }
             }
-        }, 0, 100, TimeUnit.MILLISECONDS);
+
+            //Player inform
+            List<QGroup> groups = new ArrayList<>();
+            groups.addAll(queue);
+            int index = 0;
+            for(int i = 0; i< groups.size(); i++)
+            {
+                QGroup group = groups.get(i);
+                index += group.getSize();
+
+                for(QPlayer player : group.getQPlayers())
+                {
+                    List<String> messages = new ArrayList<>();
+                    QueueInfosUpdatePacket queueInfosUpdatePacket = new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.INFO, getGame(), getMap());
+                    if(index < template.getMaxSlot()*lastServerStartNB.get())
+                    {
+                        messages.add(ChatColor.GREEN + "Votre serveur est en train demarrer !");
+                    }else{
+                        messages.add(ChatColor.RED + "Votre serveur n'a pas encore demarré.");
+                    }
+
+                    messages.add("Vous êtes actuellement à la place " + ChatColor.RED + (i+1) + "<RESET> dans la file.");
+                    if(group.getSize() > 1)
+                    {
+                        messages.add("Votre groupe est composer de "+ group.getSize() + " personnes.");
+                    }
+
+                    queueInfosUpdatePacket.setMessage(messages);
+                    sendPacketHub(queueInfosUpdatePacket);
+                }
+            }
+
+        }, 0, 15, TimeUnit.SECONDS);
         hubRefreshTask = instance.getScheduler().scheduleAtFixedRate(this::sendInfoToHub, 0, 750, TimeUnit.MILLISECONDS);
 
     }
@@ -100,6 +139,7 @@ public class Queue
                     }
                     coolDown += 11;
                 });
+                lastServerStartNB.lazySet(servers.size());
 
                 if (servers.size() <= 0 && getSize() >= template.getMinSlot())
                 {
@@ -339,6 +379,11 @@ public class Queue
         {
             e.printStackTrace();
         }
+    }
+
+    public void sendPacketHub(AbstractPacket packet)
+    {
+        instance.getConnectionManager().sendPacket("hydroHubReceiver", packet);
     }
 
     public void reload(AbstractGameTemplate template)

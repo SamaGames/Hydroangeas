@@ -3,6 +3,8 @@ package net.samagames.hydroangeas.common.protocol.queues;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
 import net.samagames.hydroangeas.server.waitingqueue.QPlayer;
 
+import java.util.List;
+
 /**
  * This file is a part of the SamaGames Project CodeBase
  * This code is absolutely confidential.
@@ -16,6 +18,8 @@ public class QueueInfosUpdatePacket extends AbstractPacket
     private Type type;
     private boolean success;
     private String errorMessage;
+
+    private List<String> message;
 
     private String game;
     private String map;
@@ -40,7 +44,6 @@ public class QueueInfosUpdatePacket extends AbstractPacket
         this.type = type;
         this.game = game;
         this.map = map;
-        this.success = true;
     }
 
     public Type getType()
@@ -73,9 +76,16 @@ public class QueueInfosUpdatePacket extends AbstractPacket
         return player;
     }
 
+    public List<String> getMessage() {
+        return message;
+    }
+
+    public void setMessage(List<String> message) {
+        this.message = message;
+    }
 
     public enum Type
     {
-        ADD, REMOVE
+        ADD, REMOVE, INFO
     }
 }
