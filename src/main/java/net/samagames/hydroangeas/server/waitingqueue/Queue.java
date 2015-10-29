@@ -77,6 +77,7 @@ public class Queue
             //Player inform
             List<QGroup> groups = new ArrayList<>();
             groups.addAll(queue);
+            int queueSize = getSize();
             int index = 0;
             for(int i = 0; i< groups.size(); i++)
             {
@@ -89,15 +90,19 @@ public class Queue
                     QueueInfosUpdatePacket queueInfosUpdatePacket = new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.INFO, getGame(), getMap());
                     if(index < template.getMaxSlot()*lastServerStartNB.get())
                     {
-                        messages.add(ChatColor.GREEN + "Votre serveur est en train demarrer !");
+                        messages.add(ChatColor.GREEN + "Votre serveur est en train démarrer !");
                     }else{
-                        messages.add(ChatColor.RED + "Votre serveur n'a pas encore demarré.");
+                        messages.add(ChatColor.RED + "Votre serveur n'a pas encore démarré.");
+                        if(queueSize < template.getMaxSlot())
+                        {
+                            messages.add("Il manque " + ChatColor.RED + (template.getMaxSlot() - queueSize) + "<RESET> joueur(s) pour qu'il démarre.");
+                        }
                     }
 
                     messages.add("Vous êtes actuellement à la place " + ChatColor.RED + (i+1) + "<RESET> dans la file.");
                     if(group.getSize() > 1)
                     {
-                        messages.add("Votre groupe est composer de "+ group.getSize() + " personnes.");
+                        messages.add("Votre groupe est composé de "+ group.getSize() + " personnes.");
                     }
 
                     queueInfosUpdatePacket.setMessage(messages);
