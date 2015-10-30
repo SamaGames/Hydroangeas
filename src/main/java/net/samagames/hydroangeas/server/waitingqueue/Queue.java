@@ -90,7 +90,7 @@ public class Queue
                     QueueInfosUpdatePacket queueInfosUpdatePacket = new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.INFO, getGame(), getMap());
                     if(index < template.getMaxSlot()*lastServerStartNB.get())
                     {
-                        messages.add(ChatColor.GREEN + "Votre serveur est en train démarrer !");
+                        messages.add(ChatColor.GREEN + "Votre serveur est en train de démarrer !");
                     }else{
                         messages.add(ChatColor.RED + "Votre serveur n'a pas encore démarré.");
                         if(queueSize < template.getMaxSlot())
