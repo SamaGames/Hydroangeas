@@ -94,6 +94,7 @@ public class QueueManager
     public void handlePacket(QueueAttachPlayerPacket packet)
     {
         QPlayer leader = packet.getLeader();
+
         for(QPlayer player : packet.getPlayers())
         {
             Queue currentQueue = getQueueByPlayer(player.getUUID());
