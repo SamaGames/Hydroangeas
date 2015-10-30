@@ -1,8 +1,12 @@
 package net.samagames.hydroangeas.client.tasks;
 
 import net.samagames.hydroangeas.Hydroangeas;
+import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;
 import net.samagames.hydroangeas.common.log.StackTraceData;
+import net.samagames.hydroangeas.utils.ping.MinecraftPing;
+import net.samagames.hydroangeas.utils.ping.MinecraftPingOptions;
+import net.samagames.hydroangeas.utils.ping.MinecraftPingReply;
 import net.samagames.restfull.LogLevel;
 import net.samagames.restfull.RestAPI;
 import org.apache.commons.io.FileDeleteStrategy;
@@ -166,6 +170,14 @@ public class ServerThread extends Thread
                     if (!instance.isHub() && System.currentTimeMillis() - lastHeartbeat > 120000)
                     {
                         instance.stopServer();
+                    }
+
+                    try {
+                        String ip = HydroangeasClient.getInstance().getAsClient().getIP();
+                        new MinecraftPing().getPing(new MinecraftPingOptions().setHostname(ip).setPort(instance.getPort()));
+                    } catch (IOException e) {
+                        Hydroangeas.getInstance().getLogger().info("Can't ping server: " + instance.getServerName() + " shutting down");
+                        normalStop();
                     }
                     try
                     {
