@@ -114,8 +114,8 @@ public class ServerConnectionManager extends ConnectionManager
             {
                 case START:
                     server.setStarted(true);
+                    server.onStarted();
                     instance.getLogger().info("Server: " + server.getServerName() + " started!");
-                    //TODO add event ?
                     break;
                 case END:
                     client.getServerManager().removeServer(packet.getServerName());

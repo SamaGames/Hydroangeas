@@ -1,6 +1,7 @@
 package net.samagames.hydroangeas.common.database;
 
 import net.samagames.hydroangeas.Hydroangeas;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
@@ -74,5 +75,10 @@ public class DatabaseConnector
     public JedisPool getJedisPool()
     {
         return this.jedisPool;
+    }
+
+    public Jedis getResource()
+    {
+        return jedisPool.getResource();
     }
 }

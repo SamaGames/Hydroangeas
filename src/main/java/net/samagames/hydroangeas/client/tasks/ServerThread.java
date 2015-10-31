@@ -175,7 +175,7 @@ public class ServerThread extends Thread
 
                 try {
                     String ip = HydroangeasClient.getInstance().getAsClient().getIP();
-                    new MinecraftPing().getPing(new MinecraftPingOptions().setHostname(ip).setPort(instance.getPort()));
+                    new MinecraftPing().getPing(new MinecraftPingOptions().setHostname(ip).setPort(instance.getPort()).setTimeout(100));
                 } catch (IOException e) {
                     Hydroangeas.getInstance().getLogger().info("Can't ping server: " + instance.getServerName() + " shutting down");
                     instance.stopServer();

@@ -7,6 +7,7 @@ import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerInfoPac
 import net.samagames.hydroangeas.server.data.Status;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
 import net.samagames.hydroangeas.server.tasks.CleanServer;
+import redis.clients.jedis.Jedis;
 
 import java.util.UUID;
 
@@ -83,6 +84,19 @@ public class MinecraftServerS
                 new AskForClientActionPacket(client.getUUID(), AskForClientActionPacket.ActionCommand.SERVEREND, getServerName()));
     }
 
+    public void onStarted()
+    {
+        String ip = this.client.getIp();
+        int port = getPort();
+        //Register server in redis cache
+        Jedis jedis = Hydroangeas.getInstance().getDatabaseConnector().getResource();
+        jedis.hset("servers", getServerName(), ip + ":" + port);
+        jedis.close();
+
+        //Register server to all bungee
+        Hydroangeas.getInstance().getRedisSubscriber().send("servers", "heartbeat " + getServerName() + " " + ip + " " + port);
+    }
+
     public void onShutdown()
     {
         //If we need to save some data after shutdown
@@ -90,6 +104,14 @@ public class MinecraftServerS
         {
             Hydroangeas.getInstance().getAsServer().getHubBalancer().onHubShutdown(this);
         }
+
+        //Security remove server from redis
+        Jedis jedis = Hydroangeas.getInstance().getDatabaseConnector().getResource();
+        jedis.hdel("servers", getServerName());
+        jedis.close();
+
+        //Send to all bungee the server shutdown event
+        Hydroangeas.getInstance().getRedisSubscriber().send("servers", "stop " + getServerName());
     }
 
     public void dispatchCommand(String command)
