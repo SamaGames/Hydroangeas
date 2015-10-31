@@ -20,6 +20,8 @@ import java.rmi.Remote;
 import java.rmi.server.RemoteServer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,14 +43,14 @@ public class ServerThread extends Thread
     public Process server;
     public File directory;
     private long lastHeartbeat = System.currentTimeMillis();
-    private ExecutorService executor;
+    private ScheduledExecutorService executor;
     private MinecraftServerC instance;
     private StackTraceData stackTraceData;
 
     public ServerThread(MinecraftServerC instance, String[] command, String[] env, File directory)
     {
         this.instance = instance;
-        this.executor = Executors.newFixedThreadPool(5);
+        this.executor = Executors.newScheduledThreadPool(5);
         try
         {
             this.directory = directory;
@@ -166,38 +168,20 @@ public class ServerThread extends Thread
                 }
             });
 
-            executor.execute(() -> {
-                try
-                {
-                    Thread.sleep(60 * 1000);
-                } catch (InterruptedException e)
-                {
-                    return;
+            executor.scheduleAtFixedRate(() -> {
+                if (!instance.isHub() && System.currentTimeMillis() - lastHeartbeat > 120000) {
+                    instance.stopServer();
                 }
 
-                while (true)
-                {
-                    if (!instance.isHub() && System.currentTimeMillis() - lastHeartbeat > 120000)
-                    {
-                        instance.stopServer();
-                    }
-
-                    try {
-                        String ip = HydroangeasClient.getInstance().getAsClient().getIP();
-                        new MinecraftPing().getPing(new MinecraftPingOptions().setHostname(ip).setPort(instance.getPort()));
-                    } catch (IOException e) {
-                        Hydroangeas.getInstance().getLogger().info("Can't ping server: " + instance.getServerName() + " shutting down");
-                        normalStop();
-                    }
-                    try
-                    {
-                        Thread.sleep(15 * 1000);
-                    } catch (InterruptedException e)
-                    {
-                        break;
-                    }
+                try {
+                    String ip = HydroangeasClient.getInstance().getAsClient().getIP();
+                    new MinecraftPing().getPing(new MinecraftPingOptions().setHostname(ip).setPort(instance.getPort()));
+                } catch (IOException e) {
+                    Hydroangeas.getInstance().getLogger().info("Can't ping server: " + instance.getServerName() + " shutting down");
+                    instance.stopServer();
                 }
-            });
+
+            }, 60, 15, TimeUnit.SECONDS);
         } catch (IOException | InterruptedException e)
         {
             e.printStackTrace();
@@ -241,6 +225,5 @@ public class ServerThread extends Thread
         isServerProcessAlive = false;
         normalStop();
         server.destroy();
-        executor.shutdownNow();
     }
 }

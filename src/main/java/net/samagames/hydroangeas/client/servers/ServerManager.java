@@ -83,6 +83,8 @@ public class ServerManager
     public int getWeightOfAllServers()
     {
         int w = 0;
+        List<MinecraftServerC> servers = new ArrayList<>();
+        servers.addAll(this.servers);
         for (MinecraftServerC server : servers)
         {
             w += server.getWeight();
