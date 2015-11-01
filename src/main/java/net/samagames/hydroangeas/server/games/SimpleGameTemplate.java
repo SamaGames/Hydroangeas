@@ -51,6 +51,7 @@ public class SimpleGameTemplate implements AbstractGameTemplate
         {
             for (Map.Entry<String, JsonElement> entry : startupElement.getAsJsonObject().entrySet())
             {
+                startupOptions.remove(entry.getKey());
                 startupOptions.add(entry.getKey(), entry.getValue());
             }
         }
