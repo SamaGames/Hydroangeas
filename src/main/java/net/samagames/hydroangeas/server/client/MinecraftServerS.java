@@ -104,7 +104,11 @@ public class MinecraftServerS
         {
             Hydroangeas.getInstance().getAsServer().getHubBalancer().onHubShutdown(this);
         }
+        unregisterNetwork();
+    }
 
+    public void unregisterNetwork()
+    {
         //Security remove server from redis
         Jedis jedis = Hydroangeas.getInstance().getDatabaseConnector().getResource();
         jedis.hdel("servers", getServerName());

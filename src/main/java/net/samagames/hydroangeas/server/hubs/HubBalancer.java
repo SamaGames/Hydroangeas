@@ -130,6 +130,7 @@ public class HubBalancer
     {
         instance.getRedisSubscriber().send("balancerConnectingInfo", "REMOVE###"+serverS.getServerName());
         hubs.remove(serverS);
+        serverS.unregisterNetwork();
     }
 
     public SimpleGameTemplate getHubTemplate()
