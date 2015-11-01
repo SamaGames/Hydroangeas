@@ -86,15 +86,15 @@ public class MinecraftServerS
 
     public void onStarted()
     {
-        String ip = this.client.getIp();
+       /* String ip = this.client.getIp();
         int port = getPort();
         //Register server in redis cache
         Jedis jedis = Hydroangeas.getInstance().getDatabaseConnector().getResource();
         jedis.hset("servers", getServerName(), ip + ":" + port);
-        jedis.close();
+        jedis.close();*/
 
         //Register server to all bungee
-        Hydroangeas.getInstance().getRedisSubscriber().send("servers", "heartbeat " + getServerName() + " " + ip + " " + port);
+        //Hydroangeas.getInstance().getRedisSubscriber().send("servers", "heartbeat " + getServerName() + " " + ip + " " + port);
     }
 
     public void onShutdown()
