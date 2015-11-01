@@ -51,7 +51,7 @@ public class HubBalancer
                     e.printStackTrace();
                 }
             }
-        }, 1000, 1000, TimeUnit.SECONDS);
+        }, 1000, 1000, TimeUnit.MILLISECONDS);
     }
 
     public boolean updateHubTemplate()
@@ -150,7 +150,7 @@ public class HubBalancer
     {
         if(serverS == null)
             return;
-        
+
         try
         {
             Jedis jedis = instance.getDatabaseConnector().getResource();
