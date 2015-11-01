@@ -21,6 +21,7 @@ public class BalancingTask extends Thread
     {
         this.hubBalancer = hubBalancer;
         coolDown = 400; //Wait 20s to load balance hub
+
     }
 
     @Override

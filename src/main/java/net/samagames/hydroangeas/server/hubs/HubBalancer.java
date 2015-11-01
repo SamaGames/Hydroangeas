@@ -3,10 +3,13 @@ package net.samagames.hydroangeas.server.hubs;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.server.games.SimpleGameTemplate;
+import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -32,6 +35,23 @@ public class HubBalancer
 
         updateHubTemplate();
 
+        instance.getScheduler().scheduleAtFixedRate(() -> {
+            ArrayList<MinecraftServerS> serverInfos = new ArrayList<>();
+            serverInfos.addAll(hubs);
+            for (MinecraftServerS server : serverInfos)
+            {
+                try
+                {
+                    Jedis jedis = instance.getDatabaseConnector().getResource();
+                    jedis.zrem("lobbybalancer", server.getServerName());
+                    jedis.zadd("lobbybalancer", server.getActualSlots(), server.getServerName());
+                    jedis.close();
+                } catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }, 1000, 1000, TimeUnit.SECONDS);
     }
 
     public boolean updateHubTemplate()
@@ -128,7 +148,19 @@ public class HubBalancer
 
     public void onHubShutdown(MinecraftServerS serverS)
     {
-        instance.getRedisSubscriber().send("balancerConnectingInfo", "REMOVE###"+serverS.getServerName());
+        if(serverS == null)
+            return;
+        
+        try
+        {
+            Jedis jedis = instance.getDatabaseConnector().getResource();
+            jedis.zrem("lobbybalancer", serverS.getServerName());
+            jedis.close();
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
         hubs.remove(serverS);
         serverS.unregisterNetwork();
     }
