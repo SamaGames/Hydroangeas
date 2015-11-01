@@ -45,14 +45,20 @@ public class SimpleGameTemplate implements AbstractGameTemplate
         this.minSlot = formated.get("min-slots").getAsInt();
         this.maxSlot = formated.get("max-slots").getAsInt();
         this.options = formated.get("options");
-        this.startupOptions = DEFAULT_STARTUP_OPTIONS;
+        this.startupOptions = new JsonObject();
         JsonElement startupElement = formated.get("startupOptions");
         if (startupElement != null)
         {
             for (Map.Entry<String, JsonElement> entry : startupElement.getAsJsonObject().entrySet())
             {
-                startupOptions.remove(entry.getKey());
-                startupOptions.add(entry.getKey(), entry.getValue());
+                startupOptions.addProperty(entry.getKey(), entry.getValue().getAsString());
+            }
+        }
+        for (Map.Entry<String, JsonElement> entry : DEFAULT_STARTUP_OPTIONS.entrySet())
+        {
+            if(startupOptions.get(entry.getKey()) == null)
+            {
+                startupOptions.addProperty(entry.getKey(), entry.getValue().getAsString());
             }
         }
         this.isCoupaing = formated.get("isCoupaing").getAsBoolean();
