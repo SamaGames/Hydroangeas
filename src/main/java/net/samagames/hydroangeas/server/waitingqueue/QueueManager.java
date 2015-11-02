@@ -131,6 +131,15 @@ public class QueueManager
         designedQueue.removeGroup(group);
         packet.getPlayers().forEach(group::addPlayer);
         designedQueue.addGroup(group);
+
+        //Inform group
+        for (QPlayer qPlayer : packet.getPlayers())
+        {
+            if(!qPlayer.getUUID().equals(leader.getUUID()))
+            {
+                sendPacketHub(new QueueInfosUpdatePacket(qPlayer, QueueInfosUpdatePacket.Type.ADD, designedQueue.getGame(), designedQueue.getMap()));
+            }
+        }
     }
 
     public void handlePacket(QueueDetachPlayerPacket packet)
