@@ -64,52 +64,56 @@ public class Queue
 
         queueChecker = instance.getScheduler().scheduleAtFixedRate(() -> {
             //Control check
-            if(workerTask != null)
-            {
-                if(workerTask.isDone())
+            try{
+                if(workerTask != null)
                 {
-                    instance.getLogger().info("Queue worker stopped ! For: " + template.getId());
-                    instance.getLogger().info("Restarting task..");
-                    startQueueWorker();
-                }
-            }
-
-            //Player inform
-            List<QGroup> groups = new ArrayList<>();
-            groups.addAll(queue);
-            int queueSize = getSize();
-            int index = 0;
-            for(int i = 0; i< groups.size(); i++)
-            {
-                QGroup group = groups.get(i);
-                index += group.getSize();
-
-                for(QPlayer player : group.getQPlayers())
-                {
-                    List<String> messages = new ArrayList<>();
-                    QueueInfosUpdatePacket queueInfosUpdatePacket = new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.INFO, getGame(), getMap());
-                    if(index < template.getMaxSlot()*lastServerStartNB.get())
+                    if(workerTask.isDone())
                     {
-                        messages.add(ChatColor.GREEN + "Votre serveur est en train de démarrer !");
-                    }else{
-                        messages.add(ChatColor.RED + "Votre serveur n'a pas encore démarré.");
-                        if(queueSize < template.getMaxSlot())
+                        instance.getLogger().info("Queue worker stopped ! For: " + template.getId());
+                        instance.getLogger().info("Restarting task..");
+                        startQueueWorker();
+                    }
+                }
+
+                //Player inform
+                List<QGroup> groups = new ArrayList<>();
+                groups.addAll(queue);
+                int queueSize = getSize();
+                int index = 0;
+                for(int i = 0; i< groups.size(); i++)
+                {
+                    QGroup group = groups.get(i);
+                    index += group.getSize();
+
+                    for(QPlayer player : group.getQPlayers())
+                    {
+                        List<String> messages = new ArrayList<>();
+                        QueueInfosUpdatePacket queueInfosUpdatePacket = new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.INFO, getGame(), getMap());
+                        if(index < template.getMaxSlot()*lastServerStartNB.get())
                         {
-                            messages.add("Il manque " + ChatColor.RED + (template.getMaxSlot() - queueSize) + "<RESET> joueur(s) pour qu'il démarre.");
+                            messages.add(ChatColor.GREEN + "Votre serveur est en train de démarrer !");
+                        }else{
+                            messages.add(ChatColor.RED + "Votre serveur n'a pas encore démarré.");
+                            if(queueSize < template.getMaxSlot())
+                            {
+                                messages.add("Il manque " + ChatColor.RED + (template.getMaxSlot() - queueSize) + "<RESET> joueur(s) pour qu'il démarre.");
+                            }
                         }
-                    }
 
-                    messages.add("Vous êtes actuellement à la place " + ChatColor.RED + (i+1) + "<RESET> dans la file.");
-                    if(group.getSize() > 1)
-                    {
-                        messages.add("Votre groupe est composé de "+ group.getSize() + " personnes.");
-                    }
+                        messages.add("Vous êtes actuellement à la place " + ChatColor.RED + (i+1) + "<RESET> dans la file.");
+                        if(group.getSize() > 1)
+                        {
+                            messages.add("Votre groupe est composé de "+ group.getSize() + " personnes.");
+                        }
 
-                    queueInfosUpdatePacket.setMessage(messages);
-                    sendPacketHub(queueInfosUpdatePacket);
+                        queueInfosUpdatePacket.setMessage(messages);
+                        sendPacketHub(queueInfosUpdatePacket);
+                    }
                 }
+            }catch (Exception e)
+            {
+                e.printStackTrace();
             }
-
         }, 0, 15, TimeUnit.SECONDS);
         hubRefreshTask = instance.getScheduler().scheduleAtFixedRate(this::sendInfoToHub, 0, 750, TimeUnit.MILLISECONDS);
 

@@ -98,7 +98,7 @@ public class QueueManager
         for(QPlayer player : packet.getPlayers())
         {
             Queue currentQueue = getQueueByPlayer(player.getUUID());
-            if(currentQueue != null)
+            if(currentQueue != null && !player.getUUID().equals(leader.getUUID()))
             {
                 currentQueue.removeQPlayer(player);
             }
