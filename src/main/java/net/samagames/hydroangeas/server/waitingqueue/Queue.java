@@ -96,7 +96,7 @@ public class Queue
                             messages.add(ChatColor.RED + "Votre serveur n'a pas encore démarré.");
                             if(queueSize < template.getMaxSlot())
                             {
-                                messages.add("Il manque " + ChatColor.RED + (template.getMaxSlot() - queueSize) + "<RESET> joueur(s) pour qu'il démarre.");
+                                messages.add("Il manque " + ChatColor.RED + (template.getMinSlot() - queueSize) + "<RESET> joueur(s) pour qu'il démarre.");
                             }
                         }
 
