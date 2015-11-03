@@ -38,6 +38,7 @@ public class QGroup
     public QGroup(QPlayer leader, List<QPlayer> players)
     {
         this.leader = leader;
+        priority = leader.getPriority();
         this.players.addAll(players);
         calculatePriority();
     }
