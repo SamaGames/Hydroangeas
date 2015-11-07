@@ -58,6 +58,26 @@ public class NetworkUtils
         }
     }
 
+    public static void copyURLToFile(URL url, File destination)
+    {
+        try
+        {
+            URLConnection urlConnection = url.openConnection();
+
+            if (url.getUserInfo() != null) {
+                String basicAuth = "Basic " + new String(Base64.getEncoder().encode(url.getUserInfo().getBytes()));
+                urlConnection.setRequestProperty("Authorization", basicAuth);
+            }
+
+            InputStream inputStream = urlConnection.getInputStream();
+            FileUtils.copyInputStreamToFile(inputStream, destination);
+            //Inputstream closed in finally
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
     public static String readFullURL(String rawURL)
     {
         try

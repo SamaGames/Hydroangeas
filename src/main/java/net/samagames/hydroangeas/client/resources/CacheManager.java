@@ -66,13 +66,7 @@ public class CacheManager
     {
         if (!cache.exists())
         {
-            try
-            {
-                FileUtils.copyURLToFile(new URL(wgetURL), cache);
-            } catch (IOException e)
-            {
-                e.printStackTrace();
-            }
+            NetworkUtils.copyURLToFile(wgetURL, cache);
         } else
         {
             String remoteChecksum = NetworkUtils.readURL(checksumURL);
@@ -98,7 +92,7 @@ public class CacheManager
 
     public void downloader(URL remoteFile, File archive, File dest) throws IOException
     {
-        FileUtils.copyURLToFile(remoteFile, archive);
+        NetworkUtils.copyURLToFile(remoteFile, archive);
         Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
         archiver.extract(archive, dest);
     }
