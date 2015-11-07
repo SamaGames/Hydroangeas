@@ -81,13 +81,7 @@ public class CacheManager
             {
                 if (!remoteChecksum.equals(MiscUtils.getSHA1(cache)))
                 {
-                    try
-                    {
-                        FileUtils.copyURLToFile(new URL(wgetURL), cache);
-                    } catch (IOException e)
-                    {
-                        e.printStackTrace();
-                    }
+                    NetworkUtils.copyURLToFile(wgetURL, cache);
                 }
             } catch (NoSuchAlgorithmException | IOException e)
             {

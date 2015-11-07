@@ -1,9 +1,8 @@
 package net.samagames.hydroangeas.utils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import org.apache.commons.io.FileUtils;
+
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Base64;
@@ -36,6 +35,27 @@ public class NetworkUtils
         }
 
         return "";
+    }
+
+    public static void copyURLToFile(String rawURL, File destination)
+    {
+        try
+        {
+            URL url = new URL(rawURL);
+            URLConnection urlConnection = url.openConnection();
+
+            if (url.getUserInfo() != null) {
+                String basicAuth = "Basic " + new String(Base64.getEncoder().encode(url.getUserInfo().getBytes()));
+                urlConnection.setRequestProperty("Authorization", basicAuth);
+            }
+
+            InputStream inputStream = urlConnection.getInputStream();
+            FileUtils.copyInputStreamToFile(inputStream, destination);
+            //Inputstream closed in finally
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public static String readFullURL(String rawURL)
