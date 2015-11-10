@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.client.commands.ClientCommandManager;
+import net.samagames.hydroangeas.client.resources.LogManager;
 import net.samagames.hydroangeas.client.resources.ResourceManager;
 import net.samagames.hydroangeas.client.servers.ServerManager;
 import net.samagames.hydroangeas.client.tasks.LifeThread;
@@ -36,6 +37,7 @@ public class HydroangeasClient extends Hydroangeas
     private LifeThread lifeThread;
     private ServerManager serverManager;
     private ResourceManager resourceManager;
+    private LogManager logManager;
 
     public HydroangeasClient(OptionSet options) throws IOException
     {
@@ -54,6 +56,8 @@ public class HydroangeasClient extends Hydroangeas
         this.maxWeight = this.configuration.getJsonConfiguration().get("max-weight").getAsInt();
         this.serverFolder = new File(MiscUtils.getJarFolder(), "servers");
         serverFolder.mkdir();
+
+        logManager = new LogManager(serverFolder);
 
         try{
             this.restrictionMode = RestrictionMode.valueFrom(configuration.getJsonConfiguration().get("RestrictionMode").getAsString());
@@ -214,5 +218,9 @@ public class HydroangeasClient extends Hydroangeas
 
     public void setRestrictionMode(RestrictionMode restrictionMode) {
         this.restrictionMode = restrictionMode;
+    }
+
+    public LogManager getLogManager() {
+        return logManager;
     }
 }

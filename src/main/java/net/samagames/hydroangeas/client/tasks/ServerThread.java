@@ -207,6 +207,7 @@ public class ServerThread extends Thread
     {
         Hydroangeas.getInstance().getAsClient().getServerManager().onServerStop(instance);
         isServerProcessAlive = false;
+        Hydroangeas.getInstance().getAsClient().getLogManager().saveLog(instance.getServerName(), instance.getTemplateID());
         instance.getInstance().getScheduler().execute(() -> {
             try
             {
@@ -214,6 +215,7 @@ public class ServerThread extends Thread
                 FileUtils.deleteDirectory(directory);
             } catch (IOException e)
             {
+                //Don't care if we cannot delete files
                 //e.printStackTrace();
             }
         });
