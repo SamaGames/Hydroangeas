@@ -1,12 +1,12 @@
 package net.samagames.hydroangeas.server.games;
 
 import com.google.gson.JsonElement;
-import net.samagames.hydroangeas.utils.MiscUtils;
 
 /**
  * Created by Silva on 09/09/2015.
  */
-public interface AbstractGameTemplate {
+public interface AbstractGameTemplate
+{
 
     String getId();
 
@@ -25,4 +25,6 @@ public interface AbstractGameTemplate {
     boolean isCoupaing();
 
     String toString();
+
+    JsonElement getStartupOptions();
 }

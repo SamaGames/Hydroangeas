@@ -1,11 +1,16 @@
 package net.samagames.hydroangeas.server.waitingqueue;
 
 import net.samagames.hydroangeas.Hydroangeas;
+import net.samagames.hydroangeas.common.packets.AbstractPacket;
 import net.samagames.hydroangeas.common.protocol.hubinfo.GameInfosToHubPacket;
+import net.samagames.hydroangeas.common.protocol.queues.QueueInfosUpdatePacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
+import net.samagames.hydroangeas.server.data.Status;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
 import net.samagames.hydroangeas.server.games.PackageGameTemplate;
+import net.samagames.hydroangeas.server.tasks.CleanServer;
+import net.samagames.hydroangeas.utils.ChatColor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
@@ -24,13 +30,10 @@ import java.util.concurrent.TimeUnit;
 public class Queue
 {
 
-    private final ScheduledFuture workerTask, hubRefreshTask;
-    private final String map;
+    private ScheduledFuture workerTask, hubRefreshTask, queueChecker;
     private QueueManager manager;
 
     private HydroangeasServer instance;
-
-    private String game;
 
     private PriorityPlayerQueue queue;
     private volatile boolean sendInfo = true;
@@ -39,64 +42,141 @@ public class Queue
 
     private long lastSend = System.currentTimeMillis();
 
+    private int coolDown = 2; //*100ms
+
+    private AtomicInteger lastServerStartNB = new AtomicInteger(0);
+
     public Queue(QueueManager manager, AbstractGameTemplate template)
     {
         this.instance = Hydroangeas.getInstance().getAsServer();
         this.manager = manager;
         this.template = template;
-        this.game = template.getGameName();
-        this.map = template.getMapName();
 
-        if(template instanceof PackageGameTemplate)//Assuming that the package template have not selected a template we force it
+        if (template instanceof PackageGameTemplate)//Assuming that the package template have not selected a template we force it
         {
             ((PackageGameTemplate) template).selectTemplate();
         }
 
         //Si priority plus grande alors tu passe devant.
-        this.queue = new PriorityPlayerQueue(100000, (o1, o2) -> -Integer.compare(o1.getPriority(), o2.getPriority()));
+        this.queue = new PriorityPlayerQueue(100000, (o1, o2) -> Integer.compare(o1.getPriority(), o2.getPriority()));
 
+        startQueueWorker();
+
+        queueChecker = instance.getScheduler().scheduleAtFixedRate(() -> {
+            //Control check
+            try{
+                if(workerTask != null)
+                {
+                    if(workerTask.isDone())
+                    {
+                        instance.getLogger().info("Queue worker stopped ! For: " + template.getId());
+                        instance.getLogger().info("Restarting task..");
+                        startQueueWorker();
+                    }
+                }
+
+                //Player inform
+                List<QGroup> groups = new ArrayList<>();
+                groups.addAll(queue);
+                int queueSize = getSize();
+                int index = 0;
+                for(int i = 0; i< groups.size(); i++)
+                {
+                    QGroup group = groups.get(i);
+                    index += group.getSize();
+
+                    for(QPlayer player : group.getQPlayers())
+                    {
+                        List<String> messages = new ArrayList<>();
+                        QueueInfosUpdatePacket queueInfosUpdatePacket = new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.INFO, getGame(), getMap());
+                        if(index < template.getMaxSlot()*lastServerStartNB.get())
+                        {
+                            messages.add(ChatColor.GREEN + "Votre serveur est en train de démarrer !");
+                        }else{
+                            messages.add(ChatColor.RED + "Votre serveur n'a pas encore démarré.");
+                            if(queueSize < template.getMaxSlot())
+                            {
+                                messages.add("Il manque " + ChatColor.RED + (template.getMinSlot() - queueSize) + "<RESET> joueur(s) pour qu'il démarre.");
+                            }
+                        }
+
+                        messages.add("Vous êtes actuellement à la place " + ChatColor.RED + (i+1) + "<RESET> dans la file.");
+                        if(group.getSize() > 1)
+                        {
+                            messages.add("Votre groupe est composé de "+ group.getSize() + " personnes.");
+                        }
+
+                        queueInfosUpdatePacket.setMessage(messages);
+                        sendPacketHub(queueInfosUpdatePacket);
+                    }
+                }
+            }catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }, 0, 15, TimeUnit.SECONDS);
+        hubRefreshTask = instance.getScheduler().scheduleAtFixedRate(this::sendInfoToHub, 0, 750, TimeUnit.MILLISECONDS);
+
+    }
+
+    public void startQueueWorker()
+    {
         workerTask = instance.getScheduler().scheduleAtFixedRate(() ->
         {
-            if (template == null)
-            {
-                Hydroangeas.getInstance().getLogger().info("Template null!");
-                return;
-            }
-
-            List<MinecraftServerS> servers = instance.getAlgorithmicMachine().getServerByTemplatesAndAvailable(template.getId());
-
-            servers.stream().filter(server -> server.getStatus().isAllowJoin()).forEach(server -> {
-                List<QGroup> groups = new ArrayList<>();
-                queue.drainPlayerTo(groups, server.getMaxSlot());
-                for (QGroup group : groups)
+            try{
+                if (template == null)
                 {
-                    Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
-                    if(template instanceof PackageGameTemplate)//If it's a package template we change it now
+                    Hydroangeas.getInstance().getLogger().info("Template null!");
+                    return;
+                }
+
+                try {
+                    checkCooldown();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                List<MinecraftServerS> servers = instance.getAlgorithmicMachine().getServerByTemplatesAndAvailable(template.getId());
+
+                servers.stream().filter(server -> (server.getStatus().equals(Status.WAITING_FOR_PLAYERS) || server.getStatus().equals(Status.READY_TO_START))
+                        && server.getMaxSlot() - server.getActualSlots() > 0).forEach(server -> {
+                    server.setTimeToLive(CleanServer.LIVETIME);
+                    List<QGroup> groups = new ArrayList<>();
+                    queue.drainPlayerTo(groups, server.getMaxSlot() - server.getActualSlots());
+                    for (QGroup group : groups) {
+                        group.sendTo(server.getServerName());
+                    }
+                    coolDown += 11;
+                });
+                lastServerStartNB.lazySet(servers.size());
+
+                if (servers.size() <= 0 && getSize() >= template.getMinSlot())
+                {
+                    MinecraftServerS server = Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
+                    if(server != null)
+                    {
+                        server.setTimeToLive(150000L);
+                    }
+                    if (template instanceof PackageGameTemplate) // If it's a package template we change it now
                     {
                         ((PackageGameTemplate) template).selectTemplate();
                     }
                 }
-            });
-
-            if (servers.size() <= 0 && queue.size() >= template.getMinSlot())
+            }catch (Exception e)
             {
-                try{
-                    if(System.currentTimeMillis() - lastSend > 60000 || sendInfo)
-                    {
-                        sendInfo = false;
-                        sendInfoToHub();
-                        lastSend = System.currentTimeMillis();
-                    }
-
-                    Thread.sleep(700);
-                }catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
+                e.printStackTrace();
             }
-        }, 0, 900, TimeUnit.MILLISECONDS);
-        hubRefreshTask = instance.getScheduler().scheduleAtFixedRate(this::sendInfoToHub, 0, 750, TimeUnit.MILLISECONDS);
+        }, 0, 800, TimeUnit.MILLISECONDS);
+    }
 
+    public void checkCooldown() throws InterruptedException
+    {
+        while (coolDown > 0)
+        {
+            coolDown--;
+            Thread.sleep(100);
+        }
+        coolDown = 0;//Security in case of forgot
     }
 
     public void remove()
@@ -266,17 +346,27 @@ public class Queue
     public int getSize()
     {
         int i = 0;
-        for (QGroup group : queue)
+        List<QGroup> cache = new ArrayList<>();
+        cache.addAll(queue);
+        for(QGroup group : cache)
         {
             i += group.getSize();
         }
         return i;
     }
 
+    public void updateInfosToHub()
+    {
+        sendInfo = true;
+    }
+
     public void sendInfoToHub()
     {
         try
         {
+            if(template == null)
+                return;
+
             if (System.currentTimeMillis() - lastSend > 60000 || sendInfo)
             {
                 GameInfosToHubPacket packet = new GameInfosToHubPacket(template.getId());
@@ -300,6 +390,19 @@ public class Queue
         }
     }
 
+    public void sendPacketHub(AbstractPacket packet)
+    {
+        instance.getConnectionManager().sendPacket("hydroHubReceiver", packet);
+    }
+
+    public void reload(AbstractGameTemplate template)
+    {
+        synchronized (this.template)
+        {
+            this.template = template;
+        }
+    }
+
     public String getName()
     {
         return template.getId();
@@ -307,16 +410,17 @@ public class Queue
 
     public String getGame()
     {
-        return game;
+        return template.getGameName();
     }
 
     public String getMap()
     {
-        return map;
+        return template.getMapName();
     }
 
     public AbstractGameTemplate getTemplate()
     {
         return template;
     }
+
 }

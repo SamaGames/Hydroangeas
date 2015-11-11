@@ -3,7 +3,7 @@ package net.samagames.hydroangeas.common.protocol.intranet;
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
 
-import java.sql.Timestamp;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -20,25 +20,40 @@ public class HelloFromClientPacket extends AbstractPacket
     private String ip;
     private int maxWeight;
     private int actualWeight;
-    private Timestamp timestamp;
+    private long timestamp;
+
+    private HydroangeasClient.RestrictionMode mode;
+
+    private List<String> whitelist;
+    private List<String> blacklist;
 
     public HelloFromClientPacket()
     {
-
     }
 
     public HelloFromClientPacket(HydroangeasClient instance)
     {
-        this(instance.getClientUUID(), instance.getIP(), instance.getMaxWeight(), instance.getActualWeight(), new Timestamp(System.currentTimeMillis()));
+        this(instance.getClientUUID(),
+                instance.getIP(),
+                instance.getRestrictionMode(),
+                instance.getMaxWeight(),
+                instance.getActualWeight(),
+                System.currentTimeMillis(),
+                instance.getWhitelist(),
+                instance.getBlacklist());
     }
 
-    public HelloFromClientPacket(UUID uuid, String ip, int maxWeight, int actualWeight, Timestamp timestamp)
+    public HelloFromClientPacket(UUID uuid, String ip, HydroangeasClient.RestrictionMode mode, int maxWeight, int actualWeight, long timestamp, List<String> whitelist, List<String> blacklist)
     {
         this.uuid = uuid;
         this.ip = ip;
+        this.mode = mode;
         this.maxWeight = maxWeight;
         this.actualWeight = actualWeight;
         this.timestamp = timestamp;
+
+        this.whitelist = whitelist;
+        this.blacklist = blacklist;
     }
 
     public UUID getUUID()
@@ -61,8 +76,20 @@ public class HelloFromClientPacket extends AbstractPacket
         return actualWeight;
     }
 
-    public Timestamp getTimestamp()
+    public long getTimestamp()
     {
         return timestamp;
+    }
+
+    public List<String> getWhitelist() {
+        return whitelist;
+    }
+
+    public List<String> getBlacklist() {
+        return blacklist;
+    }
+
+    public HydroangeasClient.RestrictionMode getRestrictionMode() {
+        return mode;
     }
 }

@@ -28,18 +28,14 @@ public class TemplateCommand extends AbstractCommand
     @Override
     public boolean execute(String[] args)
     {
-
         if (args.length <= 0)
         {
             List<String> listTemplate = instance.getTemplateManager().getListTemplate();
-            String message = "Templates: ";
-            for (String templateName : listTemplate)
-            {
-                message += templateName;
-            }
+            StringBuilder builder = new StringBuilder("Templates: ");
+            listTemplate.forEach((item) -> builder.append(item).append("\n"));
 
-            instance.log(Level.INFO, message);
-        } else if (args.length >= 1)
+            instance.log(Level.INFO, builder.toString());
+        } else
         {
             AbstractGameTemplate template = instance.getTemplateManager().getTemplateByID(args[0]);
             if (template == null)

@@ -25,6 +25,9 @@ public class ServerManager
     {
         try
         {
+            //Check state of hydro
+            checkTemplate(serverInfos.getTemplateID());
+
             int port = getAvailablePort();
             MinecraftServerC server = new MinecraftServerC(this.instance, serverInfos, port);
 
@@ -33,11 +36,15 @@ public class ServerManager
             if (!server.makeServer())
             {
                 instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), serverInfos.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
+                instance.getConnectionManager().sendPacket(new MinecraftServerUpdatePacket(instance, server.getServerName(), MinecraftServerUpdatePacket.UType.END));
+                server.stopServer();
                 return;
             }
             if (!server.startServer())
             {
                 instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), serverInfos.getServerName(), MinecraftServerIssuePacket.Type.START));
+                instance.getConnectionManager().sendPacket(new MinecraftServerUpdatePacket(instance, server.getServerName(), MinecraftServerUpdatePacket.UType.END));
+                server.stopServer();
                 return;
             }
             this.servers.add(server);
@@ -51,22 +58,14 @@ public class ServerManager
         {
             e.printStackTrace();
             instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), serverInfos.getServerName(), MinecraftServerIssuePacket.Type.MAKE));
+            instance.getConnectionManager().sendPacket(new MinecraftServerUpdatePacket(instance, serverInfos.getServerName(), MinecraftServerUpdatePacket.UType.END));
         }
     }
 
     public void stopAll()
     {
-        for (MinecraftServerC server : this.servers)
-        {
-            if (!server.stopServer())
-            {
-                instance.getConnectionManager().sendPacket(
-                        new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.STOP));
-            } else
-            {
-                instance.getConnectionManager().sendPacket(new MinecraftServerUpdatePacket(instance, server.getServerName(), MinecraftServerUpdatePacket.UType.END));
-            }
-        }
+        for (MinecraftServerC server : servers)
+            instance.getConnectionManager().sendPacket(!server.stopServer() ? new MinecraftServerIssuePacket(this.instance.getClientUUID(), server.getServerName(), MinecraftServerIssuePacket.Type.STOP) : new MinecraftServerUpdatePacket(instance, server.getServerName(), MinecraftServerUpdatePacket.UType.END));
     }
 
     public void onServerStop(MinecraftServerC server)
@@ -84,6 +83,8 @@ public class ServerManager
     public int getWeightOfAllServers()
     {
         int w = 0;
+        List<MinecraftServerC> servers = new ArrayList<>();
+        servers.addAll(this.servers);
         for (MinecraftServerC server : servers)
         {
             w += server.getWeight();
@@ -118,6 +119,25 @@ public class ServerManager
     public List<MinecraftServerC> getServers()
     {
         return this.servers;
+    }
+
+    public void checkTemplate(String template) throws Exception {
+        if(instance.getRestrictionMode().equals(HydroangeasClient.RestrictionMode.NONE))
+            return;
+
+        if(instance.getRestrictionMode().equals(HydroangeasClient.RestrictionMode.WHITELIST))
+        {
+            if(!instance.getWhitelist().contains(template))
+            {
+                throw new Exception("Try to start a server with template not whitelisted !");
+            }
+        }
+
+        if(instance.getRestrictionMode().equals(HydroangeasClient.RestrictionMode.BLACKLIST)) {
+            if (!instance.getBlacklist().contains(template)) {
+                throw new Exception("Try to start a server with a template blacklisted !");
+            }
+        }
     }
 
 }

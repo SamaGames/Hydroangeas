@@ -49,6 +49,8 @@ public abstract class ConnectionManager
         //HubInfos
         packets[110] = new GameInfosToHubPacket();
 
+        packets[200] = new CommandPacket();
+
         this.hydroangeas = hydroangeas;
 
         gson = new Gson();
@@ -60,7 +62,7 @@ public abstract class ConnectionManager
         try
         {
             id = packet.split(":")[0];
-            if (id == null || packets[Integer.valueOf(id)] == null)
+            if (id == null || packets[Integer.parseInt(id)] == null)
             {
                 hydroangeas.log(Level.SEVERE, "Error bad packet ID in the channel");
                 return;

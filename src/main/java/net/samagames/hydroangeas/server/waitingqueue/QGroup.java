@@ -38,6 +38,7 @@ public class QGroup
     public QGroup(QPlayer leader, List<QPlayer> players)
     {
         this.leader = leader;
+        priority = leader.getPriority();
         this.players.addAll(players);
         calculatePriority();
     }
@@ -47,7 +48,7 @@ public class QGroup
         //Celui qui a la plus grosse prioritée la donne au groupe
         for (QPlayer qPlayer : players)
         {
-            priority = Math.max(qPlayer.getPriority(), priority);
+            priority = Math.min(qPlayer.getPriority(), priority);
         }
     }
 

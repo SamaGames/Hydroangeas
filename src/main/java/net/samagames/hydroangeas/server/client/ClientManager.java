@@ -6,27 +6,39 @@ import net.samagames.hydroangeas.common.protocol.intranet.HelloFromClientPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
 import net.samagames.hydroangeas.server.games.SimpleGameTemplate;
+import net.samagames.hydroangeas.server.tasks.CleanServer;
 import net.samagames.hydroangeas.server.tasks.KeepUpdatedThread;
 
-import java.sql.Timestamp;
+import java.lang.reflect.Array;
+import java.lang.reflect.Executable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 
 public class ClientManager
 {
     private final HydroangeasServer instance;
     private final KeepUpdatedThread keepUpdatedThread;
+    private final CleanServer cleanServer;
     private CopyOnWriteArrayList<HydroClient> clientList = new CopyOnWriteArrayList<>();
+
+    private ScheduledExecutorService executorService;
 
     public ClientManager(HydroangeasServer instance)
     {
         this.instance = instance;
 
+        this.executorService = Executors.newScheduledThreadPool(1);
+
         this.keepUpdatedThread = new KeepUpdatedThread(instance);
         this.keepUpdatedThread.start();
+
+        this.cleanServer = new CleanServer(instance);
+        this.cleanServer.start();
     }
 
     public void orderServerForCoupaing(CoupaingServerPacket packet)
@@ -38,6 +50,7 @@ public class ClientManager
                 packet.getMinSlot(),
                 packet.getMaxSlot(),
                 packet.getOptions(),
+                packet.getWeight(),
                 true);
 
         instance.getAlgorithmicMachine().orderTemplate(template);
@@ -45,14 +58,15 @@ public class ClientManager
 
     public void updateClient(HelloFromClientPacket packet)
     {
-        HydroClient client = this.getClientByUUID(packet.getUUID());
-        if (client == null)
-        {
-            client = new HydroClient(instance, packet.getUUID());
-            this.instance.log(Level.INFO, "New client " + client.getUUID() + " connected!");
-            if (!clientList.add(client)) instance.log(Level.INFO, "Not added !");
-        }
-        client.updateData(packet);
+        executorService.execute(() -> {
+            HydroClient client = getClientByUUID(packet.getUUID());
+            if (client == null) {
+                client = new HydroClient(instance, packet.getUUID(), packet.getRestrictionMode(), packet.getWhitelist(), packet.getBlacklist());
+                instance.log(Level.INFO, "New client " + client.getUUID() + " connected!");
+                if (!clientList.add(client)) instance.log(Level.INFO, "Not added !");
+            }
+            client.updateData(packet);
+        });
     }
 
     public void onClientHeartbeat(UUID uuid)
@@ -65,13 +79,26 @@ public class ClientManager
             return;
         }
 
-        client.setTimestamp(new Timestamp(System.currentTimeMillis()));
+        client.setTimestamp(System.currentTimeMillis());
     }
 
     public void onClientNoReachable(UUID clientUUID)
     {
-        HydroClient client = this.getClientByUUID(clientUUID);
-        if (!clientList.remove(client)) instance.log(Level.INFO, "Not deleted !");
+        executorService.execute(() -> {
+            HydroClient client = getClientByUUID(clientUUID);
+
+            if (client.getUUID().equals(clientUUID)) {
+                client.getServerManager().getServers().stream().filter(serverS -> serverS.isHub()).forEach(serverS -> {
+                    instance.getHubBalancer().onHubShutdown(serverS);
+                });
+                if (!clientList.remove(client)) instance.log(Level.INFO, "Not deleted !");
+            }
+        });
+    }
+
+    public void globalCheckData()
+    {
+        instance.getConnectionManager().sendPacket("globalSecurity@hydroangeas-client", new AskForClientDataPacket(instance.getServerUUID()));
     }
 
     public KeepUpdatedThread getKeepUpdatedThread()

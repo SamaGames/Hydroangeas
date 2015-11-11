@@ -23,7 +23,6 @@ public class AskForClientDataPacket extends AbstractPacket
 
     public AskForClientDataPacket()
     {
-
     }
 
     public UUID getUUID()

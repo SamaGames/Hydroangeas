@@ -1,10 +1,13 @@
 package net.samagames.hydroangeas.server.client;
 
 import com.google.gson.JsonElement;
+import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.protocol.intranet.AskForClientActionPacket;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerInfoPacket;
 import net.samagames.hydroangeas.server.data.Status;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
+import net.samagames.hydroangeas.server.tasks.CleanServer;
+import redis.clients.jedis.Jedis;
 
 import java.util.UUID;
 
@@ -25,7 +28,7 @@ public class MinecraftServerS
     private String map;
     private int minSlot;
     private int maxSlot;
-    private JsonElement options;
+    private JsonElement options, startupOptions;
 
     private Integer hubID;
 
@@ -40,21 +43,28 @@ public class MinecraftServerS
     private Status status = Status.STARTING;
     private int actualSlots;
 
+    private long timeToLive = CleanServer.LIVETIME;
+    private long startedTime;
+
 
     public MinecraftServerS(HydroClient client, AbstractGameTemplate template)
     {
-        this(client, UUID.randomUUID(), template.getGameName(), template.getMapName(), template.getMinSlot(), template.getMaxSlot(), template.getOptions());
+        this(client, UUID.randomUUID(), template.getGameName(), template.getMapName(), template.getMinSlot(), template.getMaxSlot(), template.getOptions(), template.getStartupOptions());
         this.coupaingServer = template.isCoupaing();
         this.templateID = template.getId();
+        this.weight = template.getWeight();
     }
 
     public MinecraftServerS(HydroClient client, MinecraftServerInfoPacket packet)
     {
-        this(client, UUID.randomUUID(), packet.getGame(), packet.getMap(), packet.getMinSlot(), packet.getMaxSlot(), packet.getOptions());
+        this(client, packet.getServerUUID(), packet.getGame(), packet.getMap(), packet.getMinSlot(), packet.getMaxSlot(), packet.getOptions(), packet.getStartupOptions());
+        this.templateID = packet.getTemplateID();
         this.port = packet.getPort();
+        this.hubID = packet.getHubID();
+        this.weight = packet.getWeight();
     }
 
-    public MinecraftServerS(HydroClient client, UUID uuid, String game, String map, int minSlot, int maxSlot, JsonElement options)
+    public MinecraftServerS(HydroClient client, UUID uuid, String game, String map, int minSlot, int maxSlot, JsonElement options, JsonElement startupOptions)
     {
         this.client = client;
         this.uuid = uuid;
@@ -63,6 +73,9 @@ public class MinecraftServerS
         this.minSlot = minSlot;
         this.maxSlot = maxSlot;
         this.options = options;
+        this.startupOptions = startupOptions;
+
+        this.startedTime = System.currentTimeMillis();
     }
 
     public void shutdown()
@@ -71,9 +84,43 @@ public class MinecraftServerS
                 new AskForClientActionPacket(client.getUUID(), AskForClientActionPacket.ActionCommand.SERVEREND, getServerName()));
     }
 
+    public void onStarted()
+    {
+       /* String ip = this.client.getIp();
+        int port = getPort();
+        //Register server in redis cache
+        Jedis jedis = Hydroangeas.getInstance().getDatabaseConnector().getResource();
+        jedis.hset("servers", getServerName(), ip + ":" + port);
+        jedis.close();*/
+
+        //Register server to all bungee
+        //Hydroangeas.getInstance().getRedisSubscriber().send("servers", "heartbeat " + getServerName() + " " + ip + " " + port);
+    }
+
     public void onShutdown()
     {
         //If we need to save some data after shutdown
+        if (isHub())
+        {
+            Hydroangeas.getInstance().getAsServer().getHubBalancer().onHubShutdown(this);
+        }
+        unregisterNetwork();
+    }
+
+    public void unregisterNetwork()
+    {
+        //Security remove server from redis
+        Jedis jedis = Hydroangeas.getInstance().getDatabaseConnector().getResource();
+        jedis.hdel("servers", getServerName());
+        jedis.close();
+
+        //Send to all bungee the server shutdown event
+        Hydroangeas.getInstance().getRedisSubscriber().send("servers", "stop " + getServerName());
+    }
+
+    public void dispatchCommand(String command)
+    {
+        Hydroangeas.getInstance().getRedisSubscriber().send("commands.servers."+getServerName(), command);
     }
 
     public void changeUUID()
@@ -98,7 +145,7 @@ public class MinecraftServerS
 
     public String getServerName()
     {
-        return this.game + "_" + ((hubID == null)?this.uuid.toString().split("-")[0]: hubID);
+        return this.game + "_" + ((hubID == null) ? this.uuid.toString().split("-")[0] : hubID);
     }
 
     public int getMinSlot()
@@ -186,15 +233,39 @@ public class MinecraftServerS
         this.actualSlots = actualSlots;
     }
 
-    public boolean isHub() {
+    public boolean isHub()
+    {
         return hubID != null;
     }
 
-    public void setHubID(int hubID) {
+    public Integer getHubID()
+    {
+        return hubID;
+    }
+
+    public void setHubID(Integer hubID)
+    {
         this.hubID = hubID;
     }
 
-    public Integer getHubID() {
-        return hubID;
+    public JsonElement getStartupOptions()
+    {
+        return startupOptions;
+    }
+
+    public long getStartedTime() {
+        return startedTime;
+    }
+
+    public void setStartedTime(long startedTime) {
+        this.startedTime = startedTime;
+    }
+
+    public long getTimeToLive() {
+        return timeToLive;
+    }
+
+    public void setTimeToLive(long timeToLive) {
+        this.timeToLive = timeToLive;
     }
 }

@@ -3,14 +3,21 @@ package net.samagames.hydroangeas.server.hubs;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.server.games.SimpleGameTemplate;
+import redis.clients.jedis.Jedis;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Silva on 13/09/2015.
  */
-public class HubBalancer {
+public class HubBalancer
+{
 
     private HydroangeasServer instance;
 
@@ -18,43 +25,90 @@ public class HubBalancer {
 
     private SimpleGameTemplate hubTemplate;
 
-    private List<MinecraftServerS> hubs = new ArrayList<>();
+    private CopyOnWriteArrayList<MinecraftServerS> hubs = new CopyOnWriteArrayList<>();
 
     public HubBalancer(HydroangeasServer instance)
     {
         this.instance = instance;
 
+        //instance.getScheduler().schedule(() -> loadStartedHubs(), 18, TimeUnit.SECONDS);
+
         updateHubTemplate();
+
+        instance.getScheduler().scheduleAtFixedRate(() -> {
+            ArrayList<MinecraftServerS> serverInfos = new ArrayList<>();
+            serverInfos.addAll(hubs);
+            for (MinecraftServerS server : serverInfos)
+            {
+                try
+                {
+                    Jedis jedis = instance.getDatabaseConnector().getResource();
+                    jedis.zrem("lobbybalancer", server.getServerName());
+                    jedis.zadd("lobbybalancer", server.getActualSlots(), server.getServerName());
+                    jedis.close();
+                } catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }, 1000, 1000, TimeUnit.MILLISECONDS);
     }
 
     public boolean updateHubTemplate()
     {
-        try{
-            hubTemplate = (SimpleGameTemplate) instance.getTemplateManager().getTemplateByID("Hub");
-        }catch (Exception e)
+        try
+        {
+            hubTemplate = (SimpleGameTemplate) instance.getTemplateManager().getTemplateByID("hub");
+            if (hubTemplate == null)
+                throw new IOException("No Hub template found !");
+        } catch (IOException e)
         {
             e.printStackTrace();
-
-            instance.getLogger().severe("No Hub template found !");
             instance.getLogger().severe("Add one and reboot HydroServer or no hub will be start on the network!");
             return false;
         }
 
-        if(balancer == null)
+        if (balancer == null)
         {
             balancer = new BalancingTask(instance, this);
         }
 
-        if(!balancer.isAlive())
+        if (!balancer.isAlive())
         {
             balancer.start();
         }
         return true;
     }
 
+    public void addStartedHub(MinecraftServerS server)
+    {
+        if(hubTemplate != null)
+        {
+            if(hubTemplate.getId().equalsIgnoreCase(server.getTemplateID()))
+            {
+                hubs.add(server);
+                instance.getLogger().info("[HubBalancer] Add already started hub: " + server.getServerName());
+            }
+        }
+    }
+
+    public void loadStartedHubs()
+    {
+        if(hubTemplate != null)
+        {
+            for(MinecraftServerS server : instance.getClientManager().getServersByTemplate(hubTemplate))
+            {
+                hubs.add(server);
+                instance.getLogger().info("[HubBalancer] Add already started hub: " + server.getServerName());
+            }
+        }
+    }
+
     public void startNewHub()
     {
-        hubs.add(instance.getAlgorithmicMachine().orderTemplate(hubTemplate));
+        MinecraftServerS ordered = instance.getAlgorithmicMachine().orderTemplate(hubTemplate);
+        if (ordered != null)
+            hubs.add(ordered);
     }
 
     public int getNumberServer()
@@ -65,9 +119,9 @@ public class HubBalancer {
     public int getUsedSlots()
     {
         int i = 0;
-        for(MinecraftServerS serverS : hubs)
+        for (MinecraftServerS serverS : hubs)
         {
-            i+= serverS.getActualSlots();
+            i += serverS.getActualSlots();
         }
         return i;
     }
@@ -75,9 +129,9 @@ public class HubBalancer {
     public int getTotalSlot()
     {
         int i = 0;
-        for(MinecraftServerS serverS : hubs)
+        for (MinecraftServerS serverS : hubs)
         {
-            i+= serverS.getMaxSlot();
+            i += serverS.getMaxSlot();
         }
         return i;
     }
@@ -89,17 +143,36 @@ public class HubBalancer {
 
     public void stopBalancing()
     {
-        if(balancer != null) balancer.interrupt();
+        if (balancer != null) balancer.interrupt();
     }
 
     public void onHubShutdown(MinecraftServerS serverS)
     {
+        if(serverS == null)
+            return;
+
+        try
+        {
+            Jedis jedis = instance.getDatabaseConnector().getResource();
+            jedis.zrem("lobbybalancer", serverS.getServerName());
+            jedis.close();
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
         hubs.remove(serverS);
+        serverS.unregisterNetwork();
     }
 
     public SimpleGameTemplate getHubTemplate()
     {
         return hubTemplate;
+    }
+
+    public HydroangeasServer getInstance()
+    {
+        return instance;
     }
 
 }

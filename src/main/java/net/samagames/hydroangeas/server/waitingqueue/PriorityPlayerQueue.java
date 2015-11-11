@@ -1,6 +1,7 @@
 package net.samagames.hydroangeas.server.waitingqueue;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -30,21 +31,23 @@ public class PriorityPlayerQueue extends PriorityBlockingQueue<QGroup>
         }
     }
 
-    public int drainPlayerTo(List<QGroup> c, int maxElements)
+    public int drainPlayerTo(Collection<? super QGroup> c, int maxElements)
     {
         if (c == null)
             throw new NullPointerException();
         if (maxElements <= 0)
             return 0;
+
         final ReentrantLock lock = this.lock;
         lock.lock();
         try
         {
             int check = maxElements;
+            int j = 0;
 
             for (int i = 0; i < this.size(); i++)
             {
-                QGroup group = (QGroup) this.toArray()[i];
+                QGroup group = (QGroup) this.toArray()[j];
 
                 if (check - group.getSize() >= 0)
                 {
@@ -53,13 +56,16 @@ public class PriorityPlayerQueue extends PriorityBlockingQueue<QGroup>
                     try
                     {
                         this.remoteAtMethod.setAccessible(true);
-                        this.remoteAtMethod.invoke(this, i);
+                        this.remoteAtMethod.invoke(this, j);
                     } catch (ReflectiveOperationException e)
                     {
                         e.printStackTrace();
                     }
 
                     check -= group.getSize();
+                } else
+                {
+                    j++;
                 }
 
                 if (check <= 0)

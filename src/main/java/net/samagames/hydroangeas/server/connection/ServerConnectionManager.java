@@ -1,7 +1,9 @@
 package net.samagames.hydroangeas.server.connection;
 
 import net.samagames.hydroangeas.Hydroangeas;
+import net.samagames.hydroangeas.common.commands.CommandManager;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
+import net.samagames.hydroangeas.common.packets.CommandPacket;
 import net.samagames.hydroangeas.common.packets.ConnectionManager;
 import net.samagames.hydroangeas.common.protocol.coupaings.CoupaingServerPacket;
 import net.samagames.hydroangeas.common.protocol.intranet.*;
@@ -63,6 +65,17 @@ public class ServerConnectionManager extends ConnectionManager
             hydroangeas.log(Level.SEVERE, "An error occurred with the client '" + packet.getUUID() + "'!");
             hydroangeas.log(Level.SEVERE, "> Category: Server issue (" + packet.getIssueType().name() + ")");
 
+            HydroClient client = instance.getClientManager().getClientByUUID(packet.getUUID());
+            if (client == null)
+            {
+                return;
+            }
+
+            MinecraftServerS server = client.getServerManager().getServerByName(packet.getServerName());
+            if (server.isHub())
+            {
+                instance.getHubBalancer().onHubShutdown(server);
+            }
             ModMessage.sendError(InstanceType.SERVER, packet.getMessage());
         } else if (spacket instanceof MinecraftServerInfoPacket)
         {
@@ -83,21 +96,26 @@ public class ServerConnectionManager extends ConnectionManager
             HydroClient client = instance.getClientManager().getClientByUUID(packet.getUUID());
             if (client == null)
             {
+                instance.getLogger().info("Received an update from unknown client: " + packet.getUUID());
                 return;
             }
 
             MinecraftServerS server = client.getServerManager().getServerByName(packet.getServerName());
 
             //Handle pour l'algo avant de prendre les action
-            try{
+            try
+            {
                 instance.getAlgorithmicMachine().onServerUpdate(client, server, packet);
-            }catch(Exception e) {}
+            } catch (Exception e)
+            {
+            }
 
-            switch(packet.getAction())
+            switch (packet.getAction())
             {
                 case START:
                     server.setStarted(true);
-                    //TODO add event ?
+                    server.onStarted();
+                    instance.getLogger().info("Server: " + server.getServerName() + " started!");
                     break;
                 case END:
                     client.getServerManager().removeServer(packet.getServerName());
@@ -106,34 +124,28 @@ public class ServerConnectionManager extends ConnectionManager
 
         } else if (spacket instanceof ByeFromClientPacket)
         {
-            ByeFromClientPacket packet = (ByeFromClientPacket) spacket;
-            instance.getClientManager().onClientNoReachable(packet.getUUID());
-
+            instance.getClientManager().onClientNoReachable(((ByeFromClientPacket) spacket).getUUID());
         } else if (spacket instanceof CoupaingServerPacket)
         {
-            CoupaingServerPacket packet = (CoupaingServerPacket) spacket;
-            instance.getClientManager().orderServerForCoupaing(packet);
-
+            instance.getClientManager().orderServerForCoupaing((CoupaingServerPacket) spacket);
         } else if (spacket instanceof HelloFromClientPacket)
         {
-            HelloFromClientPacket packet = (HelloFromClientPacket) spacket;
-            instance.getClientManager().updateClient(packet);
+            instance.getClientManager().updateClient((HelloFromClientPacket) spacket);
         } else if (spacket instanceof QueueAddPlayerPacket)
         {
-            QueueAddPlayerPacket packet = (QueueAddPlayerPacket) spacket;
-            instance.getQueueManager().handlepacket(packet);
+            instance.getQueueManager().handlePacket((QueueAddPlayerPacket) spacket);
         } else if (spacket instanceof QueueRemovePlayerPacket)
         {
-            QueueRemovePlayerPacket packet = (QueueRemovePlayerPacket) spacket;
-            instance.getQueueManager().handlepacket(packet);
+            instance.getQueueManager().handlePacket((QueueRemovePlayerPacket) spacket);
         } else if (spacket instanceof QueueAttachPlayerPacket)
         {
-            QueueAttachPlayerPacket packet = (QueueAttachPlayerPacket) spacket;
-            instance.getQueueManager().handlepacket(packet);
+            instance.getQueueManager().handlePacket((QueueAttachPlayerPacket) spacket);
         } else if (spacket instanceof QueueDetachPlayerPacket)
         {
-            QueueDetachPlayerPacket packet = (QueueDetachPlayerPacket) spacket;
-            instance.getQueueManager().handlepacket(packet);
+            instance.getQueueManager().handlePacket((QueueDetachPlayerPacket) spacket);
+        } else if (spacket instanceof CommandPacket)
+        {
+            instance.getCommandManager().inputCommand(((CommandPacket) spacket).getAction());
         }
     }
 }

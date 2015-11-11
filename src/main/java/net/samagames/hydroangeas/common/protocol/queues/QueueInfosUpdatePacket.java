@@ -3,6 +3,8 @@ package net.samagames.hydroangeas.common.protocol.queues;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
 import net.samagames.hydroangeas.server.waitingqueue.QPlayer;
 
+import java.util.List;
+
 /**
  * This file is a part of the SamaGames Project CodeBase
  * This code is absolutely confidential.
@@ -17,7 +19,10 @@ public class QueueInfosUpdatePacket extends AbstractPacket
     private boolean success;
     private String errorMessage;
 
-    private String templateID;
+    private List<String> message;
+
+    private String game;
+    private String map;
 
     private QPlayer player;
 
@@ -27,19 +32,18 @@ public class QueueInfosUpdatePacket extends AbstractPacket
 
     public QueueInfosUpdatePacket(QPlayer player, Type type, boolean success, String errorMessage)
     {
-
         this.player = player;
         this.type = type;
         this.success = success;
         this.errorMessage = errorMessage;
     }
 
-    public QueueInfosUpdatePacket(QPlayer player, Type type, String templateID)
+    public QueueInfosUpdatePacket(QPlayer player, Type type, String game, String map)
     {
-
         this.player = player;
         this.type = type;
-        this.templateID = templateID;
+        this.game = game;
+        this.map = map;
     }
 
     public Type getType()
@@ -57,9 +61,14 @@ public class QueueInfosUpdatePacket extends AbstractPacket
         return errorMessage;
     }
 
-    public String getTemplateID()
+    public String getGame()
     {
-        return templateID;
+        return game;
+    }
+
+    public String getMap()
+    {
+        return map;
     }
 
     public QPlayer getPlayer()
@@ -67,9 +76,16 @@ public class QueueInfosUpdatePacket extends AbstractPacket
         return player;
     }
 
+    public List<String> getMessage() {
+        return message;
+    }
+
+    public void setMessage(List<String> message) {
+        this.message = message;
+    }
 
     public enum Type
     {
-        ADD, REMOVE
+        ADD, REMOVE, INFO
     }
 }

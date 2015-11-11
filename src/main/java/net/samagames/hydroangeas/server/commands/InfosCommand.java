@@ -4,6 +4,7 @@ import net.samagames.hydroangeas.common.commands.AbstractCommand;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.HydroClient;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
+import net.samagames.hydroangeas.utils.ConsoleColor;
 
 import java.util.TreeSet;
 import java.util.logging.Level;
@@ -34,12 +35,7 @@ public class InfosCommand extends AbstractCommand
             int i = 0;
             for (HydroClient client : instance.getClientManager().getClients())
             {
-                instance.log(Level.INFO, "#" + i + " " + client.getUUID() + ": ");
-                instance.log(Level.INFO, "   ip:         " + client.getIp());
-                instance.log(Level.INFO, "   weight:     " + client.getActualWeight());
-                instance.log(Level.INFO, "   maxWeight:  " + client.getMaxWeight());
-                instance.log(Level.INFO, "   Nb server:  " + client.getServerManager().getServers().size());
-                instance.log(Level.INFO, "   Last Ping:  " + client.getTimestamp());
+                showHydroClient(client, i);
                 i++;
             }
         } else if (args.length == 1)
@@ -51,38 +47,23 @@ public class InfosCommand extends AbstractCommand
 
                 for (HydroClient client : sortedClient)
                 {
-                    instance.log(Level.INFO, "# " + client.getUUID() + ": ");
-                    instance.log(Level.INFO, "   ip:         " + client.getIp());
-                    instance.log(Level.INFO, "   weight:     " + client.getActualWeight());
-                    instance.log(Level.INFO, "   maxWeight:  " + client.getMaxWeight());
-                    instance.log(Level.INFO, "   Nb server:  " + client.getServerManager().getServers().size());
-                    instance.log(Level.INFO, "   Last Ping:  " + client.getTimestamp());
+                    showHydroClient(client, null);
                 }
                 return true;
             }
             int id;
             try
             {
-                id = Integer.valueOf(args[0]);
+                id = Integer.parseInt(args[0]);
                 HydroClient client = instance.getClientManager().getClients().get(id);
 
-                instance.log(Level.INFO, "#" + id + " " + client.getUUID() + ": ");
-                instance.log(Level.INFO, "   IP:         " + client.getIp());
-                instance.log(Level.INFO, "   Weight:     " + client.getActualWeight());
-                instance.log(Level.INFO, "   MaxWeight:  " + client.getMaxWeight());
-                instance.log(Level.INFO, "   Nb server:  " + client.getServerManager().getServers().size());
-                instance.log(Level.INFO, "   Last Ping:  " + client.getTimestamp());
+                showHydroClient(client, id);
                 instance.log(Level.INFO, "   Servers:    ");
 
                 int i = 0;
                 for (MinecraftServerS server : client.getServerManager().getServers())
                 {
-                    instance.log(Level.INFO, "      #" + i + " Servername: " + server.getServerName());
-                    instance.log(Level.INFO, "       Game:     " + server.getGame());
-                    instance.log(Level.INFO, "       Map:      " + server.getMap());
-                    instance.log(Level.INFO, "       MaxSlots: " + server.getMaxSlot());
-                    instance.log(Level.INFO, "       MinSlots: " + server.getMinSlot());
-                    instance.log(Level.INFO, "       Weight:   " + server.getWeight());
+                    showServer(server, i);
                     i++;
                 }
 
@@ -99,5 +80,38 @@ public class InfosCommand extends AbstractCommand
         }
 
         return true;
+    }
+
+    public void showHydroClient(HydroClient client, Integer i)
+    {
+        instance.log(Level.INFO, "#" + ((i != null)?i:"") + " " + client.getUUID() + ": ");
+        instance.log(Level.INFO, "   ip:         " + ConsoleColor.RED + client.getIp() + ConsoleColor.RESET);
+        instance.log(Level.INFO, "   weight:     " + ConsoleColor.RED + client.getActualWeight() + ConsoleColor.RESET);
+        instance.log(Level.INFO, "   maxWeight:  " + ConsoleColor.RED + client.getMaxWeight() + ConsoleColor.RESET);
+        instance.log(Level.INFO, "   Nb player:  " + ConsoleColor.RED + client.getPlayer() + ConsoleColor.RESET);
+        instance.log(Level.INFO, "   Nb server:  " + ConsoleColor.RED + client.getServerManager().getServers().size() + ConsoleColor.RESET);
+        instance.log(Level.INFO, "   Last Ping:  " + ConsoleColor.RED + client.getTimestamp() + ConsoleColor.RESET);
+        instance.log(Level.INFO, "   Restriction Mode:  " + ConsoleColor.RED + client.getRestrictionMode().getMode() + ConsoleColor.RESET);
+        instance.log(Level.INFO, "   Whitelist:  ");
+        for(String data : client.getWhitelist())
+        {
+            instance.log(Level.INFO, "   - "+ ConsoleColor.YELLOW + data + ConsoleColor.RESET);
+        }
+        instance.log(Level.INFO, "   Blacklist:  ");
+        for(String data : client.getBlacklist())
+        {
+            instance.log(Level.INFO, "   - "+ ConsoleColor.YELLOW + data + ConsoleColor.RESET);
+        }
+    }
+
+    public void showServer(MinecraftServerS server, Integer i)
+    {
+        instance.log(Level.INFO, "      #" + ((i != null)?i:"") + " Servername: " + server.getServerName());
+        instance.log(Level.INFO, "       Game:     " + ConsoleColor.RED + server.getGame() + ConsoleColor.RESET);
+        instance.log(Level.INFO, "       Map:      " + ConsoleColor.RED + server.getMap() + ConsoleColor.RESET);
+        instance.log(Level.INFO, "       Players:  " + ConsoleColor.RED + server.getActualSlots() + ConsoleColor.RESET);
+        instance.log(Level.INFO, "       MaxSlots: " + ConsoleColor.RED + server.getMaxSlot() + ConsoleColor.RESET);
+        instance.log(Level.INFO, "       MinSlots: " + ConsoleColor.RED + server.getMinSlot() + ConsoleColor.RESET);
+        instance.log(Level.INFO, "       Weight:   " + ConsoleColor.RED + server.getWeight() + ConsoleColor.RESET);
     }
 }

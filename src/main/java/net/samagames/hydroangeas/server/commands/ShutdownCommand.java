@@ -34,7 +34,7 @@ public class ShutdownCommand extends AbstractCommand
                     int id;
                     try
                     {
-                        id = Integer.valueOf(args[1]);
+                        id = Integer.parseInt(args[1]);
                         HydroClient client = instance.getClientManager().getClients().get(id);
                         client.shutdown();
                         instance.getLogger().info("#" + id + " shutdown successfully");

@@ -1,6 +1,5 @@
 package net.samagames.hydroangeas;
 
-import jline.UnsupportedTerminal;
 import jline.console.ConsoleReader;
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.client.HydroangeasClient;
@@ -14,10 +13,10 @@ import net.samagames.restfull.RestAPI;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,7 +41,6 @@ public abstract class Hydroangeas
     public Hydroangeas(OptionSet options) throws IOException
     {
         instance = this;
-
         uuid = UUID.randomUUID();
 
         AnsiConsole.systemInstall();
@@ -50,12 +48,6 @@ public abstract class Hydroangeas
         consoleReader.setExpandEvents(false);
 
         logger = new HydroLogger(this);
-
-        if (consoleReader.getTerminal() instanceof UnsupportedTerminal)
-        {
-            log(Level.INFO, "Unable to initialize fancy terminal. To fix this on Windows, install the correct Microsoft Visual C++ 2008 Runtime");
-            log(Level.INFO, "NOTE: This error is non crucial, and BungeeCord will still function correctly! Do not bug the author about it unless you are still unable to get it working");
-        }
 
         logger.info("Hydroangeas version 1.0.0");
         logger.info("----------------------------------------");
@@ -87,14 +79,7 @@ public abstract class Hydroangeas
 
     public static int findRandomOpenPort()
     {
-        try (ServerSocket socket = new ServerSocket(0))
-        {
-            return socket.getLocalPort();
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        return -1;
+        return ThreadLocalRandom.current().nextInt(20000, 40001);
     }
 
     public abstract void enable();
@@ -177,5 +162,35 @@ public abstract class Hydroangeas
     public UUID getUUID()
     {
         return uuid;
+    }
+
+    public enum RestrictionMode
+    {
+        NONE("none"),
+        WHITELIST("whitelist"),
+        BLACKLIST("blacklist");
+
+        private String mode;
+
+        RestrictionMode(String mode)
+        {
+
+            this.mode = mode;
+        }
+
+        public String getMode() {
+            return mode;
+        }
+
+        static public RestrictionMode valueFrom(String mode)
+        {
+            for(RestrictionMode data : RestrictionMode.values())
+            {
+                if(data.getMode().equalsIgnoreCase(mode))
+                    return data;
+            }
+
+            return RestrictionMode.NONE;
+        }
     }
 }

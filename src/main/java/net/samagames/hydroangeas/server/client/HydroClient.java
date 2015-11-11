@@ -1,10 +1,11 @@
 package net.samagames.hydroangeas.server.client;
 
+import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.protocol.intranet.AskForClientActionPacket;
 import net.samagames.hydroangeas.common.protocol.intranet.HelloFromClientPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 
-import java.sql.Timestamp;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -22,16 +23,23 @@ public class HydroClient
     private UUID uuid;
     private String ip;
     private int maxWeight;
-    private Timestamp timestamp;
+    private long timestamp;
+
+    private Hydroangeas.RestrictionMode restrictionMode;
+    private List<String> whitelist;
+    private List<String> blacklist;
 
     private MinecraftServerManager serverManager;
 
-    public HydroClient(HydroangeasServer instance, UUID uuid)
+    public HydroClient(HydroangeasServer instance, UUID uuid, Hydroangeas.RestrictionMode restrictionMode, List<String> whitelist, List<String> blacklist)
     {
         this.instance = instance;
         this.uuid = uuid;
+        this.restrictionMode = restrictionMode;
+        this.whitelist = whitelist;
+        this.blacklist = blacklist;
 
-        this.timestamp = new Timestamp(System.currentTimeMillis());
+        this.timestamp = System.currentTimeMillis();
 
         serverManager = new MinecraftServerManager(instance, this);
     }
@@ -50,7 +58,7 @@ public class HydroClient
             instance.log(Level.SEVERE, "Error client and server not sync about weight! client:" + packet.getActualWeight() + " server:" + getActualWeight());
         }
 
-        this.timestamp = new Timestamp(System.currentTimeMillis());
+        this.timestamp = System.currentTimeMillis();
 
     }
 
@@ -94,12 +102,12 @@ public class HydroClient
         return getMaxWeight() - getActualWeight();
     }
 
-    public Timestamp getTimestamp()
+    public long getTimestamp()
     {
         return this.timestamp;
     }
 
-    public void setTimestamp(Timestamp timestamp)
+    public void setTimestamp(long timestamp)
     {
         this.timestamp = timestamp;
     }
@@ -114,6 +122,16 @@ public class HydroClient
         return instance;
     }
 
+    public int getPlayer()
+    {
+        int data = 0;
+        for(MinecraftServerS server : serverManager.getServers())
+        {
+            data += server.getActualSlots();
+        }
+        return data;
+    }
+
     @Override
     public boolean equals(Object obj)
     {
@@ -125,5 +143,23 @@ public class HydroClient
             }
         }
         return false;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return this.getUUID().hashCode();
+    }
+
+    public List<String> getWhitelist() {
+        return whitelist;
+    }
+
+    public List<String> getBlacklist() {
+        return blacklist;
+    }
+
+    public Hydroangeas.RestrictionMode getRestrictionMode() {
+        return restrictionMode;
     }
 }

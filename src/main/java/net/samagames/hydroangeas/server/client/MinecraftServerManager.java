@@ -38,17 +38,18 @@ public class MinecraftServerManager
     {
         MinecraftServerS server = new MinecraftServerS(client, template);
 
-        if(!hub)
+        if (!hub)
         {
             //Comme on prend que la première partie de l'uuid on check si un serveur a déja un nom identique
-            while(instance.getClientManager().getServerByName(server.getServerName()) != null)
+            while (instance.getClientManager().getServerByName(server.getServerName()) != null)
             {
                 server.changeUUID();
             }
-        }else{
-            for(int i = 0; ; i++)
+        } else
+        {
+            for (int i = 1; ; i++)
             {
-                if(instance.getClientManager().getServerByName("Hub_"+i) == null)
+                if (instance.getClientManager().getServerByName("Hub_" + i) == null)
                 {
                     server.setHubID(i);
                     break;
@@ -56,17 +57,23 @@ public class MinecraftServerManager
             }
         }
 
-        server.setWeight(MiscUtils.calculServerWeight(server.getGame(), server.getMaxSlot(), server.isCoupaingServer()));
+        server.setWeight(template.getWeight());
 
         servers.add(server);
+        MinecraftServerOrderPacket packet = new MinecraftServerOrderPacket(server);
+        packet.setTimeToLive(server.getTimeToLive());
+        packet.setStartedTime(server.getStartedTime());
 
-        instance.getConnectionManager().sendPacket(client, new MinecraftServerOrderPacket(server));
+        instance.getConnectionManager().sendPacket(client, packet);
 
         return server;
     }
 
     public void handleServerData(MinecraftServerInfoPacket packet)
     {
+        if(packet.getServerName() == null)
+            return;
+
         MinecraftServerS server = getServerByName(packet.getServerName());
         //Server not in here so add it
         if (server == null)
@@ -75,16 +82,28 @@ public class MinecraftServerManager
 
             server = new MinecraftServerS(client, packet);
 
-            if (getServerByUUID(server.getUUID()) != null)
+            if (getServerByUUID(server.getUUID()) != null || getServerByName(server.getServerName()) != null)
             {
-                instance.getLogger().severe("Error duplicated UUID ! Not saving server !");
+                instance.getLogger().severe("Error duplicated UUID ! Not saving server and ask Shutdown !");
+                instance.getLogger().severe("For information, Server Name: " + server.getServerName());
                 instance.getConnectionManager().sendPacket(client,
                         new AskForClientActionPacket(instance.getUUID(), AskForClientActionPacket.ActionCommand.SERVEREND, packet.getServerName()));
                 return;
             }
-            server.setWeight(MiscUtils.calculServerWeight(server.getGame(), server.getMaxSlot(), server.isCoupaingServer()));
+
+            server.setWeight(packet.getWeight());
+            server.setTimeToLive(packet.getTimeToLive());
+            server.setStartedTime(packet.getStartedTime());
+            server.setTemplateID(packet.getTemplateID());
+            server.setHubID(packet.getHubID());
+
             servers.add(server);
             instance.getLogger().info("Added " + packet.getServerName());
+
+            if(server.isHub())
+            {
+                instance.getHubBalancer().addStartedHub(server);
+            }
         } else
         {//Server here ! so update it !
 
@@ -132,7 +151,7 @@ public class MinecraftServerManager
 
     public List<MinecraftServerS> getServersByTemplate(AbstractGameTemplate template)
     {
-        return servers.stream().filter(server -> server.getTemplateID().equals(template.getId())).collect(Collectors.toList());
+        return servers.stream().filter(server -> server.getTemplateID() != null && server.getTemplateID().equalsIgnoreCase(template.getId())).collect(Collectors.toList());
     }
 
     public int getTotalWeight()

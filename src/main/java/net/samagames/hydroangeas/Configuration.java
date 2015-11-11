@@ -7,9 +7,9 @@ import net.samagames.hydroangeas.utils.MiscUtils;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.logging.Level;
 
 public class Configuration
@@ -33,13 +33,13 @@ public class Configuration
         try
         {
             this.loadConfiguration(options.valueOf("c").toString());
-        } catch (FileNotFoundException e)
+        } catch (IOException e)
         {
             e.printStackTrace();
         }
     }
 
-    public void loadConfiguration(String path) throws FileNotFoundException
+    public void loadConfiguration(String path) throws IOException
     {
         this.instance.log(Level.INFO, "Configuration file is: " + path);
         File configurationFile = new File(path);
@@ -47,24 +47,37 @@ public class Configuration
         if (!configurationFile.exists())
         {
             this.instance.log(Level.SEVERE, "Configuration file don't exist!");
-            System.exit(-1);
+            System.exit(4);
         }
 
-        JsonObject jsonRoot = new JsonParser().parse(new FileReader(new File(path))).getAsJsonObject();
-        this.jsonConfiguration = jsonRoot;
+        InputStreamReader reader = new InputStreamReader(new FileInputStream(configurationFile), "UTF-8");
+        try
+        {
+            this.jsonConfiguration = new JsonParser().parse(reader).getAsJsonObject();
+        } finally
+        {
+            try
+            {
+                reader.close();
+            } catch (IOException e)
+            {
 
-        if (!validateJson(jsonRoot))
+            }
+
+        }
+
+        if (!validateJson(jsonConfiguration))
         {
             this.instance.log(Level.SEVERE, "Configuration file isn't valid! Please just modify the default configuration file!");
-            System.exit(-1);
+            System.exit(5);
         }
 
-        this.redisIp = jsonRoot.get("redis-ip").getAsString();
-        this.redisPort = jsonRoot.get("redis-port").getAsInt();
-        this.redisPassword = jsonRoot.get("redis-password").getAsString();
-        this.restfullURL = jsonRoot.get("restfull-url").getAsString();
-        this.restfullUser = jsonRoot.get("restfull-user").getAsString();
-        this.restfullPassword = jsonRoot.get("restfull-user").getAsString();
+        this.redisIp = jsonConfiguration.get("redis-ip").getAsString();
+        this.redisPort = jsonConfiguration.get("redis-port").getAsInt();
+        this.redisPassword = jsonConfiguration.get("redis-password").getAsString();
+        this.restfullURL = jsonConfiguration.get("restfull-url").getAsString();
+        this.restfullUser = jsonConfiguration.get("restfull-user").getAsString();
+        this.restfullPassword = jsonConfiguration.get("restfull-user").getAsString();
     }
 
     public void createDefaultConfiguration()
@@ -79,7 +92,7 @@ public class Configuration
         }
 
         this.instance.log(Level.INFO, "Default configuration file created.");
-        System.exit(0);
+        System.exit(3);
     }
 
     public JsonObject getJsonConfiguration()

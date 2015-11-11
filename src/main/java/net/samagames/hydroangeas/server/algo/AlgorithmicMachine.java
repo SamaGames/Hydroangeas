@@ -1,13 +1,13 @@
 package net.samagames.hydroangeas.server.algo;
 
+import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerUpdatePacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.HydroClient;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.server.data.Status;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
-import net.samagames.hydroangeas.utils.InstanceType;
-import net.samagames.hydroangeas.utils.ModMessage;
+import net.samagames.hydroangeas.utils.ConsoleColor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 public class AlgorithmicMachine
 {
-    private static final int FREE_SPACE = 5;
+    private static final int FREE_SPACE = 0;
     private final HydroangeasServer instance;
 
     public AlgorithmicMachine(HydroangeasServer instance)
@@ -32,7 +32,7 @@ public class AlgorithmicMachine
         for (HydroClient client : sortedClient)
         {
             int weight = template.getWeight();
-            if (client.getAvailableWeight() - weight > FREE_SPACE)
+            if (client.getAvailableWeight() - weight >= FREE_SPACE && hasNoRestriction(client, template))
             {
                 return client;
             }
@@ -43,7 +43,7 @@ public class AlgorithmicMachine
     public MinecraftServerS orderBasic(String game, String map)
     {
         AbstractGameTemplate template = instance.getTemplateManager().getTemplateByGameAndMap(game, map);
-        if(template == null)
+        if (template == null)
         {
             instance.getLogger().warning("Error template " + game + " " + map + " doesn't exist!");
             return null;
@@ -57,11 +57,11 @@ public class AlgorithmicMachine
 
         if (client == null)
         {
-            instance.log(Level.SEVERE, "Major error ! No Hydroclient available !");
+            instance.log(Level.SEVERE, ConsoleColor. RED + "No Hydroclient available !"+  ConsoleColor.RESET);
             return null;
         }
 
-        MinecraftServerS server = client.getServerManager().addServer(template, template.getGameName().startsWith("Hub"));
+        MinecraftServerS server = client.getServerManager().addServer(template, template.getGameName().toLowerCase().startsWith("hub"));
         instance.log(Level.INFO, template + " created on " + client.getIp());
         return server;
     }
@@ -77,10 +77,6 @@ public class AlgorithmicMachine
         {
             instance.log(Level.INFO, "Server ended on " + client.getIp() + " servername: " + serverStatus.getServerName());
 
-            if(oldServer.isHub())
-            {
-                instance.getHubBalancer().onHubShutdown(oldServer);
-            }
         }
     }
 
@@ -92,5 +88,32 @@ public class AlgorithmicMachine
             servers.addAll(client.getServerManager().getServers().stream().filter(server -> server.getTemplateID().equalsIgnoreCase(templateID) && (server.getStatus().isAllowJoin() || server.getStatus().equals(Status.STARTING)) && server.getActualSlots() < server.getMaxSlot() * 0.90).collect(Collectors.toList()));
         }
         return servers;
+    }
+
+    private boolean hasNoRestriction(HydroClient client, AbstractGameTemplate template)
+    {
+        //useless but in mainly cases we do only one check
+        if(client.getRestrictionMode().equals(Hydroangeas.RestrictionMode.NONE))
+            return true;
+
+        if(client.getRestrictionMode().equals(Hydroangeas.RestrictionMode.WHITELIST))
+        {
+            if(client.getWhitelist().contains(template.getId()))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        if(client.getRestrictionMode().equals(Hydroangeas.RestrictionMode.BLACKLIST))
+        {
+            if(client.getBlacklist().contains(template.getId()))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        return true;
     }
 }

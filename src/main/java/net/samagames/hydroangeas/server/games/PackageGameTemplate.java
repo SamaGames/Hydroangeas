@@ -11,7 +11,8 @@ import java.util.Random;
 /**
  * Created by Silva on 09/09/2015.
  */
-public class PackageGameTemplate implements AbstractGameTemplate {
+public class PackageGameTemplate implements AbstractGameTemplate
+{
 
     private String id;
 
@@ -24,7 +25,7 @@ public class PackageGameTemplate implements AbstractGameTemplate {
         this.id = id;
         JsonObject object = data.getAsJsonObject();
 
-        for(JsonElement element : object.getAsJsonArray("Templates"))
+        for (JsonElement element : object.getAsJsonArray("Templates"))
         {
             templates.add(element.getAsString());
         }
@@ -35,59 +36,74 @@ public class PackageGameTemplate implements AbstractGameTemplate {
         Random random = new Random();
         String selected = templates.get(random.nextInt(templates.size()));
         AbstractGameTemplate template = Hydroangeas.getInstance().getAsServer().getTemplateManager().getTemplateByID(selected);
-        if(template == null || template instanceof PackageGameTemplate)
+        if (template == null || template instanceof PackageGameTemplate)
         {
-            Hydroangeas.getInstance().getLogger().severe("Package Template: "+id+" contains an invalid sub template");
+            Hydroangeas.getInstance().getLogger().severe("Package Template: " + id + " contains an invalid sub template");
             return false;
-        }else{
+        } else
+        {
             currentTemplate = (SimpleGameTemplate) template;
         }
         return true;
     }
 
     @Override
-    public String getId() {
+    public String getId()
+    {
         return id;
     }
 
     @Override
-    public String getGameName() {
+    public String getGameName()
+    {
         return currentTemplate.getGameName();
     }
 
     @Override
-    public String getMapName() {
+    public String getMapName()
+    {
         return currentTemplate.getMapName();
     }
 
     @Override
-    public int getMinSlot() {
+    public int getMinSlot()
+    {
         return currentTemplate.getMinSlot();
     }
 
     @Override
-    public int getMaxSlot() {
+    public int getMaxSlot()
+    {
         return currentTemplate.getMaxSlot();
     }
 
     @Override
-    public JsonElement getOptions() {
+    public JsonElement getOptions()
+    {
         return currentTemplate.getOptions();
     }
 
     @Override
-    public int getWeight() {
+    public int getWeight()
+    {
         return currentTemplate.getWeight();
     }
 
     @Override
-    public boolean isCoupaing() {
+    public boolean isCoupaing()
+    {
         return currentTemplate.isCoupaing();
     }
 
     @Override
     public String toString()
     {
-        return "Template id: " + id + ((isCoupaing())?" Coupaing Server ":" ");
+        return "Template id: " + id + ((isCoupaing()) ? " Coupaing Server " : " ");
+    }
+
+    @Override
+    public JsonElement getStartupOptions()
+    {
+        return currentTemplate.getStartupOptions();
     }
 }

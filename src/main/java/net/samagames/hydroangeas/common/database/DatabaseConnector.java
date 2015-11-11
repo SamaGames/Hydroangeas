@@ -1,6 +1,7 @@
 package net.samagames.hydroangeas.common.database;
 
 import net.samagames.hydroangeas.Hydroangeas;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
@@ -10,9 +11,8 @@ import java.util.logging.Logger;
 public class DatabaseConnector
 {
     private final Hydroangeas instance;
-    private JedisPool jedisPool;
-
     public Thread reconnection;
+    private JedisPool jedisPool;
 
     public DatabaseConnector(Hydroangeas instance)
     {
@@ -20,24 +20,27 @@ public class DatabaseConnector
         this.connect();
 
         this.reconnection = new Thread(() -> {
-            while(true)
+            while (true)
             {
-                try{
-                    try{
+                try
+                {
+                    try
+                    {
                         jedisPool.getResource().close();
-                    }catch(Exception e)
+                    } catch (Exception e)
                     {
                         e.printStackTrace();
                         instance.getLogger().severe("Error redis connection, Try to reconnect!");
                         connect();
                     }
-                    Thread.sleep(10*1000);
-                }catch (Exception e)
+                    Thread.sleep(10 * 1000);
+                } catch (Exception e)
                 {
                     break;
                 }
             }
         }, "Redis reconnect");
+        reconnection.start();
     }
 
     public void connect()
@@ -45,20 +48,20 @@ public class DatabaseConnector
         this.instance.log(Level.INFO, "Connecting to database...");
 
         JedisPoolConfig jedisConfiguration = new JedisPoolConfig();
-        jedisConfiguration.setMaxTotal(1024);
-        jedisConfiguration.setMaxWaitMillis(5000);
+        jedisConfiguration.setMaxTotal(-1);
+        jedisConfiguration.setJmxEnabled(false);
 
         Logger logger = Logger.getLogger(JedisPool.class.getName());
         logger.setLevel(Level.OFF);
 
-        this.jedisPool = new JedisPool(jedisConfiguration, this.instance.getConfiguration().redisIp, this.instance.getConfiguration().redisPort, 5000, this.instance.getConfiguration().redisPassword);
+        this.jedisPool = new JedisPool(jedisConfiguration, this.instance.getConfiguration().redisIp, this.instance.getConfiguration().redisPort, 0, this.instance.getConfiguration().redisPassword);
         try
         {
-            this.jedisPool.getResource();
+            this.jedisPool.getResource().close();
         } catch (Exception e)
         {
             this.instance.log(Level.SEVERE, "Can't connect to the database!");
-            System.exit(-1);
+            System.exit(8);
         }
 
         this.instance.log(Level.INFO, "Connected to database.");
@@ -72,5 +75,10 @@ public class DatabaseConnector
     public JedisPool getJedisPool()
     {
         return this.jedisPool;
+    }
+
+    public Jedis getResource()
+    {
+        return jedisPool.getResource();
     }
 }

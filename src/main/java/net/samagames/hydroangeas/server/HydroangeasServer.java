@@ -2,6 +2,7 @@ package net.samagames.hydroangeas.server;
 
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.Hydroangeas;
+import net.samagames.hydroangeas.common.protocol.intranet.AskForClientDataPacket;
 import net.samagames.hydroangeas.server.algo.AlgorithmicMachine;
 import net.samagames.hydroangeas.server.algo.TemplateManager;
 import net.samagames.hydroangeas.server.client.ClientManager;
@@ -15,7 +16,6 @@ import net.samagames.hydroangeas.utils.ModMessage;
 
 import java.io.IOException;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class HydroangeasServer extends Hydroangeas
@@ -52,6 +52,7 @@ public class HydroangeasServer extends Hydroangeas
             }
         });
         this.redisSubscriber.registerReceiver("serverUpdateChannel", new ServerStatusReceiver(this));
+        this.redisSubscriber.registerReceiver("hubUpdateChannel", new ServerStatusReceiver(this));
         this.redisSubscriber.registerReceiver("hubsChannel", new ServerStatusReceiver(this));
 
         this.clientManager = new ClientManager(this);
@@ -65,8 +66,11 @@ public class HydroangeasServer extends Hydroangeas
         this.commandManager = new ServerCommandManager(this);
 
         ModMessage.sendMessage(InstanceType.SERVER, "Démarrage d'Hydroangeas Server...");
-        ModMessage.sendMessage(InstanceType.SERVER, "> Récupération des données éxistantes (60 secondes)...");
+        ModMessage.sendMessage(InstanceType.SERVER, "> Récupération des données éxistantes (20 secondes)...");
+
         this.hubBalancer = new HubBalancer(this);
+
+        clientManager.globalCheckData();
     }
 
     @Override
@@ -106,7 +110,8 @@ public class HydroangeasServer extends Hydroangeas
         return templateManager;
     }
 
-    public HubBalancer getHubBalancer() {
+    public HubBalancer getHubBalancer()
+    {
         return hubBalancer;
     }
 }

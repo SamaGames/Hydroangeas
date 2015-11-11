@@ -3,74 +3,93 @@ package net.samagames.hydroangeas.server.hubs;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by Silva on 13/09/2015.
  */
-public class BalancingTask extends Thread {
-
-    private HydroangeasServer instance;
-    private HubBalancer hubBalancer;
-
-    public static final int HUB_SAFETY_MARGIN = 3;
+public class BalancingTask extends Thread
+{
+    public static final double HUB_SAFETY_MARGIN = 2;
     public static final int HUB_CONSIDERED_AS_EMPTY = 5; //Number minimum of player on a HUB we can stop
-
+    private HubBalancer hubBalancer;
     private int coolDown = 0; //*100ms
 
     public BalancingTask(HydroangeasServer instance, HubBalancer hubBalancer)
     {
-
-        this.instance = instance;
         this.hubBalancer = hubBalancer;
+        coolDown = 400; //Wait 20s to load balance hub
+
     }
 
     @Override
-    public void run() {
-        while(true)
+    public void run()
+    {
+        while (true)
         {
-            try {
-                int requestNumber = needNumberOfHub();
+            try
+            {
+                //Wait desired time in case of server start
+                checkCooldown();
 
-                if(hubBalancer.getNumberServer() < requestNumber)
+                //Calculate the needed lobby
+                int requestNumber = (int) Math.ceil(needNumberOfHub());
+
+                //Need we some lobby ?
+                if (hubBalancer.getNumberServer() < requestNumber)
                 {
-                    for(int i = requestNumber - hubBalancer.getNumberServer(); i > 0; i--)
+                    //Start them !
+                    for (int i = requestNumber - hubBalancer.getNumberServer(); i > 0; i--)
                     {
                         hubBalancer.startNewHub();
                     }
-                    coolDown += 5;
-                }else if(hubBalancer.getNumberServer() > requestNumber)
+                    //Wait until started
+                    coolDown += 20;
+
+                    //Are they too much lobby ?
+                } else if (hubBalancer.getNumberServer() > requestNumber)
                 {
-                    for(MinecraftServerS serverS : hubBalancer.getBalancedHubList())
+                    //Stop them !
+                    List<MinecraftServerS> balancedHubList = new ArrayList<>();
+                    balancedHubList.addAll(hubBalancer.getBalancedHubList());
+                    for (MinecraftServerS serverS : balancedHubList)
                     {
-                        if(hubBalancer.getNumberServer() <= requestNumber)
+                        if (hubBalancer.getNumberServer() == requestNumber)
                             break;
 
-                        if(serverS.getActualSlots() < HUB_CONSIDERED_AS_EMPTY)
+                        if (serverS.getActualSlots() < HUB_CONSIDERED_AS_EMPTY)
                         {
-                            serverS.shutdown();
+                            //We are good so we let to players the time to leave the lobby
+                            serverS.dispatchCommand("evacuate lobby");
+                            hubBalancer.onHubShutdown(serverS);
+                            //Security force shutdown
+                            hubBalancer.getInstance().getScheduler().schedule(() -> serverS.shutdown(), 65, TimeUnit.SECONDS);
                         }
                     }
                 }
-
-                checkCooldown();
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+                Thread.sleep(300);//Need to be very reactive
+            } catch (InterruptedException e)
+            {
                 e.printStackTrace();
             }
         }
     }
 
-    public int needNumberOfHub()
+    public double needNumberOfHub()
     {
-        return (hubBalancer.getUsedSlots() / hubBalancer.getHubTemplate().getMaxSlot()) + HUB_SAFETY_MARGIN;
+        return ( (((double) hubBalancer.getUsedSlots())*1.6) / (double) hubBalancer.getHubTemplate().getMaxSlot()) + HUB_SAFETY_MARGIN;
     }
 
-    public void checkCooldown() throws InterruptedException {
+    public void checkCooldown() throws InterruptedException
+    {
         while (coolDown > 0)
         {
             coolDown--;
             Thread.sleep(100);
         }
-        coolDown = 0;//Flemme de calculer
+        coolDown = 0;//Security in case of forgot
     }
 
 }

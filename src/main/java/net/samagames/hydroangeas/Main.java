@@ -63,11 +63,11 @@ public class Main
             if (!options.has("client") && !options.has("server"))
             {
                 System.err.println("You must start Hydroangeas as a client or a server!");
-                System.exit(-1);
+                System.exit(6);
             } else if (options.has("client") && options.has("server"))
             {
                 System.err.println("Hydroangeas can't be a client AND a server!");
-                System.exit(-1);
+                System.exit(7);
             }
 
             Hydroangeas hydroangeas;
@@ -95,7 +95,7 @@ public class Main
         } catch (OptionException | IOException ex)
         {
             System.err.println(ex.getLocalizedMessage());
-            System.exit(-1);
+            System.exit(42);
         }
     }
 }

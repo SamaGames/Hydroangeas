@@ -23,14 +23,20 @@ public class MinecraftServerInfoPacket extends AbstractPacket
     private UUID serverUUID;
     private int port;
 
+    private Integer hubID;
+
+    private String templateID;
     private boolean coupaingServer;
     private String game;
     private String map;
     private int minSlot;
     private int maxSlot;
-    private JsonElement options;
+    private JsonElement options, startupOptions;
 
     private int weight;
+
+    private long timeToLive = 14400000L;
+    private long startedTime;
 
     public MinecraftServerInfoPacket()
     {
@@ -43,19 +49,38 @@ public class MinecraftServerInfoPacket extends AbstractPacket
                 server.getUUID(),
                 server.getGame(),
                 server.getMap(),
+                server.getTemplateID(),
                 server.getMinSlot(),
                 server.getMaxSlot(),
                 server.isCoupaingServer(),
                 server.getOptions(),
                 server.getPort(),
-                server.getWeight());
+                server.getWeight(),
+                server.getTimeToLive(),
+                server.getStartedTime(),
+                server.getHubID());
     }
 
-    public MinecraftServerInfoPacket(UUID uuid, String serverName, UUID serverUUID, String game, String map, int minSlot, int maxSlot, boolean coupaingServer, JsonElement options, int port, int weight)
+    public MinecraftServerInfoPacket(UUID uuid,
+                                     String serverName,
+                                     UUID serverUUID,
+                                     String game,
+                                     String map,
+                                     String templateID,
+                                     int minSlot,
+                                     int maxSlot,
+                                     boolean coupaingServer,
+                                     JsonElement options,
+                                     int port,
+                                     int weight,
+                                     long timeToLive,
+                                     long startedTime,
+                                     Integer hubID)
     {
         this.uuid = uuid;
         this.serverName = serverName;
         this.serverUUID = serverUUID;
+        this.templateID = templateID;
         this.coupaingServer = coupaingServer;
         this.game = game;
         this.map = map;
@@ -65,6 +90,9 @@ public class MinecraftServerInfoPacket extends AbstractPacket
         this.weight = weight;
 
         this.options = options;
+        this.timeToLive = timeToLive;
+        this.startedTime = startedTime;
+        this.hubID = hubID;
     }
 
     public UUID getUUID()
@@ -75,6 +103,16 @@ public class MinecraftServerInfoPacket extends AbstractPacket
     public boolean isCoupaingServer()
     {
         return coupaingServer;
+    }
+
+    public boolean isHub()
+    {
+        return hubID != null;
+    }
+
+    public Integer getHubID()
+    {
+        return hubID;
     }
 
     public String getGame()
@@ -120,5 +158,30 @@ public class MinecraftServerInfoPacket extends AbstractPacket
     public UUID getServerUUID()
     {
         return serverUUID;
+    }
+
+    public JsonElement getStartupOptions()
+    {
+        return startupOptions;
+    }
+
+    public String getTemplateID() {
+        return templateID;
+    }
+
+    public long getTimeToLive() {
+        return timeToLive;
+    }
+
+    public void setTimeToLive(long timeToLive) {
+        this.timeToLive = timeToLive;
+    }
+
+    public long getStartedTime() {
+        return startedTime;
+    }
+
+    public void setStartedTime(long startedTime) {
+        this.startedTime = startedTime;
     }
 }

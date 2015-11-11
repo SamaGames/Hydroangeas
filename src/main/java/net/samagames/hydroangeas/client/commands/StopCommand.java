@@ -3,6 +3,8 @@ package net.samagames.hydroangeas.client.commands;
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.common.commands.AbstractCommand;
 
+import java.util.logging.Level;
+
 /**
  * This file is a part of the SamaGames Project CodeBase
  * This code is absolutely confidential.
@@ -24,8 +26,7 @@ public class StopCommand extends AbstractCommand
     @Override
     public boolean execute(String[] args)
     {
-
-        instance.getLogger().info("Stopping the server..");
+        instance.log(Level.INFO, "Stopping the server..");
         System.exit(0);
 
         return true;

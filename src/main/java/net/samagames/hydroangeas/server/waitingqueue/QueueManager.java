@@ -1,6 +1,7 @@
 package net.samagames.hydroangeas.server.waitingqueue;
 
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
+import net.samagames.hydroangeas.common.packets.CommandPacket;
 import net.samagames.hydroangeas.common.protocol.queues.*;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
@@ -30,7 +31,7 @@ public class QueueManager
         this.instance = instance;
     }
 
-    public void handlepacket(QueueAddPlayerPacket packet)
+    public void handlePacket(QueueAddPlayerPacket packet)
     {
 
         QPlayer player = packet.getPlayer();
@@ -48,7 +49,10 @@ public class QueueManager
         if (designedQueue.equals(currentQueue))
         {
             //PlayerMessager.sendMessage(player.getUUID(), ChatColor.GREEN + "Tu es déjà dans la queue!");
-            sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, false, ChatColor.GREEN + "Vous êtes déjà dans la queue!"));
+            currentQueue.removeQPlayer(player);
+
+            //PlayerMessager.sendMessage(player.getUUID(), ChatColor.YELLOW + "Vous quittez la queue " + currentQueue.getName());
+            sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, currentQueue.getGame(), currentQueue.getMap()));
             return;
         }
 
@@ -62,7 +66,7 @@ public class QueueManager
         addPlayerToQueue(designedQueue, player, players);
     }
 
-    public void handlepacket(QueueRemovePlayerPacket packet)
+    public void handlePacket(QueueRemovePlayerPacket packet)
     {
         QPlayer player = packet.getPlayer();
         //Queue designedQueue = getQueue(packet);
@@ -84,12 +88,22 @@ public class QueueManager
         currentQueue.removeQPlayer(player);
 
         //PlayerMessager.sendMessage(player.getUUID(), ChatColor.YELLOW + "Vous quittez la queue " + currentQueue.getName());
-        sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, currentQueue.getTemplate().getId()));
+        sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, currentQueue.getGame(), currentQueue.getMap()));
     }
 
-    public void handlepacket(QueueAttachPlayerPacket packet)
+    public void handlePacket(QueueAttachPlayerPacket packet)
     {
         QPlayer leader = packet.getLeader();
+
+        for(QPlayer player : packet.getPlayers())
+        {
+            Queue currentQueue = getQueueByPlayer(player.getUUID());
+            if(currentQueue != null && !player.getUUID().equals(leader.getUUID()))
+            {
+                currentQueue.removeQPlayer(player);
+            }
+        }
+
         Queue designedQueue = getQueueByLeader(leader.getUUID());
 
         if (designedQueue == null)
@@ -117,9 +131,18 @@ public class QueueManager
         designedQueue.removeGroup(group);
         packet.getPlayers().forEach(group::addPlayer);
         designedQueue.addGroup(group);
+
+        //Inform group
+        for (QPlayer qPlayer : packet.getPlayers())
+        {
+            if(!qPlayer.getUUID().equals(leader.getUUID()))
+            {
+                sendPacketHub(new QueueInfosUpdatePacket(qPlayer, QueueInfosUpdatePacket.Type.ADD, designedQueue.getGame(), designedQueue.getMap()));
+            }
+        }
     }
 
-    public void handlepacket(QueueDetachPlayerPacket packet)
+    public void handlePacket(QueueDetachPlayerPacket packet)
     {
         for (QPlayer player : packet.getPlayers())
         {
@@ -128,7 +151,7 @@ public class QueueManager
             {
                 designedQueue.removeQPlayer(player);
 
-                sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, designedQueue.getTemplate().getId()));
+                sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, designedQueue.getGame(), designedQueue.getMap()));
                 //PlayerMessager.sendMessage(player.getUUID(), "Vous avez été retiré de la queue " + designedQueue.getMap());
             }
         }
@@ -171,85 +194,13 @@ public class QueueManager
         return queue;
     }
 
-   /* public void handlepacket(QueueUpdateFromHub packet)
-    {
-        if(packet.getGroupLeader() == null)
-        {
-            instance.getLogger().info("Received queue modify packet with no leader !");
-        }else if(packet.getAction().equals(QueueUpdateFromHub.ActionQueue.ADD))
-        {
-
-            Queue leaderQueue = getQueueByLeader(packet.getGroupLeader().getUUID());
-            if(leaderQueue != null)
-            {
-                if(!leaderQueue.getGame().equals(packet.getGame()) || !leaderQueue.getMap().equals(packet.getMap()))
-                {
-                    //Error already in queue
-                    leaderQueue.removeQPlayer(packet.getGroupLeader());
-                    PlayerMessager.sendMessage(packet.getGroupLeader().getUUID(), ChatColor.YELLOW + "Vous quittez la queue " + leaderQueue.getName());
-                    //PlayerMessager.sendMessage(packet.getGroupLeader().getUUID(), ChatColor.RED + "Vous êtes déja dans une queue!");
-                    if(queue != null)
-                    {
-                        addPlayerToQueue(queue, packet.getGroupLeader(), packet.getPlayers());
-                    }
-                    return;
-                }else{
-                    queue = leaderQueue;
-                }
-            }
-
-            QGroup group = queue.getGroupByLeader(packet.getGroupLeader().getUUID());
-            if(group == null)
-            {
-                addPlayerToQueue(queue, packet.getGroupLeader(), packet.getPlayers());
-            }else{
-                for(QPlayer player : packet.getPlayers())
-                {
-                    Queue queue1 = null;
-                    if((queue1 = getQueueByPlayer(player.getUUID())) != null)
-                    {
-                        queue1.removeQPlayer(player);
-                        //PlayerMessager.sendMessage(packet.getGroupLeader().getUUID(), ChatColor.RED + "Vous êtes déja dans une queue!");
-                        //continue;
-                    }
-                    group.addPlayer(player);
-                    PlayerMessager.sendMessage(player.getUUID(), ChatColor.GREEN + "Vous avez été ajouté à la queue " + ChatColor.RED + queue.getMap());
-                }
-            }
-        }else if(packet.getAction().equals(QueueUpdateFromHub.ActionQueue.REMOVE))
-        {
-            Queue queue = instance.getQueueManager().getQueueByPlayer(packet.getGroupLeader().getUUID());
-            if(queue == null)
-            {
-                return;
-            }
-            //TODO add if necessary
-            /*if(!queue.getGame().equals(packet.getGame()) || !queue.getMap().equals(packet.getMap()))
-            {
-                instance.getLogger().info("Problem in queues. Tried to delete players in queue but queue .");
-            }*/ /*
-            for(QPlayer player : packet.getPlayers())
-            {
-                queue.removeQPlayer(player);
-
-                PlayerMessager.sendMessage(player.getUUID(), "Vous avez été retiré de la queue " + queue.getMap());
-                //TODO notify removed from queue
-            }
-        }
-    }*/
-
-    /*public Queue addQueue(String game, String map)
-    {
-        return this.addQueue(game + "_" + map);
-    }*/
-
     public void addPlayerToQueue(Queue queue, QPlayer leader, List<QPlayer> players)
     {
         queue.addPlayersInNewGroup(leader, players);
 
         for (QPlayer qPlayer : players)
         {
-            sendPacketHub(new QueueInfosUpdatePacket(qPlayer, QueueInfosUpdatePacket.Type.ADD, queue.getTemplate().getId()));
+            sendPacketHub(new QueueInfosUpdatePacket(qPlayer, QueueInfosUpdatePacket.Type.ADD, queue.getGame(), queue.getMap()));
             //PlayerMessager.sendMessage(qPlayer.getUUID(), ChatColor.GREEN + "Vous avez été ajouté à la queue " + ChatColor.RED + queue.getMap());
         }
     }
@@ -304,6 +255,18 @@ public class QueueManager
         return queues.stream().filter(queue -> queue.getGame().equalsIgnoreCase(game)).collect(Collectors.toList());
     }
 
+    public Queue getQueueByTemplate(String templateID)
+    {
+        for (Queue queue : queues)
+        {
+            if (queue.getTemplate().getId().equalsIgnoreCase(templateID))
+            {
+                return queue;
+            }
+        }
+        return null;
+    }
+
     public Queue getQueueByPlayer(UUID player)
     {
         for (Queue queue : queues)
@@ -332,5 +295,6 @@ public class QueueManager
     {
         instance.getConnectionManager().sendPacket("hydroHubReceiver", packet);
     }
+
 
 }
