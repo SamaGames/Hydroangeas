@@ -57,7 +57,7 @@ public class HydroangeasClient extends Hydroangeas
         this.serverFolder = new File(MiscUtils.getJarFolder(), "servers");
         serverFolder.mkdir();
 
-        logManager = new LogManager(serverFolder);
+        logManager = new LogManager(MiscUtils.getJarFolder());
 
         try{
             this.restrictionMode = RestrictionMode.valueFrom(configuration.getJsonConfiguration().get("RestrictionMode").getAsString());

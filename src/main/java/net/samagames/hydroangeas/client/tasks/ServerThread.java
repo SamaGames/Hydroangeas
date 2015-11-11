@@ -198,6 +198,7 @@ public class ServerThread extends Thread
         {
             e.printStackTrace();
         }finally {
+
             server.destroy();
             normalStop();
         }
