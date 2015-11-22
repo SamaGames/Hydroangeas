@@ -31,26 +31,35 @@ public class Queue
 {
 
     private ScheduledFuture workerTask, hubRefreshTask, queueChecker;
+
     private QueueManager manager;
 
     private HydroangeasServer instance;
 
     private PriorityPlayerQueue queue;
-    private volatile boolean sendInfo = true;
 
     private AbstractGameTemplate template;
 
-    private long lastSend = System.currentTimeMillis();
-
     private int coolDown = 2; //*100ms
 
+    //Anticipation
+
+    private DataQueue dataQueue;
+
+    //Hub data
+
+    private volatile boolean sendInfo = true;
+
     private AtomicInteger lastServerStartNB = new AtomicInteger(0);
+
+    private long lastSend = System.currentTimeMillis();
 
     public Queue(QueueManager manager, AbstractGameTemplate template)
     {
         this.instance = Hydroangeas.getInstance().getAsServer();
         this.manager = manager;
         this.template = template;
+        this.dataQueue = new DataQueue(instance);
 
         if (template instanceof PackageGameTemplate)//Assuming that the package template have not selected a template we force it
         {
@@ -121,6 +130,12 @@ public class Queue
 
     public void startQueueWorker()
     {
+        //If task already started force shutdown
+        if(workerTask != null && !workerTask.isDone())
+        {
+            workerTask.cancel(true);
+        }
+
         workerTask = instance.getScheduler().scheduleAtFixedRate(() ->
         {
             try{
@@ -138,8 +153,12 @@ public class Queue
 
                 List<MinecraftServerS> servers = instance.getAlgorithmicMachine().getServerByTemplatesAndAvailable(template.getId());
 
-                servers.stream().filter(server -> (server.getStatus().equals(Status.WAITING_FOR_PLAYERS) || server.getStatus().equals(Status.READY_TO_START))
-                        && server.getMaxSlot() - server.getActualSlots() > 0).forEach(server -> {
+                servers.stream().filter(server ->
+                        (server.getStatus().equals(Status.WAITING_FOR_PLAYERS)
+                        || server.getStatus().equals(Status.READY_TO_START))
+                        && server.getMaxSlot() - server.getActualSlots() > 0
+                ).forEach(server -> {
+
                     server.setTimeToLive(CleanServer.LIVETIME);
                     List<QGroup> groups = new ArrayList<>();
                     queue.drainPlayerTo(groups, server.getMaxSlot() - server.getActualSlots());
@@ -150,16 +169,41 @@ public class Queue
                 });
                 lastServerStartNB.lazySet(servers.size());
 
-                if (servers.size() <= 0 && getSize() >= template.getMinSlot())
+                //Check if server are started, if not start one
+                boolean hasNotEnoughtServer = servers.size() <= 0;
+
+                //If already started check if there are all available(not full), if there are none start new one !
+                if(!hasNotEnoughtServer)
+                {
+                    int numberOfAvailableServer = servers.size();
+                    for(MinecraftServerS serverS : servers)
+                    {
+                        if(serverS.getMaxSlot() - serverS.getActualSlots() <= 0)
+                        {
+                            numberOfAvailableServer--;
+                        }
+                    }
+                    if(numberOfAvailableServer <= 0)
+                        hasNotEnoughtServer = true;
+                }
+
+                //If server capacity is less than needed, start we a new server now ? (if there are enough player or if we override)
+                if (hasNotEnoughtServer && (getSize() >= template.getMinSlot() || dataQueue.needToAnticipate()))
                 {
                     MinecraftServerS server = Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
+
+                    //Server started let's proceed
                     if(server != null)
                     {
+                        //To avoid starting loop we wait the real start
+                        server.addOnStartHook(() -> dataQueue.startedServer());
+
+                        //Security stop
                         server.setTimeToLive(150000L);
-                    }
-                    if (template instanceof PackageGameTemplate) // If it's a package template we change it now
-                    {
-                        ((PackageGameTemplate) template).selectTemplate();
+                        if (template instanceof PackageGameTemplate) // If it's a package template we change it now
+                        {
+                            ((PackageGameTemplate) template).selectTemplate();
+                        }
                     }
                 }
             }catch (Exception e)
@@ -183,6 +227,7 @@ public class Queue
     {
         workerTask.cancel(true);
         hubRefreshTask.cancel(true);
+        queueChecker.cancel(true);
     }
 
     public boolean addPlayersInNewGroup(QPlayer leader, List<QPlayer> players)
