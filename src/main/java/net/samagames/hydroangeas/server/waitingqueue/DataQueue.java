@@ -15,7 +15,7 @@ public class DataQueue {
     //Number of started server in the last 10 minutes
     private AtomicInteger numberOfServerStarted = new AtomicInteger(0);
 
-    private final static double NumberOfServerPerMinute = 1.0;
+    private final static double NumberOfMinutePerServer = 2.0;
 
     public DataQueue(HydroangeasServer instance)
     {
@@ -34,6 +34,6 @@ public class DataQueue {
 
     public boolean needToAnticipate()
     {
-        return ((double)numberOfServerStarted.get())/10.0 > NumberOfServerPerMinute;
+        return ((((double)numberOfServerStarted.get()) > 0) ? 10.0/((double)numberOfServerStarted.get()): 0) > NumberOfMinutePerServer;
     }
 }
