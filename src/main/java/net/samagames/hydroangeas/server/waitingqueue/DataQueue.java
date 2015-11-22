@@ -34,6 +34,6 @@ public class DataQueue {
 
     public boolean needToAnticipate()
     {
-        return ((((double)numberOfServerStarted.get()) > 0) ? 10.0/((double)numberOfServerStarted.get()): 0) > NumberOfMinutePerServer;
+        return ((((double)numberOfServerStarted.get()) > 0) ? 10.0/((double)numberOfServerStarted.get()): Integer.MAX_VALUE) < NumberOfMinutePerServer;
     }
 }
