@@ -286,4 +286,8 @@ public class MinecraftServerS
     public void setTimeToLive(long timeToLive) {
         this.timeToLive = timeToLive;
     }
+
+    public HydroClient getClient() {
+        return client;
+    }
 }

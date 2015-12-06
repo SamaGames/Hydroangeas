@@ -84,6 +84,13 @@ public class ShutdownCommand extends AbstractCommand
         return true;
     }
 
+    @Override
+    public String getHelp() {
+        return "- shutdown <client/server/template> <id/servername/templatename>\n"+
+                "Shutdown a client by id provided by the info command or a server by his name.\n"+
+                "You can also stop all server with a specific template by using the template name.";
+    }
+
     private void showSyntaxe()
     {
         instance.getLogger().info("Command syntaxe: shutdown {client, server} name");

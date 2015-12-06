@@ -26,4 +26,10 @@ public class ReloadCommand extends AbstractCommand
         server.getTemplateManager().reload();
         return true;
     }
+
+    @Override
+    public String getHelp() {
+        return "- reload\n"
+                + "Reload server (Actually only templates)";
+    }
 }

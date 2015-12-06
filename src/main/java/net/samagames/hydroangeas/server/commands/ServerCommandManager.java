@@ -28,5 +28,6 @@ public class ServerCommandManager extends CommandManager
         commands.add(new InfosCommand(instance));
         commands.add(new ShutdownCommand(instance));
         commands.add(new RefreshCommand(instance));
+        commands.add(new FindCommand(instance));
     }
 }

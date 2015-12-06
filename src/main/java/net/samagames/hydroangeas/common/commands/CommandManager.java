@@ -35,6 +35,11 @@ public abstract class CommandManager
 
         args = Arrays.copyOfRange(args, 1, args.length);
 
+        if (command.equals("help"))
+        {
+            showHelp();
+        }
+
         for (AbstractCommand command1 : commands)
         {
             if (command1.getCommand().equals(command))
@@ -47,5 +52,18 @@ public abstract class CommandManager
             }
         }
         hydroangeas.log(Level.INFO, "Command doesn't exist !");
+    }
+
+    public void showHelp()
+    {
+        //Please no lambda !
+        for(AbstractCommand command : commands)
+        {
+            String help = command.getHelp();
+            if(help != null)
+            {
+                hydroangeas.getLogger().info(help);
+            }
+        }
     }
 }

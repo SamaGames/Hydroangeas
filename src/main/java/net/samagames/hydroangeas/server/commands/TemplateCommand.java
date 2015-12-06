@@ -48,4 +48,11 @@ public class TemplateCommand extends AbstractCommand
         instance.log(Level.INFO, "Done!");
         return true;
     }
+
+    @Override
+    public String getHelp() {
+        return "- order <Optional: templatename>\n"+
+                "With no argument you see all available templates.\n"+
+                "Add the desired template name to start a server with this template.";
+    }
 }
