@@ -38,6 +38,7 @@ public abstract class CommandManager
         if (command.equals("help"))
         {
             showHelp();
+            return;
         }
 
         for (AbstractCommand command1 : commands)
