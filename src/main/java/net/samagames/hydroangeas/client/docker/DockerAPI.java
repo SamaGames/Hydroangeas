@@ -74,7 +74,9 @@ public class DockerAPI {
         req.withCpuPeriod(100000);
         req.withCpuShares(512);
         req.withOomKillDisable(false);
-        req.withBinds(new Bind(directory.getAbsolutePath(), new Volume(directory.getAbsolutePath())));
+        Volume volume = new Volume(directory.getAbsolutePath());
+        req.withVolumes(volume);
+        req.withBinds(new Bind(directory.getAbsolutePath(), volume));
 
         req.withPortBindings(new PortBinding(new Ports.Binding("0.0.0.0", port), new ExposedPort(port)));
         req.withPublishAllPorts(true);
