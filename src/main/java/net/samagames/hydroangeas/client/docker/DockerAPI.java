@@ -82,8 +82,9 @@ public class DockerAPI {
         portBindings.bind(tcpPort, Ports.Binding(port));
         req.withExposedPorts(tcpPort);
         req.withPortBindings(portBindings);
-        req.withNetworkMode("bridge");
+        req.withNetworkMode("host");
         req.withPublishAllPorts(true);
+        req.withCapAdd(new Capability[]{Capability.ALL});
 
         CreateContainerResponse containerResponse = req.exec();
         if(containerResponse.getId() == null)
