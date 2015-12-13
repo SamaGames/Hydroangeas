@@ -58,14 +58,11 @@ public class DockerAPI {
         hostConfig.add("Ulimits", new JsonArray());
         request.add("HostConfig", exposedPorts);*/
 
-
-        ExposedPort tcpPort = ExposedPort.tcp(port);
-
         CreateContainerCmd req = docker.createContainerCmd(image);
         req.withAttachStdin(false);
         req.withAttachStdout(true);
         req.withAttachStderr(true);
-        req.withExposedPorts(tcpPort);
+
         req.withTty(true);
         req.withStdinOpen(false);
         req.withCmd(command);
@@ -81,8 +78,12 @@ public class DockerAPI {
 
         req.withBinds(new Bind(directory.getAbsolutePath(), volume));
 
+        ExposedPort tcpPort = ExposedPort.tcp(port);
+        ExposedPort udpPort = ExposedPort.udp(port);
         Ports portBindings = new Ports();
-        portBindings.bind(tcpPort, Ports.Binding(null));
+        portBindings.bind(tcpPort, Ports.Binding(port));
+        portBindings.bind(udpPort, Ports.Binding(port));
+        req.withExposedPorts(tcpPort,udpPort);
         req.withPortBindings(portBindings);
         req.withPublishAllPorts(true);
 
