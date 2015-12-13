@@ -13,7 +13,7 @@ public class DockerContainer {
     private String[] command;
 
     private int port;
-    private int allowedRam;
+    private long allowedRam;
 
     private File source;
 
@@ -26,8 +26,8 @@ public class DockerContainer {
         this.source = source;
         this.port = port;
         this.command = command;
-        int coef = (allowedRam.endsWith("M")?1:1024);
-        this.allowedRam = Integer.valueOf(allowedRam.substring(0, allowedRam.length()-1))*coef;
+        int coef = (allowedRam.endsWith("M")?1024:1024*1024);
+        this.allowedRam = Long.valueOf(allowedRam.substring(0, allowedRam.length()-1))*coef;
 
         dockerAPI = new DockerAPI();
     }

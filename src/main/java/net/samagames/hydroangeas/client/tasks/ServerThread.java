@@ -60,6 +60,9 @@ public class ServerThread extends Thread
                     command,
                     ram
             );
+
+            Hydroangeas.getInstance().getLogger().info(container.createContainer());
+
             executor.scheduleAtFixedRate(() -> {
                 /*if (!instance.isHub() && System.currentTimeMillis() - lastHeartbeat > 120000) {
                     instance.stopServer();
@@ -83,8 +86,11 @@ public class ServerThread extends Thread
     @Override
     public void run()
     {
-        Hydroangeas.getInstance().getLogger().info(container.createContainer());
-
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         while (container.isRunning())
         {
             try {

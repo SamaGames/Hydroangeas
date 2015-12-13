@@ -126,7 +126,7 @@ public class MinecraftServerC
             String maxRAM = startupOptionsObj.get("maxRAM").getAsString();
             serverThread = new ServerThread(this,
                     new String[]{"java",
-                            "-Duser.dir " + serverFolder.getAbsolutePath(),
+                            //"-Duser.dir " + serverFolder.getAbsolutePath(),
                             "-Xmx" + maxRAM,
                             "-Xms" + startupOptionsObj.get("minRAM").getAsString(),
                             "-Xmn" + startupOptionsObj.get("edenRAM").getAsString(),
@@ -142,7 +142,7 @@ public class MinecraftServerC
                             "-XX:G1MixedGCLiveThresholdPercent=50",
                             "-XX:+AggressiveOpts",
                             "-XX:+UseLargePagesInMetaspace",
-                            "-jar", serverFolder.getAbsolutePath() + "/spigot.jar", "nogui"},
+                            "-jar ", "spigot.jar", "nogui"},
                     maxRAM,
                     serverFolder);
             serverThread.start();
