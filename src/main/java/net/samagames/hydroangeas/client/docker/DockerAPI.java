@@ -3,6 +3,7 @@ package net.samagames.hydroangeas.client.docker;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.spotify.docker.client.DefaultDockerClient;
+import com.spotify.docker.client.DockerCertificateException;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.DockerException;
 import com.spotify.docker.client.messages.ContainerConfig;
@@ -27,7 +28,11 @@ public class DockerAPI {
     public DockerAPI()
     {
         gson = new GsonBuilder().create();
-        docker = new DefaultDockerClient("unix:///var/run/docker.sock");
+        try {
+            docker = DefaultDockerClient.fromEnv().build();
+        } catch (DockerCertificateException e) {
+            e.printStackTrace();
+        }
     }
 
     public String createContainer(String name, String image, String command, File directory, int port, int memory)
