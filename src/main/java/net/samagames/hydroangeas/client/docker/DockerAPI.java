@@ -78,13 +78,12 @@ public class DockerAPI {
         req.withBinds(new Bind(directory.getAbsolutePath(), volume));
 
         ExposedPort tcpPort = ExposedPort.tcp(port);
-        ExposedPort udpPort = ExposedPort.udp(port);
         Ports portBindings = new Ports();
         portBindings.bind(tcpPort, Ports.Binding(port));
-        portBindings.bind(udpPort, Ports.Binding(port));
-        req.withExposedPorts(tcpPort,udpPort);
+        req.withExposedPorts(tcpPort);
         req.withPortBindings(portBindings);
-        req.withPublishAllPorts(false);
+        req.withNetworkMode("bridge");
+        req.withPublishAllPorts(true);
 
         CreateContainerResponse containerResponse = req.exec();
         if(containerResponse.getId() == null)
