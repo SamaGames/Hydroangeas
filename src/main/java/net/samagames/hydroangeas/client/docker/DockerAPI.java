@@ -75,13 +75,11 @@ public class DockerAPI {
         req.withCpuShares(512);
         req.withOomKillDisable(false);
         req.withBinds(new Bind(directory.getAbsolutePath(), new Volume(directory.getAbsolutePath())));
-        req.withLxcConf(new LxcConf("lxc.utsname", "docker"));
 
         req.withPortBindings(new PortBinding(new Ports.Binding("0.0.0.0", port), new ExposedPort(port)));
         req.withPublishAllPorts(false);
 
         CreateContainerResponse containerResponse = req.exec();
-        ;
         if(containerResponse.getId() == null)
         {
             for(String s : containerResponse.getWarnings())
