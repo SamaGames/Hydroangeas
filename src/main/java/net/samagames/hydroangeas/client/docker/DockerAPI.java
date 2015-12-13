@@ -61,7 +61,7 @@ public class DockerAPI {
 
         CreateContainerCmd req = docker.createContainerCmd(image);
         req.withAttachStdin(false);
-        req.withAttachStdout(false);
+        req.withAttachStdout(true);
         req.withAttachStderr(true);
         req.withPortSpecs(port + "/tcp", port+"/udp");
         req.withTty(false);
@@ -77,7 +77,7 @@ public class DockerAPI {
         req.withBinds(new Bind(directory.getAbsolutePath(), new Volume(directory.getAbsolutePath())));
 
         req.withPortBindings(new PortBinding(new Ports.Binding("0.0.0.0", port), new ExposedPort(port)));
-        req.withPublishAllPorts(false);
+        req.withPublishAllPorts(true);
 
         CreateContainerResponse containerResponse = req.exec();
         if(containerResponse.getId() == null)
@@ -89,6 +89,12 @@ public class DockerAPI {
         }
         return containerResponse.getId();
     }
+
+    public void startContainer(String id)
+    {
+        docker.startContainerCmd(id).exec();
+    }
+
     public boolean isRunning(String id)
     {
         return docker.inspectContainerCmd(id).exec().getState().isRunning();
@@ -96,17 +102,17 @@ public class DockerAPI {
 
     public void stopContainer(String id)
     {
-        docker.stopContainerCmd(id);
+        docker.stopContainerCmd(id).exec();
     }
 
     public void killContainer(String id)
     {
-        docker.killContainerCmd(id);
+        docker.killContainerCmd(id).exec();
     }
 
     public void removeContainer(String id)
     {
-        docker.removeContainerCmd(id);
+        docker.removeContainerCmd(id).exec();
     }
 
 }

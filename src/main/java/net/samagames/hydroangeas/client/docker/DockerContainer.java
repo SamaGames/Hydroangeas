@@ -40,6 +40,7 @@ public class DockerContainer {
                 port,
                 allowedRam
                 );
+        dockerAPI.startContainer(id);
         return id;
     }
 
