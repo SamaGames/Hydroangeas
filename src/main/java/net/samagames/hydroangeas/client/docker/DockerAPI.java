@@ -23,7 +23,7 @@ public class DockerAPI {
     {
         gson = new GsonBuilder().create();
 
-        docker = DockerClientBuilder.getInstance("http://localhost:2375").build();
+        docker = DockerClientBuilder.getInstance("unix:///var/run/docker.sock").build();
 
     }
 
