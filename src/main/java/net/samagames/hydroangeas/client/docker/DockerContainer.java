@@ -34,7 +34,7 @@ public class DockerContainer {
 
     public String createContainer() {
 
-        id = dockerAPI.createContainer(name, "frolvlad/alpine-oraclejdk8",
+        id = dockerAPI.createContainer(name, "java8",
                 flatten(this.command),
                 source,
                 port,
