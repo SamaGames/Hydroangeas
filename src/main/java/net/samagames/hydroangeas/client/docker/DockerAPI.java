@@ -59,11 +59,13 @@ public class DockerAPI {
         request.add("HostConfig", exposedPorts);*/
 
 
+        ExposedPort tcpPort = ExposedPort.tcp(port);
+
         CreateContainerCmd req = docker.createContainerCmd(image);
         req.withAttachStdin(false);
         req.withAttachStdout(true);
         req.withAttachStderr(true);
-        req.withPortSpecs(port + "/tcp", port+"/udp");
+        req.withExposedPorts(tcpPort);
         req.withTty(true);
         req.withStdinOpen(false);
         req.withCmd(command);
@@ -76,9 +78,12 @@ public class DockerAPI {
         req.withOomKillDisable(false);
         Volume volume = new Volume(directory.getAbsolutePath());
         req.withVolumes(volume);
+
         req.withBinds(new Bind(directory.getAbsolutePath(), volume));
 
-        req.withPortBindings(new PortBinding(new Ports.Binding("0.0.0.0", port), new ExposedPort(port)));
+        Ports portBindings = new Ports();
+        portBindings.bind(tcpPort, Ports.Binding(null));
+        req.withPortBindings(portBindings);
         req.withPublishAllPorts(true);
 
         CreateContainerResponse containerResponse = req.exec();
