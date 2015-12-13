@@ -23,8 +23,7 @@ public class DockerAPI {
     {
         gson = new GsonBuilder().create();
 
-        docker = DockerClientBuilder.getInstance("unix:///var/run/docker.sock").build();
-
+        docker = DockerClientBuilder.getInstance("http://127.0.0.1:2376/").build();
     }
 
     public String createContainer(String name, String image, String command, File directory, int port, int memory)
