@@ -69,7 +69,7 @@ public class DockerAPI {
         req.withCmd(command);
         req.withWorkingDir(directory.getAbsolutePath());
         req.withNetworkDisabled(false);
-        req.withMemoryLimit((long) memory);
+        req.withMemoryLimit(4000);
         req.withCpuset("0-7");
         req.withCpuPeriod(100000);
         req.withCpuShares(512);
@@ -86,7 +86,6 @@ public class DockerAPI {
             {
                 System.err.print(s);
             }
-
         }
         return containerResponse.getId();
     }
