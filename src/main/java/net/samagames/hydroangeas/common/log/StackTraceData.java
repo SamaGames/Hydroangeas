@@ -1,7 +1,6 @@
 package net.samagames.hydroangeas.common.log;
 
-import net.samagames.restfull.LogLevel;
-import net.samagames.restfull.RestAPI;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +37,6 @@ public class StackTraceData
 
     public void end(String clientID)
     {
-        RestAPI.getInstance().log(LogLevel.ERROR, clientID, toString());
+        //RestAPI.getInstance().log(LogLevel.ERROR, clientID, toString());
     }
 }

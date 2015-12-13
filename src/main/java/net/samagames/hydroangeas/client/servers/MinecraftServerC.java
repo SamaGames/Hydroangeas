@@ -1,13 +1,11 @@
 package net.samagames.hydroangeas.client.servers;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.tasks.ServerThread;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerIssuePacket;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerOrderPacket;
-import net.samagames.hydroangeas.utils.MiscUtils;
 import org.apache.commons.io.FileDeleteStrategy;
 import org.apache.commons.io.FileUtils;
 
@@ -125,9 +123,11 @@ public class MinecraftServerC
         try
         {
             JsonObject startupOptionsObj = startupOptions.getAsJsonObject();
+            String maxRAM = startupOptionsObj.get("maxRAM").getAsString();
             serverThread = new ServerThread(this,
                     new String[]{"java",
-                            "-Xmx" + startupOptionsObj.get("maxRAM").getAsString(),
+                            "-Duser.dir " + serverFolder.getAbsolutePath(),
+                            "-Xmx" + maxRAM,
                             "-Xms" + startupOptionsObj.get("minRAM").getAsString(),
                             "-Xmn" + startupOptionsObj.get("edenRAM").getAsString(),
                             "-XX:+UseG1GC",
@@ -142,8 +142,9 @@ public class MinecraftServerC
                             "-XX:G1MixedGCLiveThresholdPercent=50",
                             "-XX:+AggressiveOpts",
                             "-XX:+UseLargePagesInMetaspace",
-                            "-jar", "spigot.jar", "nogui"},
-                    new String[]{""}, serverFolder);
+                            "-jar", serverFolder.getAbsolutePath() + "/spigot.jar", "nogui"},
+                    maxRAM,
+                    serverFolder);
             serverThread.start();
             instance.getLogger().info("Starting server " + getServerName());
         } catch (Exception e)
