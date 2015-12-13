@@ -85,6 +85,7 @@ public class DockerAPI {
         req.withNetworkMode("host");
         req.withPublishAllPorts(true);
         req.withCapAdd(new Capability[]{Capability.ALL});
+        req.withName(name);
 
         CreateContainerResponse containerResponse = req.exec();
         if(containerResponse.getId() == null)
