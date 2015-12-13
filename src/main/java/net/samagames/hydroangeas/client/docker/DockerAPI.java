@@ -67,7 +67,6 @@ public class DockerAPI {
         req.withStdinOpen(false);
         req.withCmd(command);
         req.withWorkingDir(directory.getAbsolutePath());
-        req.withNetworkDisabled(false);
         req.withMemoryLimit(memory);
         req.withCpuset("0-7");
         req.withCpuPeriod(100000);
@@ -85,7 +84,7 @@ public class DockerAPI {
         portBindings.bind(udpPort, Ports.Binding(port));
         req.withExposedPorts(tcpPort,udpPort);
         req.withPortBindings(portBindings);
-        req.withPublishAllPorts(true);
+        req.withPublishAllPorts(false);
 
         CreateContainerResponse containerResponse = req.exec();
         if(containerResponse.getId() == null)
