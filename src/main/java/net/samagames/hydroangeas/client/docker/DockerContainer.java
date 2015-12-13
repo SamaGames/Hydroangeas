@@ -35,7 +35,7 @@ public class DockerContainer {
     public String createContainer() {
 
         id = dockerAPI.createContainer(name, "java8",
-                flatten(this.command),
+                this.command,
                 source,
                 port,
                 allowedRam

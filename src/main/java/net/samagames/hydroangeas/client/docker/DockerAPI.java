@@ -26,7 +26,7 @@ public class DockerAPI {
         docker = DockerClientBuilder.getInstance("http://127.0.0.1:2376/").build();
     }
 
-    public String createContainer(String name, String image, String command, File directory, int port, long memory)
+    public String createContainer(String name, String image, String[] command, File directory, int port, long memory)
     {
         /*JsonObject request = new JsonObject();
 
@@ -64,7 +64,7 @@ public class DockerAPI {
         req.withAttachStdout(true);
         req.withAttachStderr(true);
         req.withPortSpecs(port + "/tcp", port+"/udp");
-        req.withTty(false);
+        req.withTty(true);
         req.withStdinOpen(false);
         req.withCmd(command);
         req.withWorkingDir(directory.getAbsolutePath());
