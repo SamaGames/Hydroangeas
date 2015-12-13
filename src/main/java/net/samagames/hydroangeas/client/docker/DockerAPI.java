@@ -69,8 +69,7 @@ public class DockerAPI {
         req.withCmd(command);
         req.withWorkingDir(directory.getAbsolutePath());
         req.withNetworkDisabled(false);
-        req.withMemorySwap(memory);
-        req.withMemoryLimit(4294967296L);
+        req.withMemoryLimit(memory);
         req.withCpuset("0-7");
         req.withCpuPeriod(100000);
         req.withCpuShares(512);
