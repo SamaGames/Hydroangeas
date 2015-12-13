@@ -1,20 +1,14 @@
 package net.samagames.hydroangeas.client.docker;
 
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.CreateContainerCmd;
+import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.model.*;
+import com.github.dockerjava.core.DockerClientBuilder;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.spotify.docker.client.DefaultDockerClient;
-import com.spotify.docker.client.DockerCertificateException;
-import com.spotify.docker.client.DockerClient;
-import com.spotify.docker.client.DockerException;
-import com.spotify.docker.client.messages.ContainerConfig;
-import com.spotify.docker.client.messages.ContainerCreation;
-import com.spotify.docker.client.messages.HostConfig;
-import com.spotify.docker.client.messages.PortBinding;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by Silva on 13/12/2015.
@@ -28,11 +22,9 @@ public class DockerAPI {
     public DockerAPI()
     {
         gson = new GsonBuilder().create();
-        try {
-            docker = DefaultDockerClient.fromEnv().build();
-        } catch (DockerCertificateException e) {
-            e.printStackTrace();
-        }
+
+        docker = DockerClientBuilder.getInstance("http://localhost:2375").build();
+
     }
 
     public String createContainer(String name, String image, String command, File directory, int port, int memory)
@@ -68,92 +60,57 @@ public class DockerAPI {
         request.add("HostConfig", exposedPorts);*/
 
 
-        ContainerConfig.Builder req = ContainerConfig.builder();
-        req.attachStdin(false);
-        req.attachStdout(false);
-        req.attachStderr(true);
-        req.portSpecs(Arrays.asList(port + "/tcp", port+"/udp"));
-        req.tty(false);
-        req.openStdin(false);
-        req.cmd(Arrays.asList(command));
-        req.image(image);
-        req.workingDir(directory.getAbsolutePath());
-        req.networkDisabled(false);
-        req.memory((long) memory);
-        req.cpuset("0-7");
-        req.cpuShares(512L);
+        CreateContainerCmd req = docker.createContainerCmd(image);
+        req.withAttachStdin(false);
+        req.withAttachStdout(false);
+        req.withAttachStderr(true);
+        req.withPortSpecs(port + "/tcp", port+"/udp");
+        req.withTty(false);
+        req.withStdinOpen(false);
+        req.withCmd(command);
+        req.withWorkingDir(directory.getAbsolutePath());
+        req.withNetworkDisabled(false);
+        req.withMemoryLimit((long) memory);
+        req.withCpuset("0-7");
+        req.withCpuPeriod(100000);
+        req.withCpuShares(512);
+        req.withOomKillDisable(false);
+        req.withBinds(new Bind(directory.getAbsolutePath(), new Volume(directory.getAbsolutePath())));
+        req.withLxcConf(new LxcConf("lxc.utsname", "docker"));
 
-        HostConfig.Builder hostconf =  HostConfig.builder();
-        hostconf.binds(Arrays.asList(directory.getAbsolutePath() + ":" + directory.getAbsolutePath()));
-        hostconf.lxcConf(Arrays.asList(new HostConfig.LxcConfParameter("lxc.utsname", "docker")));
-        HashMap<String, List<PortBinding>> map = new HashMap<>();
-        map.put(port + "/tcp", Arrays.asList(PortBinding.of("0.0.0.0", port)));
-        map.put(port + "/udp", Arrays.asList(PortBinding.of("0.0.0.0", port)));
-        hostconf.portBindings(map);
-        hostconf.cpusetCpus("0-7");
+        req.withPortBindings(new PortBinding(new Ports.Binding("0.0.0.0", port), new ExposedPort(port)));
+        req.withPublishAllPorts(false);
 
-        hostconf.publishAllPorts(false);
-        hostconf.dns(Arrays.asList("8.8.8.8"));
-
-        req.hostConfig(hostconf.build());
-        try {
-            ContainerCreation container = docker.createContainer(req.build(), name);
-            if(container.id() == null)
+        CreateContainerResponse containerResponse = req.exec();
+        ;
+        if(containerResponse.getId() == null)
+        {
+            for(String s : containerResponse.getWarnings())
             {
-                container.getWarnings().forEach(System.err::print);
+                System.err.print(s);
             }
-            return container.id();
-        } catch (DockerException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
-        return null;
+        }
+        return containerResponse.getId();
     }
     public boolean isRunning(String id)
     {
-        try {
-            return docker.inspectContainer(id).state().running();
-        } catch (DockerException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return false;
+        return docker.inspectContainerCmd(id).exec().getState().isRunning();
     }
 
     public void stopContainer(String id)
     {
-        try {
-            docker.stopContainer(id, 10);
-        } catch (DockerException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        docker.stopContainerCmd(id);
     }
 
     public void killContainer(String id)
     {
-        try {
-            docker.killContainer(id);
-        } catch (DockerException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        docker.killContainerCmd(id);
     }
 
     public void removeContainer(String id)
     {
-        try {
-            docker.removeContainer(id);
-        } catch (DockerException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        docker.removeContainerCmd(id);
     }
 
 }
