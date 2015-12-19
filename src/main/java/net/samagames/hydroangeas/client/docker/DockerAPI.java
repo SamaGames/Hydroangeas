@@ -68,7 +68,7 @@ public class DockerAPI {
     }
 
     public void deleteContainerWithName(String cName) {
-        List<Container> exec = docker.listContainersCmd().exec();
+        List<Container> exec = docker.listContainersCmd().withShowAll(true).exec();
         for (Container container : exec) {
             for (String name : container.getNames()) {
                 if (name.toLowerCase().contains(cName.toLowerCase())) {
