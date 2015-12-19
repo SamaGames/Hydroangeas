@@ -67,20 +67,23 @@ public class DockerAPI {
         return containerResponse.getId();
     }
 
-    public String existContainer(String id)
-    {
+    public void deleteContainerWithName(String cName) {
         List<Container> exec = docker.listContainersCmd().exec();
-        for(Container container : exec)
-        {
-            if(container.getId().equals(id))
-                return container.getId();
-
-            for(String name : container.getNames())
-            {
-                if(name.equals(id))
-                    return container.getId();
+        for (Container container : exec) {
+            for (String name : container.getNames()) {
+                if (name.equals(cName)) {
+                    stopContainer(container.getId());
+                    killContainer(container.getId());
+                    removeContainer(container.getId());
+                }
             }
         }
+    }
+
+    public String existContainer(String id)
+    {
+
+
         return null;
     }
 
