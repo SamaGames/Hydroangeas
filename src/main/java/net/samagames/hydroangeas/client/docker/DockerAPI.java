@@ -71,7 +71,7 @@ public class DockerAPI {
         List<Container> exec = docker.listContainersCmd().exec();
         for (Container container : exec) {
             for (String name : container.getNames()) {
-                if (name.equals(cName)) {
+                if (name.equals("/" + cName)) {
                     stopContainer(container.getId());
                     killContainer(container.getId());
                     removeContainer(container.getId());
