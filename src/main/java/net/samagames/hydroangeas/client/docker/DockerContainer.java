@@ -36,16 +36,17 @@ public class DockerContainer {
 
     public String createContainer() {
 
-        if(dockerAPI.isRunning(name))
+        String id;
+        if((id = dockerAPI.existContainer(name)) != null)
         {
-            dockerAPI.killContainer(name);
-            dockerAPI.removeContainer(name);
+            dockerAPI.killContainer(id);
+            dockerAPI.removeContainer(id);
         }
 
-        id = dockerAPI.createContainer(this);
+        this.id = dockerAPI.createContainer(this);
 
         dockerAPI.startContainer(id);
-        return id;
+        return this.id;
     }
 
     public void stopContainer()

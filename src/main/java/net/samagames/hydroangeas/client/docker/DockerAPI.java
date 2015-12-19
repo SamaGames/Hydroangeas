@@ -8,6 +8,8 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.List;
+
 /**
  * Created by Silva on 13/12/2015.
  */
@@ -63,6 +65,23 @@ public class DockerAPI {
             }
         }
         return containerResponse.getId();
+    }
+
+    public String existContainer(String id)
+    {
+        List<Container> exec = docker.listContainersCmd().exec();
+        for(Container container : exec)
+        {
+            if(container.getId().equals(id))
+                return container.getId();
+
+            for(String name : container.getNames())
+            {
+                if(name.equals(id))
+                    return container.getId();
+            }
+        }
+        return null;
     }
 
     public void startContainer(String id)
