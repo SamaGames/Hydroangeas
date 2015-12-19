@@ -66,11 +66,6 @@ public class AlgorithmicMachine
         return server;
     }
 
-    public MinecraftServerS getServerFor(AbstractGameTemplate template)
-    {
-        return null;
-    }
-
     public void onServerUpdate(HydroClient client, MinecraftServerS oldServer, MinecraftServerUpdatePacket serverStatus)
     {
         if (serverStatus.getAction().equals(MinecraftServerUpdatePacket.UType.END))

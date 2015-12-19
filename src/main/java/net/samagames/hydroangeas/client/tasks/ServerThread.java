@@ -87,14 +87,17 @@ public class ServerThread extends Thread
     public void run()
     {
         try {
-            Thread.sleep(5000);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        while (container.isRunning())
+        boolean working = true;
+        while (working)
         {
             try {
                 Thread.sleep(200);
+                if(!container.isRunning())
+                    working = false;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

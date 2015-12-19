@@ -9,6 +9,7 @@ public class DockerContainer {
 
     private String name;
     private String id;
+    private String image;
 
     private String[] command;
 
@@ -26,7 +27,8 @@ public class DockerContainer {
         this.source = source;
         this.port = port;
         this.command = command;
-        int coef = (allowedRam.endsWith("M")?1024*1024:1024*1024*1024);
+        this.image = "frolvlad/alpine-oraclejdk8";
+        int coef = allowedRam.endsWith("M") ? 1024*1024 : 1024*1024*1024;
         this.allowedRam = Long.valueOf(allowedRam.substring(0, allowedRam.length()-1))*coef;
 
         dockerAPI = new DockerAPI();
@@ -34,39 +36,13 @@ public class DockerContainer {
 
     public String createContainer() {
 
-        id = dockerAPI.createContainer(name, "java8",
-                this.command,
-                source,
-                port,
-                allowedRam
-                );
+        dockerAPI.killContainer(name);
+        dockerAPI.removeContainer(name);
+
+        id = dockerAPI.createContainer(this);
+
         dockerAPI.startContainer(id);
         return id;
-    }
-
-    /*(id = execCmd(new String[]{
-                "docker",
-                "run",
-                "-d",
-                "-P",
-                "--name " + name,
-                "-h docker",
-                "-m " + allowedRam,
-                "-p " + port + ":" + port,//Map ports
-                "-v " + source.getAbsolutePath() + ":" + source.getAbsolutePath(),//Volume
-                ,//Image
-
-        }))
-        */
-
-    private String flatten(String[] strings)
-    {
-        String result = "";
-        for(String s : strings)
-        {
-            result += s + " ";
-        }
-        return result;
     }
 
     public void stopContainer()
@@ -74,11 +50,17 @@ public class DockerContainer {
         dockerAPI.stopContainer(id);
     }
 
+    public void killContainer()
+    {
+        dockerAPI.killContainer(id);
+    }
+
     public void removeContainer()
     {
         if(isRunning())
             stopContainer();
 
+        killContainer();
         dockerAPI.removeContainer(id);
     }
 
@@ -111,5 +93,14 @@ public class DockerContainer {
 
     public String[] getCommand() {
         return command;
+    }
+
+
+    public long getAllowedRam() {
+        return allowedRam;
+    }
+
+    public String getImage() {
+        return image;
     }
 }
