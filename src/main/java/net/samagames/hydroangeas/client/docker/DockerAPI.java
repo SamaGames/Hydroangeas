@@ -71,20 +71,13 @@ public class DockerAPI {
         List<Container> exec = docker.listContainersCmd().exec();
         for (Container container : exec) {
             for (String name : container.getNames()) {
-                if (name.equals("/" + cName)) {
+                if (name.toLowerCase().contains(cName.toLowerCase())) {
                     stopContainer(container.getId());
                     killContainer(container.getId());
                     removeContainer(container.getId());
                 }
             }
         }
-    }
-
-    public String existContainer(String id)
-    {
-
-
-        return null;
     }
 
     public void startContainer(String id)
