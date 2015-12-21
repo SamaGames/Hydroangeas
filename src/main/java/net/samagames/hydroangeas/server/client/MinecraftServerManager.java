@@ -131,7 +131,9 @@ public class MinecraftServerManager
 
     public MinecraftServerS getServerByName(String serverName)
     {
-        for (MinecraftServerS server : servers)
+        List<MinecraftServerS> serverSes = new ArrayList<>();
+        serverSes.addAll(servers);
+        for (MinecraftServerS server : serverSes)
             if (server.getServerName().equals(serverName))
                 return server;
         return null;

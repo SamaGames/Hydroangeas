@@ -1,5 +1,6 @@
 package net.samagames.hydroangeas.server.commands;
 
+import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.commands.AbstractCommand;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.HydroClient;
@@ -82,36 +83,43 @@ public class InfosCommand extends AbstractCommand
         return true;
     }
 
-    public void showHydroClient(HydroClient client, Integer i)
+    @Override
+    public String getHelp() {
+        return "- info <Optional: client id>\n"+
+                "Without arguments it will display the list of connected clients.\n"+
+                "Add the client id shown before the uuid to see more info about the client.";
+    }
+
+    public static void showHydroClient(HydroClient client, Integer i)
     {
-        instance.log(Level.INFO, "#" + ((i != null)?i:"") + " " + client.getUUID() + ": ");
-        instance.log(Level.INFO, "   ip:         " + ConsoleColor.RED + client.getIp() + ConsoleColor.RESET);
-        instance.log(Level.INFO, "   weight:     " + ConsoleColor.RED + client.getActualWeight() + ConsoleColor.RESET);
-        instance.log(Level.INFO, "   maxWeight:  " + ConsoleColor.RED + client.getMaxWeight() + ConsoleColor.RESET);
-        instance.log(Level.INFO, "   Nb player:  " + ConsoleColor.RED + client.getPlayer() + ConsoleColor.RESET);
-        instance.log(Level.INFO, "   Nb server:  " + ConsoleColor.RED + client.getServerManager().getServers().size() + ConsoleColor.RESET);
-        instance.log(Level.INFO, "   Last Ping:  " + ConsoleColor.RED + client.getTimestamp() + ConsoleColor.RESET);
-        instance.log(Level.INFO, "   Restriction Mode:  " + ConsoleColor.RED + client.getRestrictionMode().getMode() + ConsoleColor.RESET);
-        instance.log(Level.INFO, "   Whitelist:  ");
+        Hydroangeas.getInstance().log(Level.INFO, "#" + ((i != null)?i:"") + " " + client.getUUID() + ": ");
+        Hydroangeas.getInstance().log(Level.INFO, "   ip:         " + ConsoleColor.RED + client.getIp() + ConsoleColor.RESET);
+        Hydroangeas.getInstance().log(Level.INFO, "   weight:     " + ConsoleColor.RED + client.getActualWeight() + ConsoleColor.RESET);
+        Hydroangeas.getInstance().log(Level.INFO, "   maxWeight:  " + ConsoleColor.RED + client.getMaxWeight() + ConsoleColor.RESET);
+        Hydroangeas.getInstance().log(Level.INFO, "   Nb player:  " + ConsoleColor.RED + client.getPlayer() + ConsoleColor.RESET);
+        Hydroangeas.getInstance().log(Level.INFO, "   Nb server:  " + ConsoleColor.RED + client.getServerManager().getServers().size() + ConsoleColor.RESET);
+        Hydroangeas.getInstance().log(Level.INFO, "   Last Ping:  " + ConsoleColor.RED + client.getTimestamp() + ConsoleColor.RESET);
+        Hydroangeas.getInstance().log(Level.INFO, "   Restriction Mode:  " + ConsoleColor.RED + client.getRestrictionMode().getMode() + ConsoleColor.RESET);
+        Hydroangeas.getInstance().log(Level.INFO, "   Whitelist:  ");
         for(String data : client.getWhitelist())
         {
-            instance.log(Level.INFO, "   - "+ ConsoleColor.YELLOW + data + ConsoleColor.RESET);
+            Hydroangeas.getInstance().log(Level.INFO, "   - "+ ConsoleColor.YELLOW + data + ConsoleColor.RESET);
         }
-        instance.log(Level.INFO, "   Blacklist:  ");
+        Hydroangeas.getInstance().log(Level.INFO, "   Blacklist:  ");
         for(String data : client.getBlacklist())
         {
-            instance.log(Level.INFO, "   - "+ ConsoleColor.YELLOW + data + ConsoleColor.RESET);
+            Hydroangeas.getInstance().log(Level.INFO, "   - "+ ConsoleColor.YELLOW + data + ConsoleColor.RESET);
         }
     }
 
-    public void showServer(MinecraftServerS server, Integer i)
+    public static void showServer(MinecraftServerS server, Integer i)
     {
-        instance.log(Level.INFO, "      #" + ((i != null)?i:"") + " Servername: " + server.getServerName());
-        instance.log(Level.INFO, "       Game:     " + ConsoleColor.RED + server.getGame() + ConsoleColor.RESET);
-        instance.log(Level.INFO, "       Map:      " + ConsoleColor.RED + server.getMap() + ConsoleColor.RESET);
-        instance.log(Level.INFO, "       Players:  " + ConsoleColor.RED + server.getActualSlots() + ConsoleColor.RESET);
-        instance.log(Level.INFO, "       MaxSlots: " + ConsoleColor.RED + server.getMaxSlot() + ConsoleColor.RESET);
-        instance.log(Level.INFO, "       MinSlots: " + ConsoleColor.RED + server.getMinSlot() + ConsoleColor.RESET);
-        instance.log(Level.INFO, "       Weight:   " + ConsoleColor.RED + server.getWeight() + ConsoleColor.RESET);
+        Hydroangeas.getInstance().log(Level.INFO, "      #" + ((i != null)?i:"") + " Servername: " + server.getServerName());
+        Hydroangeas.getInstance().log(Level.INFO, "       Game:     " + ConsoleColor.RED + server.getGame() + ConsoleColor.RESET);
+        Hydroangeas.getInstance().log(Level.INFO, "       Map:      " + ConsoleColor.RED + server.getMap() + ConsoleColor.RESET);
+        Hydroangeas.getInstance().log(Level.INFO, "       Players:  " + ConsoleColor.RED + server.getActualSlots() + ConsoleColor.RESET);
+        Hydroangeas.getInstance().log(Level.INFO, "       MaxSlots: " + ConsoleColor.RED + server.getMaxSlot() + ConsoleColor.RESET);
+        Hydroangeas.getInstance().log(Level.INFO, "       MinSlots: " + ConsoleColor.RED + server.getMinSlot() + ConsoleColor.RESET);
+        Hydroangeas.getInstance().log(Level.INFO, "       Weight:   " + ConsoleColor.RED + server.getWeight() + ConsoleColor.RESET);
     }
 }

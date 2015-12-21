@@ -27,7 +27,7 @@ public class AlgorithmicMachine
 
     public HydroClient selectGoodHydroClient(AbstractGameTemplate template)
     {
-        TreeSet<HydroClient> sortedClient = new TreeSet<>((o1, o2) -> (o1.getAvailableWeight() < o2.getAvailableWeight()) ? -1 : 1);
+        TreeSet<HydroClient> sortedClient = new TreeSet<>((o1, o2) -> (o1.getAvailableWeight() > o2.getAvailableWeight()) ? -1 : 1);
         sortedClient.addAll(instance.getClientManager().getClients());
         for (HydroClient client : sortedClient)
         {

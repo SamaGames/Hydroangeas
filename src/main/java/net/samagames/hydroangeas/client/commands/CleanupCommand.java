@@ -7,7 +7,6 @@ import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerUpdateP
 import org.apache.commons.io.FileDeleteStrategy;
 
 import java.io.File;
-import java.util.logging.Level;
 
 /**
  * Created by Silva on 22/10/2015.
@@ -49,5 +48,10 @@ public class CleanupCommand extends AbstractCommand
         }
         instance.getLogger().info("Check done !");
         return true;
+    }
+
+    @Override
+    public String getHelp() {
+        return null;
     }
 }

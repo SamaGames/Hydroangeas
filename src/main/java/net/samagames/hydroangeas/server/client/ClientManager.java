@@ -9,8 +9,6 @@ import net.samagames.hydroangeas.server.games.SimpleGameTemplate;
 import net.samagames.hydroangeas.server.tasks.CleanServer;
 import net.samagames.hydroangeas.server.tasks.KeepUpdatedThread;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Executable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -138,6 +136,22 @@ public class ClientManager
             }
         }
         return null;
+    }
+
+    public List<MinecraftServerS> getServersStartingBy(String regex)
+    {
+        List<MinecraftServerS> servers = new ArrayList<>();
+        for (HydroClient client : clientList)
+        {
+            for(MinecraftServerS server : client.getServerManager().getServers())
+            {
+                if(server.getServerName().startsWith(regex))
+                {
+                    servers.add(server);
+                }
+            }
+        }
+        return servers;
     }
 
     public List<MinecraftServerS> getServersByTemplate(AbstractGameTemplate template)

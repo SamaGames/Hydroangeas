@@ -4,6 +4,9 @@ import net.samagames.hydroangeas.common.commands.AbstractCommand;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.HydroClient;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
+import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
+
+import java.util.List;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
@@ -58,6 +61,18 @@ public class ShutdownCommand extends AbstractCommand
                     server.shutdown();
                     instance.getLogger().info(server.getServerName() + " shutdown successfully");
                     break;
+                case "template":
+                    AbstractGameTemplate template = instance.getTemplateManager().getTemplateByID(args[1]);
+                    if(template == null)
+                    {
+                        instance.getLogger().info("Erreur mauvais nom de template!");
+                        return true;
+                    }
+                    List<MinecraftServerS> serversByTemplate = instance.getClientManager().getServersByTemplate(template);
+                    serversByTemplate.forEach(MinecraftServerS::shutdown);
+
+                    instance.getLogger().info(serversByTemplate.size() + " server shutdown successfully");
+                    break;
                 default:
                     showSyntaxe();
                     break;
@@ -67,6 +82,13 @@ public class ShutdownCommand extends AbstractCommand
             showSyntaxe();
         }
         return true;
+    }
+
+    @Override
+    public String getHelp() {
+        return "- shutdown <client/server/template> <id/servername/templatename>\n"+
+                "Shutdown a client by id provided by the info command or a server by his name.\n"+
+                "You can also stop all server with a specific template by using the template name.";
     }
 
     private void showSyntaxe()

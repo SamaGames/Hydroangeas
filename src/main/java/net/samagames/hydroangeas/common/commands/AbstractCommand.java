@@ -23,4 +23,6 @@ public abstract class AbstractCommand
     {
         return command;
     }
+
+    public abstract String getHelp();
 }
