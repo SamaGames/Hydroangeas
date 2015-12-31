@@ -76,7 +76,6 @@ public class DockerAPI {
                         killContainer(container.getId());
                     }catch (Exception e)
                     {
-                        e.printStackTrace();
                     }
                     removeContainer(container.getId());
                 }
