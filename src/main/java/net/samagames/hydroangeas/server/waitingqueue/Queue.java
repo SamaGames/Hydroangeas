@@ -165,7 +165,7 @@ public class Queue
                     for (QGroup group : groups) {
                         group.sendTo(server.getServerName());
                     }
-                    coolDown += 11;
+                    coolDown += 20;
                 });
                 lastServerStartNB.lazySet(servers.size());
 
