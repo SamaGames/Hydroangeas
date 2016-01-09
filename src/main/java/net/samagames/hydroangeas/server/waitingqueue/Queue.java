@@ -139,14 +139,14 @@ public class Queue
                 List<MinecraftServerS> servers = instance.getAlgorithmicMachine().getServerByTemplatesAndAvailable(template.getId());
 
                 servers.stream().filter(server -> (server.getStatus().equals(Status.WAITING_FOR_PLAYERS) || server.getStatus().equals(Status.READY_TO_START))
-                        && server.getMaxSlot() - server.getActualSlots() > 0).forEach(server -> {
-                    server.setTimeToLive(CleanServer.LIVETIME);
+                        && server.getMaxSlot() > server.getActualSlots()).forEach(server -> {
+
                     List<QGroup> groups = new ArrayList<>();
                     queue.drainPlayerTo(groups, server.getMaxSlot() - server.getActualSlots());
                     for (QGroup group : groups) {
                         group.sendTo(server.getServerName());
                     }
-                    coolDown += 11;
+                    coolDown += 16;
                 });
                 lastServerStartNB.lazySet(servers.size());
 
