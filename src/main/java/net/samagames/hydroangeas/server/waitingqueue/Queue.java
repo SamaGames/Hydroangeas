@@ -159,13 +159,13 @@ public class Queue
                         && server.getMaxSlot() - server.getActualSlots() > 0
                 ).forEach(server -> {
 
-                    server.setTimeToLive(CleanServer.LIVETIME);
+
                     List<QGroup> groups = new ArrayList<>();
                     queue.drainPlayerTo(groups, server.getMaxSlot() - server.getActualSlots());
                     for (QGroup group : groups) {
                         group.sendTo(server.getServerName());
                     }
-                    coolDown += 11;
+                    coolDown += 20;
                 });
                 lastServerStartNB.lazySet(servers.size());
 
@@ -183,8 +183,7 @@ public class Queue
                             numberOfAvailableServer--;
                         }
                     }
-                    if(numberOfAvailableServer <= 0)
-                        hasNotEnoughtServer = true;
+                    hasNotEnoughtServer = numberOfAvailableServer <= 0;
                 }
 
                 //If server capacity is less than needed, start we a new server now ? (if there are enough player or if we override)

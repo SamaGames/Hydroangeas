@@ -46,6 +46,7 @@ public class MinecraftServerS
     private int actualSlots;
 
     private long timeToLive = CleanServer.LIVETIME;
+    private boolean available = false;
     private long startedTime;
 
     private List<Runnable> onStartHook;
@@ -248,6 +249,11 @@ public class MinecraftServerS
 
     public void setActualSlots(int actualSlots)
     {
+        if(!available && actualSlots > 1)
+        {
+            available = true;
+            timeToLive = CleanServer.LIVETIME;
+        }
         this.actualSlots = actualSlots;
     }
 
