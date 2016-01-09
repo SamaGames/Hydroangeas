@@ -183,8 +183,7 @@ public class Queue
                             numberOfAvailableServer--;
                         }
                     }
-                    if(numberOfAvailableServer <= 0)
-                        hasNotEnoughtServer = true;
+                    hasNotEnoughtServer = numberOfAvailableServer <= 0;
                 }
 
                 //If server capacity is less than needed, start we a new server now ? (if there are enough player or if we override)
