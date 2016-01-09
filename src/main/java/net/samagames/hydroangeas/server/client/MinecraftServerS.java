@@ -9,6 +9,8 @@ import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
 import net.samagames.hydroangeas.server.tasks.CleanServer;
 import redis.clients.jedis.Jedis;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -47,6 +49,7 @@ public class MinecraftServerS
     private boolean available = false;
     private long startedTime;
 
+    private List<Runnable> onStartHook;
 
     public MinecraftServerS(HydroClient client, AbstractGameTemplate template)
     {
@@ -77,6 +80,8 @@ public class MinecraftServerS
         this.startupOptions = startupOptions;
 
         this.startedTime = System.currentTimeMillis();
+
+        onStartHook = new ArrayList<>();
     }
 
     public void shutdown()
@@ -87,6 +92,14 @@ public class MinecraftServerS
 
     public void onStarted()
     {
+        List<Runnable> hooks = new ArrayList<>();
+        hooks.addAll(onStartHook);
+        onStartHook.clear();
+        for(Runnable runnable : hooks)
+        {
+            client.getInstance().getScheduler().execute(runnable);
+        }
+
        /* String ip = this.client.getIp();
         int port = getPort();
         //Register server in redis cache
@@ -106,6 +119,11 @@ public class MinecraftServerS
             Hydroangeas.getInstance().getAsServer().getHubBalancer().onHubShutdown(this);
         }
         unregisterNetwork();
+    }
+
+    public void addOnStartHook(Runnable runnable)
+    {
+        onStartHook.add(runnable);
     }
 
     public void unregisterNetwork()
@@ -273,5 +291,9 @@ public class MinecraftServerS
 
     public void setTimeToLive(long timeToLive) {
         this.timeToLive = timeToLive;
+    }
+
+    public HydroClient getClient() {
+        return client;
     }
 }

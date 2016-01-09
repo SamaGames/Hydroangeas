@@ -6,9 +6,6 @@ import net.samagames.hydroangeas.client.servers.MinecraftServerC;
 import net.samagames.hydroangeas.common.log.StackTraceData;
 import net.samagames.hydroangeas.utils.ping.MinecraftPing;
 import net.samagames.hydroangeas.utils.ping.MinecraftPingOptions;
-import net.samagames.hydroangeas.utils.ping.MinecraftPingReply;
-import net.samagames.restfull.LogLevel;
-import net.samagames.restfull.RestAPI;
 import org.apache.commons.io.FileDeleteStrategy;
 import org.apache.commons.io.FileUtils;
 
@@ -16,13 +13,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.rmi.Remote;
-import java.rmi.server.RemoteServer;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -50,6 +43,7 @@ public class ServerThread extends Thread
     public ServerThread(MinecraftServerC instance, String[] command, String[] env, File directory)
     {
         this.instance = instance;
+
         this.executor = Executors.newScheduledThreadPool(5);
         try
         {

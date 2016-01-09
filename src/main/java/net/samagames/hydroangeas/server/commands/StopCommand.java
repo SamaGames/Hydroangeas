@@ -32,4 +32,9 @@ public class StopCommand extends AbstractCommand
 
         return true;
     }
+
+    @Override
+    public String getHelp() {
+        return "- stop";
+    }
 }
