@@ -106,7 +106,7 @@
         
         <dependency>
             <groupId>net.samagames</groupId>
-            <artifactId>Restfull</artifactId>
+            <artifactId>RestfullAPI</artifactId>
             <version>1.0.0</version>
             <scope>compile</scope>
         </dependency>
