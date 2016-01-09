@@ -1,14 +1,16 @@
 package net.samagames.hydroangeas.client.docker;
 
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.CreateContainerCmd;
-import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.api.model.*;
-import com.github.dockerjava.core.DockerClientBuilder;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.spotify.docker.client.DefaultDockerClient;
+import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.DockerException;
+import com.spotify.docker.client.messages.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Silva on 13/12/2015.
@@ -22,27 +24,53 @@ public class DockerAPI {
     {
         gson = new GsonBuilder().create();
 
-        docker = DockerClientBuilder.getInstance("http://127.0.0.1:2376/").build();
+        docker = DefaultDockerClient.builder().uri("http://127.0.0.1:2376/").build();
     }
 
     public String createContainer(DockerContainer container)
     {
-        CreateContainerCmd req = docker.createContainerCmd(container.getImage());
-        req.withName(container.getName());
-        req.withAttachStdin(false);
-        req.withAttachStdout(true);
-        req.withAttachStderr(true);
 
-        req.withTty(true);
-        req.withStdinOpen(false);
-        req.withCmd(container.getCommand());
-        req.withWorkingDir(container.getSource().getAbsolutePath());
-        req.withMemoryLimit(container.getAllowedRam());
-        req.withCpuset("0-7");
+        final String[] ports = {""+container.getPort()};
+        final Map<String, List<PortBinding>> portBindings = new HashMap<String, List<PortBinding>>();
+        for (String port : ports) {
+            List<PortBinding> hostPorts = new ArrayList<PortBinding>();
+            hostPorts.add(PortBinding.of("0.0.0.0", port));
+            portBindings.put(port, hostPorts);
+        }
+
+
+        HostConfig hostConfig = HostConfig.builder()
+                .portBindings(portBindings)
+                .binds(container.getSource().getAbsolutePath())
+                .cpuQuota(5000L)
+                .publishAllPorts(true)
+                .networkMode("host")
+                .build();
+
+        ContainerConfig config = ContainerConfig.builder()
+                .hostConfig(hostConfig)
+                .image(container.getImage())
+                .attachStdin(false)
+                .attachStderr(true)
+                .attachStdout(true)
+                .tty(true)
+                .openStdin(false)
+                .stdinOnce(false)
+                .cmd(container.getCommand())
+                .workingDir(container.getSource().getAbsolutePath())
+                .cpuset("0-7")
+                .memory(container.getAllowedRam())
+                .cpuQuota(5000L)
+                .cpuShares(512L)
+                .exposedPorts(container.getPort() + "/tcp: {}", container.getPort() + "/udp: {}")
+                .build();
+
+       // docker.createContainer()
+       /* CreateContainerCmd req = docker.createContainerCmd(container.getImage());
+        req.withName(container.getName());
         req.withCpuPeriod(100000);
-        req.withCpuShares(512);
         req.withOomKillDisable(false);
-        Volume volume = new Volume(container.getSource().getAbsolutePath());
+        Volume volume = new Volume();
         req.withVolumes(volume);
 
         req.withBinds(new Bind(container.getSource().getAbsolutePath(), volume));
@@ -52,60 +80,115 @@ public class DockerAPI {
         portBindings.bind(tcpPort, Ports.Binding(container.getPort()));
         req.withExposedPorts(tcpPort);
         req.withPortBindings(portBindings);
-        req.withNetworkMode("host");
-        req.withPublishAllPorts(true);
-        req.withCapAdd(Capability.ALL);
+        req.withCapAdd(Capability.ALL);*/
 
-        CreateContainerResponse containerResponse = req.exec();
-        if(containerResponse.getId() == null)
-        {
-            for(String s : containerResponse.getWarnings())
+        try {
+            ContainerCreation container1 = docker.createContainer(config, container.getName());
+            if(container1.getWarnings() != null)
             {
-                System.err.print(s);
+                for(String s : container1.getWarnings())
+                {
+                    System.err.print(s);
+                }
+                return null;
             }
+
+            return container1.id();
+        } catch (DockerException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        return containerResponse.getId();
+        return null;
     }
 
     public void deleteContainerWithName(String cName) {
-        List<Container> exec = docker.listContainersCmd().withShowAll(true).exec();
-        for (Container container : exec) {
-            for (String name : container.getNames()) {
-                if (name.contains(cName)) {
-                    try {
-                        killContainer(container.getId());
-                    }catch (Exception e)
-                    {
+        try {
+            List<Container> exec = docker.listContainers(DockerClient.ListContainersParam.allContainers(true));
+            for (Container container : exec) {
+                for (String name : container.names()) {
+                    if (name.contains(cName)) {
+                        try {
+                            killContainer(container.id());
+                        }catch (Exception e)
+                        {
+                        }
+                        removeContainer(container.id());
                     }
-                    removeContainer(container.getId());
                 }
             }
+        } catch (DockerException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
     public void startContainer(String id)
     {
-        docker.startContainerCmd(id).exec();
+        try {
+            docker.startContainer(id);
+        } catch (DockerException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean isRunning(String id)
     {
-        return docker.inspectContainerCmd(id).exec().getState().isRunning();
+        try {
+            return docker.inspectContainer(id).state().running();
+        } catch (DockerException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public void waitUntilStop(String id)
+    {
+        try {
+            docker.waitContainer(id);
+        } catch (DockerException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void stopContainer(String id)
     {
-        docker.stopContainerCmd(id).exec();
+        try {
+            docker.stopContainer(id, 0);
+        } catch (DockerException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void killContainer(String id)
     {
-        docker.killContainerCmd(id).exec();
+        try {
+            docker.killContainer(id);
+        } catch (DockerException e) {
+            //e.printStackTrace();
+        } catch (InterruptedException e) {
+            //e.printStackTrace();
+        }
     }
 
     public void removeContainer(String id)
     {
-        docker.removeContainerCmd(id).exec();
+        try {
+            docker.removeContainer(id, true);
+        } catch (DockerException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 }

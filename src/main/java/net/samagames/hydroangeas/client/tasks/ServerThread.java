@@ -91,7 +91,7 @@ public class ServerThread extends Thread
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        boolean working = true;
+        /*boolean working = true;
         while (working)
         {
             try {
@@ -101,7 +101,8 @@ public class ServerThread extends Thread
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
+        container.waitFor();
         normalStop();
         container.removeContainer();
     }

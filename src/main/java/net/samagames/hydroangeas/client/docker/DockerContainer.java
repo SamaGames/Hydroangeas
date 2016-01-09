@@ -44,6 +44,11 @@ public class DockerContainer {
         return this.id;
     }
 
+    public void waitFor()
+    {
+        dockerAPI.waitUntilStop(id);
+    }
+
     public void stopContainer()
     {
         dockerAPI.stopContainer(id);
