@@ -134,7 +134,7 @@ public class ServerManager
         }
 
         if(instance.getRestrictionMode().equals(HydroangeasClient.RestrictionMode.BLACKLIST)) {
-            if (!instance.getBlacklist().contains(template)) {
+            if (instance.getBlacklist().contains(template)) {
                 throw new Exception("Try to start a server with a template blacklisted !");
             }
         }

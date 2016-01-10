@@ -1,5 +1,7 @@
 package net.samagames.hydroangeas.client.docker;
 
+import net.samagames.hydroangeas.Hydroangeas;
+
 import java.io.File;
 
 /**
@@ -31,7 +33,7 @@ public class DockerContainer {
         int coef = allowedRam.endsWith("M") ? 1024*1024 : 1024*1024*1024;
         this.allowedRam = Long.valueOf(allowedRam.substring(0, allowedRam.length()-1))*coef;
 
-        dockerAPI = new DockerAPI();
+        dockerAPI = Hydroangeas.getInstance().getAsClient().getDockerAPI();
     }
 
     public String createContainer() {
@@ -40,13 +42,13 @@ public class DockerContainer {
 
         this.id = dockerAPI.createContainer(this);
 
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         dockerAPI.startContainer(id);
         return this.id;
-    }
-
-    public void waitFor()
-    {
-        dockerAPI.waitUntilStop(id);
     }
 
     public void stopContainer()
@@ -61,10 +63,13 @@ public class DockerContainer {
 
     public void removeContainer()
     {
-        if(isRunning())
-            stopContainer();
+        try{
+            killContainer();
+        }catch (Exception e)
+        {
 
-        killContainer();
+        }
+
         dockerAPI.removeContainer(id);
     }
 

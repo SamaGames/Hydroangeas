@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.client.commands.ClientCommandManager;
+import net.samagames.hydroangeas.client.docker.DockerAPI;
 import net.samagames.hydroangeas.client.resources.LogManager;
 import net.samagames.hydroangeas.client.resources.ResourceManager;
 import net.samagames.hydroangeas.client.servers.ServerManager;
@@ -39,9 +40,12 @@ public class HydroangeasClient extends Hydroangeas
     private ResourceManager resourceManager;
     private LogManager logManager;
 
+    private DockerAPI dockerAPI;
+
     public HydroangeasClient(OptionSet options) throws IOException
     {
         super(options);
+        dockerAPI = new DockerAPI();
     }
 
     @Override
@@ -222,5 +226,9 @@ public class HydroangeasClient extends Hydroangeas
 
     public LogManager getLogManager() {
         return logManager;
+    }
+
+    public DockerAPI getDockerAPI() {
+        return dockerAPI;
     }
 }

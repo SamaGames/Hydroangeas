@@ -126,7 +126,7 @@ public class MinecraftServerC
             String maxRAM = startupOptionsObj.get("maxRAM").getAsString();
             serverThread = new ServerThread(this,
                     new String[]{"/usr/bin/java",
-                            "-Duser.dir " + serverFolder.getAbsolutePath(),
+                            //"-Duser.dir " + serverFolder.getAbsolutePath(),
                             "-Xmx" + maxRAM,
                             "-Xms" + startupOptionsObj.get("minRAM").getAsString(),
                             "-Xmn" + startupOptionsObj.get("edenRAM").getAsString(),

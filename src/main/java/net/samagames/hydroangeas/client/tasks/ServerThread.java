@@ -91,18 +91,16 @@ public class ServerThread extends Thread
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        /*boolean working = true;
-        while (working)
+        while (container.isRunning())
         {
             try {
-                Thread.sleep(200);
-                if(!container.isRunning())
-                    working = false;
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }*/
-        container.waitFor();
+        }
+        Hydroangeas.getInstance().getLogger().info("Container stopped: " + instance.getServerName());
+
         normalStop();
         container.removeContainer();
     }
