@@ -169,11 +169,11 @@ public class DockerAPI {
         hostconfig.addProperty("MemoryReservation", container.getAllowedRam());
         hostconfig.addProperty("KernelMemory", 0);
         hostconfig.addProperty("CpuShares", 512);
-        hostconfig.addProperty("CpuPeriod", 10000);
-        hostconfig.addProperty("CpuQuota", 5000);
+        hostconfig.addProperty("CpuPeriod", 100000);
+        hostconfig.addProperty("CpuQuota", 50000);
         hostconfig.addProperty("CpusetCpus", "0,7");
         //hostconfig.addProperty("CpusetMems", "0");
-        hostconfig.addProperty("BlkioWeight", 300);
+        hostconfig.addProperty("BlkioWeight", 1000);
         hostconfig.addProperty("MemorySwappiness", 60);
         hostconfig.addProperty("OomKillDisable", false);
 
@@ -282,10 +282,6 @@ public class DockerAPI {
     {
         JsonElement response = sendRequest("/containers/" + id + "/start", new JsonObject(), "POST");
 
-        if(response != null && !response.equals(JsonNull.INSTANCE))
-        {
-            //it's ok
-        }
     }
 
     public JsonObject inspectContainer(String id)
@@ -341,7 +337,6 @@ public class DockerAPI {
 
             sb.append(String.format("%02x", b));
         }
-
 
         return sb.toString();
     }
