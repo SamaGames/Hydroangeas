@@ -40,6 +40,8 @@ public class ServerThread extends Thread
 
     private DockerContainer container;
 
+    private String shutdownReason = "";
+
     public ServerThread(MinecraftServerC instance, String[] command, String ram, File directory)
     {
         this.instance = instance;
@@ -99,7 +101,8 @@ public class ServerThread extends Thread
                 e.printStackTrace();
             }
         }
-        Hydroangeas.getInstance().getLogger().info("Container stopped: " + instance.getServerName());
+        setShutdownReason("Container shutdown");
+        Hydroangeas.getInstance().getLogger().info("Server stopped: " + instance.getServerName() + "Reason: " + shutdownReason);
 
         normalStop();
         container.removeContainer();
@@ -107,6 +110,7 @@ public class ServerThread extends Thread
 
     public void normalStop()
     {
+        setShutdownReason("Normal stop");
         Hydroangeas.getInstance().getAsClient().getServerManager().onServerStop(instance);
         isServerProcessAlive = false;
         Hydroangeas.getInstance().getAsClient().getLogManager().saveLog(instance.getServerName(), instance.getTemplateID());
@@ -126,9 +130,18 @@ public class ServerThread extends Thread
 
     public void forceStop()
     {
+        setShutdownReason("Force stop");
         isServerProcessAlive = false;
         normalStop();
         container.removeContainer();
+    }
+
+    private void setShutdownReason(String reason)
+    {
+        if(shutdownReason.equals(""))
+        {
+            shutdownReason = reason;
+        }
     }
 
     public DockerContainer getContainer()

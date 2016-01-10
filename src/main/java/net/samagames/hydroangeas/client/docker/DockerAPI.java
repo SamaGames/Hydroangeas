@@ -30,81 +30,6 @@ public class DockerAPI {
 
     }
 
-    /*public String createContainer(DockerContainer container)
-    {
-
-        final String[] ports = {""+container.getPort()};
-        final Map<String, List<PortBinding>> portBindings = new HashMap<String, List<PortBinding>>();
-        for (String port : ports) {
-            List<PortBinding> hostPorts = new ArrayList<PortBinding>();
-            hostPorts.add(PortBinding.of("0.0.0.0", port));
-            portBindings.put(port, hostPorts);
-        }
-
-        HostConfig hostConfig = HostConfig.builder()
-                .portBindings(portBindings)
-                .binds(container.getSource().getAbsolutePath() + ":" + container.getSource().getAbsolutePath() +":rw")
-                .cpuQuota(5000L)
-                .cpuShares(512L)
-                .cpusetCpus("0-7")
-                .memory(container.getAllowedRam())
-                .publishAllPorts(true)
-                .networkMode("host")
-                .build();
-
-        ContainerConfig config = ContainerConfig.builder()
-                .hostConfig(hostConfig)
-                .image(container.getImage())
-                .attachStdin(false)
-                .attachStderr(true)
-                .attachStdout(true)
-                .tty(true)
-                .openStdin(false)
-                .stdinOnce(false)
-                .volumes(container.getSource().getAbsolutePath())
-                .cmd(container.getCommand())
-                .workingDir(container.getSource().getAbsolutePath())
-                .memory(container.getAllowedRam())
-                .exposedPorts("" + container.getPort())
-                .build();
-
-       // docker.createContainer()
-       /* CreateContainerCmd req = docker.createContainerCmd(container.getImage());
-        req.withName(container.getName());
-        req.withCpuPeriod(100000);
-        req.withOomKillDisable(false);
-        Volume volume = new Volume();
-        req.withVolumes(volume);
-
-        req.withBinds(new Bind(container.getSource().getAbsolutePath(), volume));
-
-        ExposedPort tcpPort = ExposedPort.tcp(container.getPort());
-        Ports portBindings = new Ports();
-        portBindings.bind(tcpPort, Ports.Binding(container.getPort()));
-        req.withExposedPorts(tcpPort);
-        req.withPortBindings(portBindings);
-        req.withCapAdd(Capability.ALL);
-
-        try {
-            ContainerCreation container1 = docker.createContainer(config);
-            if(container1.getWarnings() != null)
-            {
-                for(String s : container1.getWarnings())
-                {
-                    System.err.print(s);
-                }
-                return null;
-            }
-
-            return container1.id();
-        } catch (DockerException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }*/
-
     public String createContainer(DockerContainer container)
     {
         JsonObject r = new JsonObject();
@@ -168,14 +93,14 @@ public class DockerAPI {
         hostconfig.addProperty("MemorySwap", container.getAllowedRam() + (1024 * 64));
         hostconfig.addProperty("MemoryReservation", container.getAllowedRam());
         hostconfig.addProperty("KernelMemory", 0);
-        hostconfig.addProperty("CpuShares", 512);
-        hostconfig.addProperty("CpuPeriod", 100000);
-        hostconfig.addProperty("CpuQuota", 50000);
-        hostconfig.addProperty("CpusetCpus", "0,7");
+        hostconfig.addProperty("CpuShares", 768);
+        hostconfig.addProperty("CpuPeriod", 1000000);
+        hostconfig.addProperty("CpuQuota", 700000);
+        //hostconfig.addProperty("CpusetCpus", "0-7");
         //hostconfig.addProperty("CpusetMems", "0");
-        hostconfig.addProperty("BlkioWeight", 1000);
+        //hostconfig.addProperty("BlkioWeight", 1000);
         hostconfig.addProperty("MemorySwappiness", 60);
-        hostconfig.addProperty("OomKillDisable", false);
+        hostconfig.addProperty("OomKillDisable", true);
 
         JsonObject portBindings = new JsonObject();
 
@@ -229,12 +154,13 @@ public class DockerAPI {
 
         r.add("HostConfig", hostconfig);
 
-        JsonObject response = sendRequest("/containers/create?name=" + container.getName(), r, "POST").getAsJsonObject();
+        Response response = sendRequest("/containers/create?name=" + container.getName(), r, "POST");
 
-        if(response != null)
+        if(response.getStatus() == 201)
         {
-            String id = response.get("Id").getAsString();
-            JsonElement warnings1 = response.get("Warnings");
+            JsonObject data = response.getResponse().getAsJsonObject();
+            String id = data.get("Id").getAsString();
+            JsonElement warnings1 = data.get("Warnings");
             if(warnings1 != null && warnings1.isJsonArray())
             {
                 JsonArray warnings = warnings1.getAsJsonArray();
@@ -255,11 +181,11 @@ public class DockerAPI {
 
     public void deleteContainerWithName(String cName) {
 
-        JsonElement response = sendRequest("/containers/json?all=1", new JsonObject(), "GET");
+        Response response = sendRequest("/containers/json?all=1", new JsonObject(), "GET");
 
-        if(response != null && response.isJsonArray())
+        if(response.getStatus() == 200)
         {
-            for(JsonElement object : response.getAsJsonArray())
+            for(JsonElement object : response.getResponse().getAsJsonArray())
             {
                 JsonObject container = object.getAsJsonObject();
                 String id = container.get("Id").getAsString();
@@ -278,19 +204,19 @@ public class DockerAPI {
         }
     }
 
-    public void startContainer(String id)
+    public boolean startContainer(String id)
     {
-        JsonElement response = sendRequest("/containers/" + id + "/start", new JsonObject(), "POST");
-
+        Response response = sendRequest("/containers/" + id + "/start", new JsonObject(), "POST");
+        return response.getStatus() == 204;
     }
 
     public JsonObject inspectContainer(String id)
     {
-        JsonElement response = sendRequest("/containers/" + id + "/json?size=0", new JsonObject(), "GET");
+        Response response = sendRequest("/containers/" + id + "/json?size=0", new JsonObject(), "GET");
 
-        if(response != null)
+        if(response.getStatus() == 200)
         {
-            return response.getAsJsonObject();
+            return response.getResponse().getAsJsonObject();
         }
         return null;
     }
@@ -341,8 +267,8 @@ public class DockerAPI {
         return sb.toString();
     }
 
-    public JsonElement sendRequest(String point, JsonElement element, String method) {
-        String json = GSON.toJson(element);
+    public Response sendRequest(String point, JsonElement element, String method) {
+        String requestData = GSON.toJson(element);
 
         HttpClient httpClient = new DefaultHttpClient();
 
@@ -355,37 +281,53 @@ public class DockerAPI {
             };
             request.setURI(new URI(this.url + point));
             request.addHeader("Content-Type", "application/json");
-            StringEntity params = new StringEntity(json);
+            StringEntity params = new StringEntity(requestData);
             request.setEntity(params);
 
             HttpResponse responses = httpClient.execute(request);
 
+            int statusCode = responses.getStatusLine().getStatusCode();
+            JsonElement json = null;
             if(responses.getEntity() != null)
             {
                 BufferedReader in = new BufferedReader(
                         new InputStreamReader(responses.getEntity().getContent()));
-                // True if no problem, false otherwise
-                boolean status = (responses.getStatusLine().getStatusCode() <= 299);
 
-                if (status) {
-
-                    //Hydroangeas.getInstance().getLogger().info(repJson);
-                    try{
-                        return new JsonParser().parse(in);
-                    }catch (Exception e)
-                    {
-                        return null;
-                    }
+                try{
+                    json = new JsonParser().parse(in);
+                }catch (Exception e)
+                {
+                    json = null;
                 }
             }
+            return new Response(statusCode, json);
         } catch (Exception e) {
             Hydroangeas.getInstance().getLogger().severe("Error for " + point + " (message:" + e.getMessage() + ")");
-            return null;
         } finally {
             httpClient.getConnectionManager().shutdown();
         }
 
-        return null;
+        return new Response(500, null);
+    }
+
+    public class Response {
+
+        private int status;
+        private JsonElement response;
+
+        public Response(int status, JsonElement response)
+        {
+            this.status = status;
+            this.response = response;
+        }
+
+        public int getStatus() {
+            return status;
+        }
+
+        public JsonElement getResponse() {
+            return response;
+        }
     }
 
 }

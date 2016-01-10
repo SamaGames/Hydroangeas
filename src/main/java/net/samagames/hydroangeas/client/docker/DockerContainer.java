@@ -30,7 +30,7 @@ public class DockerContainer {
         this.port = port;
         this.command = command;
         this.image = "frolvlad/alpine-oraclejdk8";
-        int coef = allowedRam.endsWith("M") ? 1024*1024 : 1024*1024*1024;
+        int coef = allowedRam.endsWith("M") ? 1024*1024*8 : 1024*1024*1024*8;
         this.allowedRam = Long.valueOf(allowedRam.substring(0, allowedRam.length()-1))*coef;
 
         dockerAPI = Hydroangeas.getInstance().getAsClient().getDockerAPI();
@@ -67,7 +67,6 @@ public class DockerContainer {
             killContainer();
         }catch (Exception e)
         {
-
         }
 
         dockerAPI.removeContainer(id);
@@ -82,7 +81,6 @@ public class DockerContainer {
     {
         return "";
     }
-
 
     public String getName() {
         return name;
