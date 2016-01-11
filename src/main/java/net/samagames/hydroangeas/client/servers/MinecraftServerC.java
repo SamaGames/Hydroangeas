@@ -36,7 +36,7 @@ public class MinecraftServerC
     private int weight;
 
     private long timeToLive = 14400000L;
-    private long startedTime;
+    private long startedTime = System.currentTimeMillis();
 
     private long lastHeartbeat = System.currentTimeMillis();
 
@@ -61,7 +61,7 @@ public class MinecraftServerC
         startupOptions = serverInfos.getStartupOptions();
 
         this.timeToLive = serverInfos.getTimeToLive();
-        this.startedTime = serverInfos.getStartedTime();
+        //this.startedTime = serverInfos.getStartedTime();
 
         this.serverFolder = new File(this.instance.getServerFolder(), serverInfos.getServerName());
         try
@@ -166,7 +166,6 @@ public class MinecraftServerC
                 FileUtils.forceDelete(serverFolder);
             } catch (IOException e1)
             {
-                e1.printStackTrace();
             }
 
             return false;
@@ -182,18 +181,20 @@ public class MinecraftServerC
             instance.getServerManager().onServerStop(this);
             Hydroangeas.getInstance().getAsClient().getLogManager().saveLog(getServerName(), getTemplateID());
             container.removeContainer();
+
         } catch (Exception e)
         {
             this.instance.log(Level.SEVERE, "Can't stop the server " + getServerName() + "!");
             e.printStackTrace();
+            return false;
+        }finally {
             try
             {
+                FileDeleteStrategy.FORCE.delete(serverFolder);
                 FileUtils.forceDelete(serverFolder);
             } catch (IOException e1)
             {
-                e1.printStackTrace();
             }
-            return false;
         }
         return true;
     }
