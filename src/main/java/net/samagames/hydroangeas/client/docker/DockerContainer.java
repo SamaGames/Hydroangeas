@@ -30,7 +30,7 @@ public class DockerContainer {
         this.port = port;
         this.command = command;
         this.image = "frolvlad/alpine-oraclejdk8";
-        int coef = allowedRam.endsWith("M") ? 1024*1024*8 : 1024*1024*1024*8;
+        int coef = allowedRam.endsWith("M") ? 1024*1024 : 1024*1024*1024;
         this.allowedRam = Long.valueOf(allowedRam.substring(0, allowedRam.length()-1))*coef;
 
         dockerAPI = Hydroangeas.getInstance().getAsClient().getDockerAPI();

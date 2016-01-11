@@ -25,7 +25,6 @@ public class DockerAPI {
 
     public DockerAPI()
     {
-
         //docker = DefaultDockerClient.builder().uri("http://127.0.0.1:2376/").build();
 
     }
@@ -89,17 +88,17 @@ public class DockerAPI {
         hostconfig.add("Binds", binds);
         hostconfig.add("Links", new JsonArray());
         hostconfig.add("LxcConf", new JsonObject());
-        hostconfig.addProperty("Memory", container.getAllowedRam() + (1024 * 32));
-        hostconfig.addProperty("MemorySwap", container.getAllowedRam() + (1024 * 64));
-        hostconfig.addProperty("MemoryReservation", container.getAllowedRam());
+        hostconfig.addProperty("Memory", container.getAllowedRam() * 2);
+        hostconfig.addProperty("MemorySwap", (container.getAllowedRam() * 2 ) + container.getAllowedRam() << 2);
+        hostconfig.addProperty("MemoryReservation", container.getAllowedRam() * 2);
         hostconfig.addProperty("KernelMemory", 0);
-        hostconfig.addProperty("CpuShares", 768);
-        hostconfig.addProperty("CpuPeriod", 1000000);
-        hostconfig.addProperty("CpuQuota", 700000);
-        //hostconfig.addProperty("CpusetCpus", "0-7");
+        hostconfig.addProperty("CpuShares", 512);
+        hostconfig.addProperty("CpuPeriod", 100000);
+        hostconfig.addProperty("CpuQuota" , 180000);
+        hostconfig.addProperty("CpusetCpus", "0-7");
         //hostconfig.addProperty("CpusetMems", "0");
         //hostconfig.addProperty("BlkioWeight", 1000);
-        hostconfig.addProperty("MemorySwappiness", 60);
+        hostconfig.addProperty("MemorySwappiness", 80);
         hostconfig.addProperty("OomKillDisable", true);
 
         JsonObject portBindings = new JsonObject();
@@ -202,6 +201,17 @@ public class DockerAPI {
                 }
             }
         }
+    }
+
+    public JsonArray listRunningContainers()
+    {
+        Response response = sendRequest("/containers/json?all=1&filter=[status=running]", new JsonObject(), "GET");
+
+        if(response.getStatus() == 200 && response.getResponse().isJsonArray())
+        {
+            return response.getResponse().getAsJsonArray();
+        }
+        return null;
     }
 
     public boolean startContainer(String id)

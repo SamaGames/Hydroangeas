@@ -9,6 +9,7 @@ import net.samagames.hydroangeas.client.resources.LogManager;
 import net.samagames.hydroangeas.client.resources.ResourceManager;
 import net.samagames.hydroangeas.client.servers.ServerManager;
 import net.samagames.hydroangeas.client.tasks.LifeThread;
+import net.samagames.hydroangeas.client.tasks.ServerAliveWatchDog;
 import net.samagames.hydroangeas.common.protocol.intranet.ByeFromClientPacket;
 import net.samagames.hydroangeas.utils.MiscUtils;
 import org.apache.commons.io.FileUtils;
@@ -41,6 +42,7 @@ public class HydroangeasClient extends Hydroangeas
     private LogManager logManager;
 
     private DockerAPI dockerAPI;
+    private ServerAliveWatchDog serverAliveWatchDog;
 
     public HydroangeasClient(OptionSet options) throws IOException
     {
@@ -123,6 +125,8 @@ public class HydroangeasClient extends Hydroangeas
 
         this.lifeThread = new LifeThread(this);
         this.lifeThread.start();
+
+        this.serverAliveWatchDog = new ServerAliveWatchDog(this);
     }
 
     @Override
@@ -130,6 +134,7 @@ public class HydroangeasClient extends Hydroangeas
     {
         connectionManager.sendPacket(new ByeFromClientPacket(getUUID()));
         this.serverManager.stopAll();
+        this.serverAliveWatchDog.disable();
     }
 
     public UUID getClientUUID()
@@ -230,5 +235,9 @@ public class HydroangeasClient extends Hydroangeas
 
     public DockerAPI getDockerAPI() {
         return dockerAPI;
+    }
+
+    public ServerAliveWatchDog getServerAliveWatchDog() {
+        return serverAliveWatchDog;
     }
 }
