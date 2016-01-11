@@ -21,73 +21,92 @@ import java.util.concurrent.TimeUnit;
  */
 public class ServerAliveWatchDog extends Thread
 {
-    private ScheduledExecutorService executor;
+    //private ScheduledExecutorService executor;
     private HydroangeasClient instance;
 
     public ServerAliveWatchDog(HydroangeasClient instance)
     {
         this.instance = instance;
-        this.executor = Executors.newScheduledThreadPool(3);
+        //this.executor = Executors.newScheduledThreadPool(3);
 
         //Minecraft vanilla ping
-        executor.scheduleAtFixedRate(() -> {
-            List<MinecraftServerC> servers = new ArrayList<>();
-            servers.addAll(instance.getServerManager().getServers());
+        instance.getScheduler().scheduleAtFixedRate(() -> {
+            try{
+                List<MinecraftServerC> servers = new ArrayList<>();
+                servers.addAll(instance.getServerManager().getServers());
 
-            for(MinecraftServerC server : servers)
-            {
-                if(System.currentTimeMillis() - server.getStartedTime() < 20000L)
-                    continue;
-                try {
-                    String ip = HydroangeasClient.getInstance().getAsClient().getIP();
-                    new MinecraftPing().getPing(new MinecraftPingOptions().setHostname(ip).setPort(server.getPort()).setTimeout(100));
-                } catch (IOException e) {
-                    Hydroangeas.getInstance().getLogger().info("Can't ping server: " + server.getServerName() + " shutting down");
-                    server.stopServer();
+                for(MinecraftServerC server : servers)
+                {
+                    if(System.currentTimeMillis() - server.getStartedTime() < 20000L)
+                        continue;
+                    try {
+                        String ip = HydroangeasClient.getInstance().getAsClient().getIP();
+                        new MinecraftPing().getPing(new MinecraftPingOptions().setHostname(ip).setPort(server.getPort()).setTimeout(100));
+                    } catch (IOException e) {
+                        Hydroangeas.getInstance().getLogger().info("Can't ping server: " + server.getServerName() + " shutting down");
+                        server.stopServer();
+                    }
+
                 }
-
+            }catch (Exception e)
+            {
+                e.printStackTrace();
             }
         }, 15, 15, TimeUnit.SECONDS);
 
         //Check data and react
-        executor.scheduleAtFixedRate(() -> {
-            List<MinecraftServerC> servers = new ArrayList<>();
-            servers.addAll(instance.getServerManager().getServers());
-            for(MinecraftServerC server : servers)
-            {
-                if(System.currentTimeMillis() - server.getStartedTime() < 20000L)
-                    continue;
-                if(System.currentTimeMillis() - server.getLastHeartbeat() > 3000L)
+        instance.getScheduler().scheduleAtFixedRate(() -> {
+            try{
+                List<MinecraftServerC> servers = new ArrayList<>();
+                servers.addAll(instance.getServerManager().getServers());
+                for(MinecraftServerC server : servers)
                 {
-                    Hydroangeas.getInstance().getLogger().info("Docker container seems to be offline for: " + server.getServerName() + " shutting down");
-                    server.stopServer();
+                    if(System.currentTimeMillis() - server.getStartedTime() < 20000L)
+                        continue;
+
+                    if(System.currentTimeMillis() - server.getLastHeartbeat() > 3000L)
+                    {
+                        Hydroangeas.getInstance().getLogger().info("Docker container seems to be offline for: " + server.getServerName() + " shutting down");
+                        server.stopServer();
+                    }
                 }
+            }catch (Exception e)
+            {
+                e.printStackTrace();
             }
         }, 15, 2, TimeUnit.SECONDS);
 
         //Get data from docker
-        executor.scheduleAtFixedRate(() -> {
-            JsonArray containers = instance.getDockerAPI().listRunningContainers();
+        instance.getScheduler().scheduleAtFixedRate(() -> {
+            try{
+                JsonArray containers = instance.getDockerAPI().listRunningContainers();
 
-            if(containers != null)
-            {
-                for(JsonElement object : containers)
+                if(containers != null)
                 {
-                    JsonObject container = object.getAsJsonObject();
-                    String name = container.get("Names").getAsJsonArray().get(0).getAsString().replaceFirst("/", "");
-                    MinecraftServerC serverByName = instance.getServerManager().getServerByName(name);
-
-                    if(serverByName != null)
+                    for(JsonElement object : containers)
                     {
-                        serverByName.doHeartbeat();
+                        if(object.isJsonObject())
+                        {
+                            JsonObject container = object.getAsJsonObject();
+                            String name = container.get("Names").getAsJsonArray().get(0).getAsString().replaceFirst("/", "");
+                            MinecraftServerC serverByName = instance.getServerManager().getServerByName(name);
+
+                            if(serverByName != null)
+                            {
+                                serverByName.doHeartbeat();
+                            }
+                        }
                     }
                 }
+            }catch (Exception e)
+            {
+                e.printStackTrace();
             }
         }, 15, 1, TimeUnit.SECONDS);
     }
 
     public void disable()
     {
-        executor.shutdownNow();
+        //executor.shutdownNow();
     }
 }
