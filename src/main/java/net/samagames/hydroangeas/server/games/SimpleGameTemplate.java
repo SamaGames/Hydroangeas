@@ -34,6 +34,9 @@ public class SimpleGameTemplate implements AbstractGameTemplate
 
     private int weight;
 
+    private long timeStarting = 0;
+    private int startedCount = 0;
+
     public SimpleGameTemplate(String id, JsonElement data)
     {
         //TODO package of template
@@ -160,5 +163,23 @@ public class SimpleGameTemplate implements AbstractGameTemplate
     public JsonObject getStartupOptions()
     {
         return startupOptions;
+    }
+
+    @Override
+    public void addTimeToStart(long time) {
+        startedCount++;
+        timeStarting += time;
+    }
+
+    @Override
+    public long getTimeToStart()
+    {
+        return (startedCount > 0) ? timeStarting / startedCount : 0;
+    }
+
+    @Override
+    public void resetStats() {
+        this.startedCount = 0;
+        this.timeStarting = 0;
     }
 }
