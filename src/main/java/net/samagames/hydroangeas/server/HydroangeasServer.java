@@ -34,7 +34,7 @@ public class HydroangeasServer extends Hydroangeas
 
     private HubBalancer hubBalancer;
 
-    private Timer resetTimer = new Timer();
+    private Timer resetTimer;
 
     public HydroangeasServer(OptionSet options) throws IOException
     {
@@ -78,6 +78,7 @@ public class HydroangeasServer extends Hydroangeas
 
         clientManager.globalCheckData();
 
+        resetTimer = new Timer(true);
         ZonedDateTime dateTime = ZonedDateTime.now();
         resetTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
