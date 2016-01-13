@@ -94,10 +94,10 @@ public class DockerAPI {
         hostconfig.addProperty("KernelMemory", 0);
         hostconfig.addProperty("CpuShares", 512);
         hostconfig.addProperty("CpuPeriod", 100000);
-        hostconfig.addProperty("CpuQuota" , 300000);
-        hostconfig.addProperty("CpusetCpus", "0-7");
+        hostconfig.addProperty("CpuQuota" , 800000);
+        //hostconfig.addProperty("CpusetCpus", "0-7");
         //hostconfig.addProperty("CpusetMems", "0");
-        //hostconfig.addProperty("BlkioWeight", 1000);
+        hostconfig.addProperty("BlkioWeight", 1000);
         hostconfig.addProperty("MemorySwappiness", 80);
         hostconfig.addProperty("OomKillDisable", true);
 

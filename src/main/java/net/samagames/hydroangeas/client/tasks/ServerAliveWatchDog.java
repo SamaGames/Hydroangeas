@@ -64,7 +64,7 @@ public class ServerAliveWatchDog extends Thread
                     if(System.currentTimeMillis() - server.getStartedTime() < 20000L)
                         continue;
 
-                    if(System.currentTimeMillis() - server.getLastHeartbeat() > 3000L)
+                    if(System.currentTimeMillis() - server.getLastHeartbeat() > 8000L)
                     {
                         Hydroangeas.getInstance().getLogger().info("Docker container seems to be offline for: " + server.getServerName() + " shutting down");
                         server.stopServer();
@@ -85,16 +85,21 @@ public class ServerAliveWatchDog extends Thread
                 {
                     for(JsonElement object : containers)
                     {
-                        if(object.isJsonObject())
-                        {
-                            JsonObject container = object.getAsJsonObject();
-                            String name = container.get("Names").getAsJsonArray().get(0).getAsString().replaceFirst("/", "");
-                            MinecraftServerC serverByName = instance.getServerManager().getServerByName(name);
-
-                            if(serverByName != null)
+                        try{
+                            if(object.isJsonObject())
                             {
-                                serverByName.doHeartbeat();
+                                JsonObject container = object.getAsJsonObject();
+                                String name = container.get("Names").getAsJsonArray().get(0).getAsString().replaceFirst("/", "");
+                                MinecraftServerC serverByName = instance.getServerManager().getServerByName(name);
+
+                                if(serverByName != null)
+                                {
+                                    serverByName.doHeartbeat();
+                                }
                             }
+                        }catch (Exception e)
+                        {
+
                         }
                     }
                 }
@@ -102,7 +107,7 @@ public class ServerAliveWatchDog extends Thread
             {
                 e.printStackTrace();
             }
-        }, 15, 1, TimeUnit.SECONDS);
+        }, 10, 1, TimeUnit.SECONDS);
     }
 
     public void disable()
