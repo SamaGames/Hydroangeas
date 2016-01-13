@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.protocol.intranet.AskForClientActionPacket;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerInfoPacket;
+import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.data.Status;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
 import net.samagames.hydroangeas.server.tasks.CleanServer;
@@ -239,6 +240,17 @@ public class MinecraftServerS
 
     public void setStatus(Status status)
     {
+        if(this.status.equals(Status.STARTING) && status.equals(Status.WAITING_FOR_PLAYERS))
+        {
+            try{
+                AbstractGameTemplate templateByID = HydroangeasServer.getInstance().getAsServer().getTemplateManager().getTemplateByID(this.templateID);
+                templateByID.addTimeToStart(System.currentTimeMillis() - startedTime);
+            }catch (Exception e)
+            {
+                Hydroangeas.getLogger().severe("Error to save starting stat for: " + getServerName());
+                Hydroangeas.getLogger().severe("Prevent starting system may fail");
+            }
+        }
         this.status = status;
     }
 

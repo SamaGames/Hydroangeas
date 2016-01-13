@@ -46,7 +46,6 @@ public class CleanServer {
                 }
 
                 instance.getScheduler().schedule(() -> server.shutdown(), timeToStop, TimeUnit.SECONDS);
-
             });
         }
     }

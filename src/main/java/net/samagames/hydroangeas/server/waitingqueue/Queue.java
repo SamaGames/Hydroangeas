@@ -54,6 +54,11 @@ public class Queue
 
     private long lastSend = System.currentTimeMillis();
 
+    //Stats
+    private long lastJoinTime = System.currentTimeMillis();
+
+
+
     public Queue(QueueManager manager, AbstractGameTemplate template)
     {
         this.instance = Hydroangeas.getInstance().getAsServer();
@@ -101,6 +106,21 @@ public class Queue
                         if(index < template.getMaxSlot()*lastServerStartNB.get())
                         {
                             messages.add(ChatColor.GREEN + "Votre serveur est en train de démarrer !");
+                            if(template.getTimeToStart() > 0)
+                            {
+                                long timeToStart = template.getTimeToStart();
+                                String time = String.format("%d min %d sec",
+                                        TimeUnit.MILLISECONDS.toMinutes(timeToStart),
+                                        TimeUnit.MILLISECONDS.toSeconds(timeToStart) -
+                                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(timeToStart))
+                                );
+
+                                messages.add(ChatColor.AQUA + "Votre serveur met en moyenne " + time  + " pour démarrer.");
+                            }else
+                            {
+                                messages.add(ChatColor.AQUA + "Durée de démarrage non estimée.");
+                            }
+
                         }else{
                             messages.add(ChatColor.RED + "Votre serveur n'a pas encore démarré.");
                             if(queueSize < template.getMaxSlot())
@@ -378,8 +398,9 @@ public class Queue
     {
         for (QGroup qGroup : queue)
         {
-            if (qGroup == null)
+            if (qGroup == null || qGroup.getLeader() == null)
                 continue;
+
             if (qGroup.getLeader().getUUID().equals(uuid))
             {
                 return true;
@@ -466,6 +487,11 @@ public class Queue
     public AbstractGameTemplate getTemplate()
     {
         return template;
+    }
+
+    public void resetStats()
+    {
+        //Todo reset stats
     }
 
 }

@@ -35,7 +35,7 @@ public abstract class Hydroangeas
 
     protected CommandManager commandManager;
 
-    protected Logger logger;
+    protected static Logger logger;
 
     public Hydroangeas(OptionSet options) throws IOException
     {
@@ -153,7 +153,7 @@ public abstract class Hydroangeas
         return commandManager;
     }
 
-    public Logger getLogger()
+    public static Logger getLogger()
     {
         return logger;
     }
