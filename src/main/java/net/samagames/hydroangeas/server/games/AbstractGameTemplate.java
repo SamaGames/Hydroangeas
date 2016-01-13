@@ -28,4 +28,10 @@ public interface AbstractGameTemplate
     String toString();
 
     JsonElement getStartupOptions();
+
+    void addTimeToStart(long time);
+
+    long getTimeToStart();
+
+    void resetStats();
 }

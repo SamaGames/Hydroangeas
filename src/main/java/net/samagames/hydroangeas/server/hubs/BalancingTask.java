@@ -46,7 +46,7 @@ public class BalancingTask extends Thread
                         hubBalancer.startNewHub();
                     }
                     //Wait until started
-                    coolDown += 40;
+                    coolDown += 20;
 
                     //Are they too much lobby ?
                 } else if (hubBalancer.getNumberServer() > requestNumber)

@@ -296,5 +296,9 @@ public class QueueManager
         instance.getConnectionManager().sendPacket("hydroHubReceiver", packet);
     }
 
+    public List<Queue> getQueues()
+    {
+        return queues;
+    }
 
 }

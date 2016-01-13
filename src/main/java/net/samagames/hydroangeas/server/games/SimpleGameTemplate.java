@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import net.samagames.hydroangeas.utils.MiscUtils;
 
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
@@ -34,9 +35,13 @@ public class SimpleGameTemplate implements AbstractGameTemplate
 
     private int weight;
 
+    private ArrayBlockingQueue<Long> stats;
+
     public SimpleGameTemplate(String id, JsonElement data)
     {
         //TODO package of template
+
+        stats = new ArrayBlockingQueue<>(5, true);
 
         JsonObject formated = data.getAsJsonObject();
         this.id = id;
@@ -160,5 +165,32 @@ public class SimpleGameTemplate implements AbstractGameTemplate
     public JsonObject getStartupOptions()
     {
         return startupOptions;
+    }
+
+    @Override
+    public void addTimeToStart(long time) {
+        if(stats.remainingCapacity() <= 0)
+        {
+            stats.poll();
+        }
+        stats.offer(time);
+    }
+
+    @Override
+    public long getTimeToStart()
+    {
+        long startTime = 0;
+        int nb = 0;
+        for(Long time : stats)
+        {
+            startTime += time;
+            nb++;
+        }
+        return (nb > 0) ? startTime / nb : 0;
+    }
+
+    @Override
+    public void resetStats() {
+        stats.clear();
     }
 }

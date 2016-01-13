@@ -35,7 +35,7 @@ public abstract class Hydroangeas
 
     protected CommandManager commandManager;
 
-    protected Logger logger;
+    protected static Logger logger;
 
     public Hydroangeas(OptionSet options) throws IOException
     {
@@ -53,14 +53,12 @@ public abstract class Hydroangeas
 
         this.scheduler = Executors.newScheduledThreadPool(16);
         this.options = options;
-        this.configuration = new Configuration(this, options);
+        loadConfig();
         this.databaseConnector = new DatabaseConnector(this);
-        //RestAPI.getInstance().setup(configuration.restfullURL, configuration.restfullUser, configuration.restfullPassword);
+
         this.redisSubscriber = new RedisSubscriber(this);
         this.linuxBridge = new LinuxBridge();
-
         this.enable();
-
         Runtime.getRuntime().addShutdownHook(new Thread(() ->
         {
             this.log(Level.INFO, "Shutdown asked!");
@@ -69,6 +67,12 @@ public abstract class Hydroangeas
         }));
 
         isRunning = true;
+    }
+
+    public void loadConfig()
+    {
+        this.configuration = new Configuration(this, options);
+        RestAPI.getInstance().setup(configuration.restfullURL, configuration.restfullUser, configuration.restfullPassword);
     }
 
     public static Hydroangeas getInstance()
@@ -153,7 +157,7 @@ public abstract class Hydroangeas
         return commandManager;
     }
 
-    public Logger getLogger()
+    public static Logger getLogger()
     {
         return logger;
     }

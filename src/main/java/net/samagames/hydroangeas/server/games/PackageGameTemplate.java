@@ -106,4 +106,27 @@ public class PackageGameTemplate implements AbstractGameTemplate
     {
         return currentTemplate.getStartupOptions();
     }
+
+    @Override
+    public void addTimeToStart(long time) {
+        currentTemplate.addTimeToStart(time);
+    }
+
+    @Override
+    public long getTimeToStart() {
+        return currentTemplate.getTimeToStart();
+    }
+
+    @Override
+    public void resetStats() {
+        for(String template : templates)
+        {
+            try{
+                Hydroangeas.getInstance().getAsServer().getTemplateManager().getTemplateByID(template).resetStats();
+            }catch (Exception e)
+            {
+
+            }
+        }
+    }
 }

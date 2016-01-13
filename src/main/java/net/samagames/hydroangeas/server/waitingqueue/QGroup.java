@@ -106,7 +106,7 @@ public class QGroup
 
     public boolean removeQPlayer(QPlayer player)
     {
-        if (player.getUUID().equals(leader.getUUID()))
+        if (leader != null && player.getUUID().equals(leader.getUUID()))
             leader = null;
 
         try
