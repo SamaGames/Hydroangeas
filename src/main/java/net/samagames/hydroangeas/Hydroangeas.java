@@ -9,6 +9,7 @@ import net.samagames.hydroangeas.common.database.RedisSubscriber;
 import net.samagames.hydroangeas.common.log.HydroLogger;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.utils.LinuxBridge;
+import net.samagames.restfull.RestAPI;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.IOException;
