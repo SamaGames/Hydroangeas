@@ -49,15 +49,46 @@ public class HydroangeasClient extends Hydroangeas
     {
         this.log(Level.INFO, "Starting Hydroangeas client...");
 
+        this.loadConfig();
+
+        serverFolder.mkdir();
+
+        logManager = new LogManager(MiscUtils.getJarFolder());
+
+        try
+        {
+            FileUtils.forceDelete(serverFolder);
+            FileUtils.forceMkdir(serverFolder);
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        connectionManager = new ClientConnectionManager(this);
+
+        commandManager = new ClientCommandManager(this);
+
+        this.redisSubscriber.registerReceiver("global@" + getUUID() + "@hydroangeas-client", connectionManager::getPacket);
+        this.redisSubscriber.registerReceiver("globalSecurity@hydroangeas-client", connectionManager::getPacket);
+
+        this.serverManager = new ServerManager(this);
+        this.resourceManager = new ResourceManager(this);
+
+        this.lifeThread = new LifeThread(this);
+        this.lifeThread.start();
+    }
+
+    @Override
+    public void loadConfig()
+    {
+        super.loadConfig();
+
         blacklist = new ArrayList<>();
         whitelist = new ArrayList<>();
 
         this.templatesDomain = this.configuration.getJsonConfiguration().get("web-domain").getAsString() + "templates/";
         this.maxWeight = this.configuration.getJsonConfiguration().get("max-weight").getAsInt();
         this.serverFolder = new File(MiscUtils.getJarFolder(), "servers");
-        serverFolder.mkdir();
-
-        logManager = new LogManager(MiscUtils.getJarFolder());
 
         try{
             this.restrictionMode = RestrictionMode.valueFrom(configuration.getJsonConfiguration().get("RestrictionMode").getAsString());
@@ -98,27 +129,12 @@ public class HydroangeasClient extends Hydroangeas
             getLogger().info("No blacklist load !");
         }
 
-        try
-        {
-            FileUtils.forceDelete(serverFolder);
-            FileUtils.forceMkdir(serverFolder);
-        } catch (IOException e)
-        {
+        try {
+            lifeThread.sendData(true);
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        connectionManager = new ClientConnectionManager(this);
-
-        commandManager = new ClientCommandManager(this);
-
-        this.redisSubscriber.registerReceiver("global@" + getUUID() + "@hydroangeas-client", connectionManager::getPacket);
-        this.redisSubscriber.registerReceiver("globalSecurity@hydroangeas-client", connectionManager::getPacket);
-
-        this.serverManager = new ServerManager(this);
-        this.resourceManager = new ResourceManager(this);
-
-        this.lifeThread = new LifeThread(this);
-        this.lifeThread.start();
     }
 
     @Override
