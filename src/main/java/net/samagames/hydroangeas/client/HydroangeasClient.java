@@ -1,6 +1,8 @@
 package net.samagames.hydroangeas.client;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.client.commands.ClientCommandManager;
@@ -14,8 +16,7 @@ import net.samagames.hydroangeas.common.protocol.intranet.ByeFromClientPacket;
 import net.samagames.hydroangeas.utils.MiscUtils;
 import org.apache.commons.io.FileUtils;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -43,6 +44,8 @@ public class HydroangeasClient extends Hydroangeas
 
     private DockerAPI dockerAPI;
     private ServerAliveWatchDog serverAliveWatchDog;
+
+    private JsonObject dockerConfig;
 
     public HydroangeasClient(OptionSet options) throws IOException
     {
@@ -91,6 +94,22 @@ public class HydroangeasClient extends Hydroangeas
     {
         super.loadConfig();
 
+        JsonElement parsed = null;
+        try {
+            File f = new File("DockerConfig.json");
+            f.createNewFile();
+            InputStreamReader reader = new InputStreamReader(new FileInputStream(f), "UTF-8");
+            parsed = new JsonParser().parse(reader);
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(parsed == null)
+            dockerConfig = new JsonObject();
+        else
+            dockerConfig = parsed.getAsJsonObject();
+
         blacklist = new ArrayList<>();
         whitelist = new ArrayList<>();
 
@@ -138,7 +157,10 @@ public class HydroangeasClient extends Hydroangeas
         }
 
         try {
-            lifeThread.sendData(true);
+            if(lifeThread != null)
+            {
+                lifeThread.sendData(true);
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -255,5 +277,9 @@ public class HydroangeasClient extends Hydroangeas
 
     public ServerAliveWatchDog getServerAliveWatchDog() {
         return serverAliveWatchDog;
+    }
+
+    public JsonObject getDockerConfig() {
+        return dockerConfig;
     }
 }

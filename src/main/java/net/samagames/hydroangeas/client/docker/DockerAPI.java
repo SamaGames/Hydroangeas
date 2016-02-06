@@ -1,7 +1,9 @@
 package net.samagames.hydroangeas.client.docker;
 
 import com.google.gson.*;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import net.samagames.hydroangeas.Hydroangeas;
+import net.samagames.hydroangeas.client.HydroangeasClient;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -31,18 +33,18 @@ public class DockerAPI {
 
     public String createContainer(DockerContainer container)
     {
-        JsonObject r = new JsonObject();
+        JsonObject r = Hydroangeas.getInstance().getAsClient().getDockerConfig();
 
-        r.addProperty("Hostname", "");
-        r.addProperty("Domainname", "");
-        r.addProperty("User", "");
-        r.addProperty("AttachStdin", false);
-        r.addProperty("AttachStdout", true);
-        r.addProperty("AttachStderr", true);
-        r.addProperty("Tty", true);
-        r.addProperty("OpenStdin", false);
-        r.addProperty("StdinOnce", false);
-        r.add("Env", new JsonArray());
+        ifNotSet(r, "Hostname", "");
+        ifNotSet(r, "Domainname", "");
+        ifNotSet(r, "User", "");
+        ifNotSet(r, "AttachStdin", false);
+        ifNotSet(r, "AttachStdout", true);
+        ifNotSet(r, "AttachStderr", true);
+        ifNotSet(r, "Tty", true);
+        ifNotSet(r, "OpenStdin", false);
+        ifNotSet(r, "StdinOnce", false);
+        ifNotSet(r, "Env", new JsonArray());
 
         JsonArray cmd = new JsonArray();
         for(String s : container.getCommand())
@@ -51,7 +53,7 @@ public class DockerAPI {
         }
 
         r.add("Cmd", cmd);
-        r.add("Entrypoint", null);
+        ifNotSet(r, "Entrypoint", "");
         r.addProperty("Image", container.getImage());
         r.add("Labels", new JsonObject());
 
@@ -86,20 +88,19 @@ public class DockerAPI {
         binds.add(container.getSource().getAbsolutePath() + ":" + container.getSource().getAbsolutePath() + ":rw");
 
         hostconfig.add("Binds", binds);
-        hostconfig.add("Links", new JsonArray());
-        hostconfig.add("LxcConf", new JsonObject());
-        hostconfig.addProperty("Memory", container.getAllowedRam() * 2);
-        hostconfig.addProperty("MemorySwap", (container.getAllowedRam() * 2 ) + container.getAllowedRam() << 2);
-        hostconfig.addProperty("MemoryReservation", container.getAllowedRam() * 2);
-        hostconfig.addProperty("KernelMemory", 0);
-        hostconfig.addProperty("CpuShares", 512);
-        hostconfig.addProperty("CpuPeriod", 100000);
-        hostconfig.addProperty("CpuQuota" , 800000);
-        //hostconfig.addProperty("CpusetCpus", "0-7");
-        //hostconfig.addProperty("CpusetMems", "0");
-        hostconfig.addProperty("BlkioWeight", 1000);
-        hostconfig.addProperty("MemorySwappiness", 80);
-        hostconfig.addProperty("OomKillDisable", true);
+        ifNotSet(hostconfig, "Links", new JsonArray());
+
+        ifNotSet(hostconfig, "LxcConf", new JsonObject());
+        ifNotSet(hostconfig, "Memory", container.getAllowedRam() * 2);
+        ifNotSet(hostconfig, "MemorySwap", (container.getAllowedRam() * 2 ) + container.getAllowedRam() << 2);
+        ifNotSet(hostconfig, "MemoryReservation", container.getAllowedRam() * 2);
+        ifNotSet(hostconfig, "KernelMemory", 0);
+        ifNotSet(hostconfig, "CpuShares", 512);
+        ifNotSet(hostconfig, "CpuPeriod", 100000);
+        ifNotSet(hostconfig, "CpuQuota" , 800000);
+        ifNotSet(hostconfig, "BlkioWeight", 1000);
+        ifNotSet(hostconfig, "MemorySwappiness", 80);
+        ifNotSet(hostconfig, "OomKillDisable", true);
 
         JsonObject portBindings = new JsonObject();
 
@@ -113,9 +114,9 @@ public class DockerAPI {
         portBindings.add(container.getPort()+"/udp", hostPorts);
 
         hostconfig.add("PortBindings", portBindings);
-        hostconfig.addProperty("PublishAllPorts", true);
-        hostconfig.addProperty("Privileged", false);
-        hostconfig.addProperty("ReadonlyRootfs", false);
+        ifNotSet(hostconfig, "PublishAllPorts", true);
+        ifNotSet(hostconfig, "Privileged", false);
+        ifNotSet(hostconfig, "ReadonlyRootfs", false);
 
         /*JsonArray dns = new JsonArray();
         dns.add("8.8.8.8");
@@ -123,33 +124,33 @@ public class DockerAPI {
         hostconfig.add("Dns", dns);
         hostconfig.add("DnsOptions", new JsonArray());
         hostconfig.add("DnsSearch", new JsonArray());*/
-        hostconfig.add("ExtraHosts", null);
-        hostconfig.add("VolumesFrom", new JsonArray());
+        //hostconfig.add("ExtraHosts", null);
+        //hostconfig.add("VolumesFrom", new JsonArray());
 
         JsonArray caps = new JsonArray();
         caps.add("ALL");
 
-        hostconfig.add("CapAdd", caps);
-        hostconfig.add("CapDrop", new JsonArray());
+        ifNotSet(hostconfig, "CapAdd", caps);
+        ifNotSet(hostconfig, "CapDrop", new JsonArray());
 
         JsonObject restartPolicy = new JsonObject();
         restartPolicy.addProperty("Name", "");
         restartPolicy.addProperty("MaximumRetryCount", 0);
 
-        hostconfig.add("RestartPolicy", restartPolicy);
-        hostconfig.addProperty("NetworkMode", "host");
-        hostconfig.add("Devices", new JsonArray());
-        hostconfig.add("Ulimits", new JsonArray());
+        ifNotSet(hostconfig, "RestartPolicy", restartPolicy);
+        ifNotSet(hostconfig, "NetworkMode", "host");
+        ifNotSet(hostconfig, "Devices", new JsonArray());
+        ifNotSet(hostconfig, "Ulimits", new JsonArray());
 
         JsonObject logConfig = new JsonObject();
         logConfig.addProperty("Type", "json-file");
         logConfig.add("Config", new JsonObject());
 
-        hostconfig.add("LogConfig", logConfig);
+        ifNotSet(hostconfig, "LogConfig", logConfig);
 
-        hostconfig.add("SecurityOpt", new JsonArray());
-        hostconfig.addProperty("CgroupParent", "");
-        hostconfig.addProperty("VolumeDriver", "");
+        ifNotSet(hostconfig, "SecurityOpt", new JsonArray());
+        ifNotSet(hostconfig, "CgroupParent", "");
+        ifNotSet(hostconfig, "VolumeDriver", "");
 
         r.add("HostConfig", hostconfig);
 
@@ -176,6 +177,30 @@ public class DockerAPI {
         }
 
         return null;
+    }
+
+    private void ifNotSet(JsonObject element, String property, String defaut)
+    {
+        if(!element.has(property))
+            element.addProperty(property, defaut);
+    }
+
+    private void ifNotSet(JsonObject element, String property, Boolean defaut)
+    {
+        if(!element.has(property))
+            element.addProperty(property, defaut);
+    }
+
+    private void ifNotSet(JsonObject element, String property, Number defaut)
+    {
+        if(!element.has(property))
+            element.addProperty(property, defaut);
+    }
+
+    private void ifNotSet(JsonObject element, String property, JsonElement defaut)
+    {
+        if(!element.has(property))
+            element.add(property, defaut);
     }
 
     public void deleteContainerWithName(String cName) {
