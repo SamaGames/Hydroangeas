@@ -58,7 +58,6 @@ public class Queue
     private long lastJoinTime = System.currentTimeMillis();
 
 
-
     public Queue(QueueManager manager, AbstractGameTemplate template)
     {
         this.instance = Hydroangeas.getInstance().getAsServer();
@@ -185,7 +184,7 @@ public class Queue
                     for (QGroup group : groups) {
                         group.sendTo(server.getServerName());
                     }
-                    coolDown += 20;
+                    coolDown += 11;
                 });
                 lastServerStartNB.lazySet(servers.size());
 
