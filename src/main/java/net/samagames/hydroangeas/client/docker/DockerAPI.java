@@ -53,7 +53,7 @@ public class DockerAPI {
         }
 
         r.add("Cmd", cmd);
-        ifNotSet(r, "Entrypoint", "");
+        ifNotSet(r, "Entrypoint");
         r.addProperty("Image", container.getImage());
         r.add("Labels", new JsonObject());
 
@@ -183,6 +183,12 @@ public class DockerAPI {
     {
         if(!element.has(property))
             element.addProperty(property, defaut);
+    }
+
+    private void ifNotSet(JsonObject element, String property)
+    {
+        if(!element.has(property))
+            element.add(property, null);
     }
 
     private void ifNotSet(JsonObject element, String property, Boolean defaut)
