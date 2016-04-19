@@ -9,7 +9,6 @@ import net.samagames.hydroangeas.common.database.RedisSubscriber;
 import net.samagames.hydroangeas.common.log.HydroLogger;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.utils.LinuxBridge;
-import net.samagames.restfull.RestAPI;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.IOException;
@@ -73,7 +72,6 @@ public abstract class Hydroangeas
     public void loadConfig()
     {
         this.configuration = new Configuration(this, options);
-        RestAPI.getInstance().setup(configuration.restfullURL, configuration.restfullUser, configuration.restfullPassword);
     }
 
     public static Hydroangeas getInstance()

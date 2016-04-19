@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.protocol.intranet.AskForClientActionPacket;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerInfoPacket;
+import net.samagames.hydroangeas.common.samapi.GameConnector;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.data.Status;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
@@ -51,6 +52,8 @@ public class MinecraftServerS
     private long startedTime;
 
     private List<Runnable> onStartHook;
+
+    private int suppressionFlag = 0;
 
     public MinecraftServerS(HydroClient client, AbstractGameTemplate template)
     {
@@ -307,5 +310,17 @@ public class MinecraftServerS
 
     public HydroClient getClient() {
         return client;
+    }
+
+    public void sendPlayer(UUID uuid)
+    {
+        GameConnector.sendPlayerToServer(getServerName(), uuid);
+        //TODO check if player is connected
+        /*client.getInstance().getScheduler().schedule(new Runnable() {
+            @Override
+            public void run() {
+
+            }
+        })*/
     }
 }

@@ -182,7 +182,7 @@ public class Queue
                     List<QGroup> groups = new ArrayList<>();
                     queue.drainPlayerTo(groups, server.getMaxSlot() - server.getActualSlots());
                     for (QGroup group : groups) {
-                        group.sendTo(server.getServerName());
+                        group.sendTo(server);
                     }
                     coolDown += 11;
                 });
