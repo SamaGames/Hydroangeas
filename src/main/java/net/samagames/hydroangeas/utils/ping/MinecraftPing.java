@@ -28,13 +28,14 @@
  */
 package net.samagames.hydroangeas.utils.ping;
 
+import com.google.gson.Gson;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import com.google.gson.Gson;
 
 public class MinecraftPing {
 

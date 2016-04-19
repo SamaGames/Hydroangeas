@@ -77,7 +77,7 @@ public class Configuration
         this.redisPassword = jsonConfiguration.get("redis-password").getAsString();
         this.sqlURL = jsonConfiguration.get("sql-url").getAsString();
         this.sqlUser = jsonConfiguration.get("sql-user").getAsString();
-        this.sqlPassword = jsonConfiguration.get("sql-user").getAsString();
+        this.sqlPassword = jsonConfiguration.get("sql-password").getAsString();
     }
 
     public void createDefaultConfiguration()

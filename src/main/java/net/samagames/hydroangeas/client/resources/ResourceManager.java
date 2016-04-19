@@ -156,8 +156,7 @@ public class ResourceManager
             outputStream.write(("redis-bungee-password: " + Hydroangeas.getInstance().getConfiguration().redisPassword).getBytes(Charset.forName("UTF-8")));
             outputStream.write(System.getProperty("line.separator").getBytes());
 
-            URL url = new URL(Hydroangeas.getInstance().getConfiguration().sqlURL);
-            outputStream.write(("sql-ip: " + url.getHost()).getBytes(Charset.forName("UTF-8")));
+            outputStream.write(("sql-ip: " + Hydroangeas.getInstance().getConfiguration().sqlURL).getBytes(Charset.forName("UTF-8")));
             outputStream.write(System.getProperty("line.separator").getBytes());
             outputStream.write(("sql-user: " + Hydroangeas.getInstance().getConfiguration().sqlUser).getBytes(Charset.forName("UTF-8")));
             outputStream.write(System.getProperty("line.separator").getBytes());
