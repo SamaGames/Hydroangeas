@@ -15,7 +15,7 @@ public class DataQueue {
     //Number of started server in the last 10 minutes
     private AtomicInteger numberOfServerStarted = new AtomicInteger(0);
 
-    private final static double NumberOfMinutePerServer = 2.0;
+    private final static double NumberOfMinutePerServer = 10.0;
 
     public DataQueue(HydroangeasServer instance)
     {
