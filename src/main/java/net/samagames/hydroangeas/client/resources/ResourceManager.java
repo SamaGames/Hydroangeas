@@ -156,25 +156,18 @@ public class ResourceManager
             outputStream.write(("redis-bungee-password: " + Hydroangeas.getInstance().getConfiguration().redisPassword).getBytes(Charset.forName("UTF-8")));
             outputStream.write(System.getProperty("line.separator").getBytes());
 
-            URL url = new URL(Hydroangeas.getInstance().getConfiguration().restfullURL);
-            outputStream.write(("restfull-ip: " + url.getHost()).getBytes(Charset.forName("UTF-8")));
+            URL url = new URL(Hydroangeas.getInstance().getConfiguration().sqlURL);
+            outputStream.write(("sql-ip: " + url.getHost()).getBytes(Charset.forName("UTF-8")));
             outputStream.write(System.getProperty("line.separator").getBytes());
-            outputStream.write(("restfull-port: " + url.getPort()).getBytes(Charset.forName("UTF-8")));
+            outputStream.write(("sql-user: " + Hydroangeas.getInstance().getConfiguration().sqlUser).getBytes(Charset.forName("UTF-8")));
             outputStream.write(System.getProperty("line.separator").getBytes());
-            outputStream.write(("restfull-user: " + Hydroangeas.getInstance().getConfiguration().restfullUser).getBytes(Charset.forName("UTF-8")));
-            outputStream.write(System.getProperty("line.separator").getBytes());
-            outputStream.write(("restfull-pass: " + Hydroangeas.getInstance().getConfiguration().restfullPassword).getBytes(Charset.forName("UTF-8")));
+            outputStream.write(("sql-pass: " + Hydroangeas.getInstance().getConfiguration().sqlPassword).getBytes(Charset.forName("UTF-8")));
             outputStream.write(System.getProperty("line.separator").getBytes());
             outputStream.flush();
-        } finally
+            outputStream.close();
+        }catch (Exception e)
         {
-            try
-            {
-                outputStream.close();
-            } catch (Exception e)
-            {
-
-            }
+            e.printStackTrace();
         }
 
         this.instance.getLinuxBridge().sed("%serverPort%", String.valueOf(server.getPort()), new File(serverPath, "server.properties").getAbsolutePath());
@@ -185,6 +178,7 @@ public class ResourceManager
         gameFile.createNewFile();
 
         JsonObject rootJson = new JsonObject();
+        rootJson.addProperty("template-id", server.getTemplateID());
         rootJson.addProperty("map-name", server.getMap());
         rootJson.addProperty("min-slots", server.getMinSlot());
         rootJson.addProperty("max-slots", server.getMaxSlot());
