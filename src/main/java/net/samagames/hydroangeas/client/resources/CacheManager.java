@@ -69,10 +69,9 @@ public class CacheManager
             NetworkUtils.copyURLToFile(wgetURL, cache);
         } else
         {
-            String remoteChecksum = NetworkUtils.readURL(checksumURL);
-
             try
             {
+                String remoteChecksum = NetworkUtils.readURL(checksumURL);
                 if (!remoteChecksum.equals(MiscUtils.getSHA1(cache)))
                 {
                     NetworkUtils.copyURLToFile(wgetURL, cache);
@@ -92,6 +91,7 @@ public class CacheManager
 
     public void downloader(URL remoteFile, File archive, File dest) throws IOException
     {
+        //TODO clear cache every day
         NetworkUtils.copyURLToFile(remoteFile, archive);
         Archiver archiver = ArchiverFactory.createArchiver("tar", "gz");
         archiver.extract(archive, dest);

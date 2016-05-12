@@ -18,9 +18,9 @@ public class Configuration
     public String redisIp;
     public String redisPassword;
     public int redisPort;
-    public String restfullURL;
-    public String restfullUser;
-    public String restfullPassword;
+    public String sqlURL;
+    public String sqlUser;
+    public String sqlPassword;
     private JsonObject jsonConfiguration;
 
     public Configuration(Hydroangeas instance, OptionSet options)
@@ -75,9 +75,9 @@ public class Configuration
         this.redisIp = jsonConfiguration.get("redis-ip").getAsString();
         this.redisPort = jsonConfiguration.get("redis-port").getAsInt();
         this.redisPassword = jsonConfiguration.get("redis-password").getAsString();
-        this.restfullURL = jsonConfiguration.get("restfull-url").getAsString();
-        this.restfullUser = jsonConfiguration.get("restfull-user").getAsString();
-        this.restfullPassword = jsonConfiguration.get("restfull-user").getAsString();
+        this.sqlURL = jsonConfiguration.get("sql-url").getAsString();
+        this.sqlUser = jsonConfiguration.get("sql-user").getAsString();
+        this.sqlPassword = jsonConfiguration.get("sql-password").getAsString();
     }
 
     public void createDefaultConfiguration()
@@ -108,9 +108,9 @@ public class Configuration
         if (!object.has("redis-ip")) flag = false;
         if (!object.has("redis-port")) flag = false;
         if (!object.has("redis-password")) flag = false;
-        if (!object.has("restfull-url")) flag = false;
-        if (!object.has("restfull-user")) flag = false;
-        if (!object.has("restfull-password")) flag = false;
+        if (!object.has("sql-url")) flag = false;
+        if (!object.has("sql-user")) flag = false;
+        if (!object.has("sql-password")) flag = false;
         if (!object.has("web-domain")) flag = false;
 
         /** Client **/

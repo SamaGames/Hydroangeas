@@ -1,19 +1,22 @@
 package net.samagames.hydroangeas.client;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.client.commands.ClientCommandManager;
+import net.samagames.hydroangeas.client.docker.DockerAPI;
 import net.samagames.hydroangeas.client.resources.LogManager;
 import net.samagames.hydroangeas.client.resources.ResourceManager;
 import net.samagames.hydroangeas.client.servers.ServerManager;
 import net.samagames.hydroangeas.client.tasks.LifeThread;
+import net.samagames.hydroangeas.client.tasks.ServerAliveWatchDog;
 import net.samagames.hydroangeas.common.protocol.intranet.ByeFromClientPacket;
 import net.samagames.hydroangeas.utils.MiscUtils;
 import org.apache.commons.io.FileUtils;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -39,9 +42,15 @@ public class HydroangeasClient extends Hydroangeas
     private ResourceManager resourceManager;
     private LogManager logManager;
 
+    private DockerAPI dockerAPI;
+    private ServerAliveWatchDog serverAliveWatchDog;
+
+    private JsonObject dockerConfig;
+
     public HydroangeasClient(OptionSet options) throws IOException
     {
         super(options);
+        dockerAPI = new DockerAPI();
     }
 
     @Override
@@ -49,15 +58,64 @@ public class HydroangeasClient extends Hydroangeas
     {
         this.log(Level.INFO, "Starting Hydroangeas client...");
 
+        this.loadConfig();
+
+        serverFolder.mkdir();
+
+        logManager = new LogManager(MiscUtils.getJarFolder());
+
+        try
+        {
+            FileUtils.forceDelete(serverFolder);
+            FileUtils.forceMkdir(serverFolder);
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        connectionManager = new ClientConnectionManager(this);
+
+        commandManager = new ClientCommandManager(this);
+
+        this.redisSubscriber.registerReceiver("global@" + getUUID() + "@hydroangeas-client", connectionManager::getPacket);
+        this.redisSubscriber.registerReceiver("globalSecurity@hydroangeas-client", connectionManager::getPacket);
+
+        this.serverManager = new ServerManager(this);
+        this.resourceManager = new ResourceManager(this);
+
+        this.lifeThread = new LifeThread(this);
+        this.lifeThread.start();
+
+        this.serverAliveWatchDog = new ServerAliveWatchDog(this);
+    }
+
+    @Override
+    public void loadConfig()
+    {
+        super.loadConfig();
+
+        JsonElement parsed = null;
+        try {
+            File f = new File("DockerConfig.json");
+            f.createNewFile();
+            InputStreamReader reader = new InputStreamReader(new FileInputStream(f), "UTF-8");
+            parsed = new JsonParser().parse(reader);
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(parsed == null)
+            dockerConfig = new JsonObject();
+        else
+            dockerConfig = parsed.getAsJsonObject();
+
         blacklist = new ArrayList<>();
         whitelist = new ArrayList<>();
 
         this.templatesDomain = this.configuration.getJsonConfiguration().get("web-domain").getAsString() + "templates/";
         this.maxWeight = this.configuration.getJsonConfiguration().get("max-weight").getAsInt();
         this.serverFolder = new File(MiscUtils.getJarFolder(), "servers");
-        serverFolder.mkdir();
-
-        logManager = new LogManager(MiscUtils.getJarFolder());
 
         try{
             this.restrictionMode = RestrictionMode.valueFrom(configuration.getJsonConfiguration().get("RestrictionMode").getAsString());
@@ -98,27 +156,15 @@ public class HydroangeasClient extends Hydroangeas
             getLogger().info("No blacklist load !");
         }
 
-        try
-        {
-            FileUtils.forceDelete(serverFolder);
-            FileUtils.forceMkdir(serverFolder);
-        } catch (IOException e)
-        {
+        try {
+            if(lifeThread != null)
+            {
+                lifeThread.sendData(true);
+            }
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        connectionManager = new ClientConnectionManager(this);
-
-        commandManager = new ClientCommandManager(this);
-
-        this.redisSubscriber.registerReceiver("global@" + getUUID() + "@hydroangeas-client", connectionManager::getPacket);
-        this.redisSubscriber.registerReceiver("globalSecurity@hydroangeas-client", connectionManager::getPacket);
-
-        this.serverManager = new ServerManager(this);
-        this.resourceManager = new ResourceManager(this);
-
-        this.lifeThread = new LifeThread(this);
-        this.lifeThread.start();
     }
 
     @Override
@@ -126,6 +172,7 @@ public class HydroangeasClient extends Hydroangeas
     {
         connectionManager.sendPacket(new ByeFromClientPacket(getUUID()));
         this.serverManager.stopAll();
+        this.serverAliveWatchDog.disable();
     }
 
     public UUID getClientUUID()
@@ -222,5 +269,17 @@ public class HydroangeasClient extends Hydroangeas
 
     public LogManager getLogManager() {
         return logManager;
+    }
+
+    public DockerAPI getDockerAPI() {
+        return dockerAPI;
+    }
+
+    public ServerAliveWatchDog getServerAliveWatchDog() {
+        return serverAliveWatchDog;
+    }
+
+    public JsonObject getDockerConfig() {
+        return dockerConfig;
     }
 }

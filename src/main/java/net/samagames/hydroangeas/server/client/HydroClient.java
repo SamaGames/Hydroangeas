@@ -51,7 +51,7 @@ public class HydroClient
 
         setIp(packet.getIp());
 
-        setMaxWeight(this.maxWeight = packet.getMaxWeight());
+        setMaxWeight(packet.getMaxWeight());
 
         if (getActualWeight() != packet.getActualWeight())
         {

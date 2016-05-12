@@ -9,15 +9,18 @@ import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;
 import net.samagames.hydroangeas.client.servers.ServerDependency;
 import net.samagames.hydroangeas.utils.NetworkUtils;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.rauschig.jarchivelib.Archiver;
 import org.rauschig.jarchivelib.ArchiverFactory;
 import org.rauschig.jarchivelib.FileType;
 
 import java.io.*;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 public class ResourceManager
 {
@@ -35,9 +38,8 @@ public class ResourceManager
     public void downloadServer(MinecraftServerC server, File serverPath) throws IOException
     {
         String existURL = this.instance.getTemplatesDomain() + "servers/exist.php?game=" + server.getGame();
-        boolean exist = Boolean.valueOf(NetworkUtils.readURL(existURL));
 
-        if (!exist)
+        if (!Boolean.parseBoolean(NetworkUtils.readURL(existURL)))
         {
             throw new IllegalStateException("Server template don't exist!");
         }
@@ -125,7 +127,7 @@ public class ResourceManager
             ArchiverFactory.createArchiver(FileType.get(dest)).extract(dest, pluginsPath.getAbsoluteFile());
     }
 
-    public void patchServer(MinecraftServerC server, File serverPath, boolean isCoupaingServer) throws IOException
+    public void patchServer(MinecraftServerC server, File serverPath, boolean isCoupaingServer) throws Exception
     {
         FileOutputStream outputStream = null;
 
@@ -152,56 +154,103 @@ public class ResourceManager
             outputStream.write(("redis-bungee-password: " + Hydroangeas.getInstance().getConfiguration().redisPassword).getBytes(Charset.forName("UTF-8")));
             outputStream.write(System.getProperty("line.separator").getBytes());
 
-            URL url = new URL(Hydroangeas.getInstance().getConfiguration().restfullURL);
-            outputStream.write(("restfull-ip: " + url.getHost()).getBytes(Charset.forName("UTF-8")));
+            outputStream.write(("sql-url: " + Hydroangeas.getInstance().getConfiguration().sqlURL).getBytes(Charset.forName("UTF-8")));
             outputStream.write(System.getProperty("line.separator").getBytes());
-            outputStream.write(("restfull-port: " + url.getPort()).getBytes(Charset.forName("UTF-8")));
+            outputStream.write(("sql-user: " + Hydroangeas.getInstance().getConfiguration().sqlUser).getBytes(Charset.forName("UTF-8")));
             outputStream.write(System.getProperty("line.separator").getBytes());
-            outputStream.write(("restfull-user: " + Hydroangeas.getInstance().getConfiguration().restfullUser).getBytes(Charset.forName("UTF-8")));
-            outputStream.write(System.getProperty("line.separator").getBytes());
-            outputStream.write(("restfull-pass: " + Hydroangeas.getInstance().getConfiguration().restfullPassword).getBytes(Charset.forName("UTF-8")));
+            outputStream.write(("sql-pass: " + Hydroangeas.getInstance().getConfiguration().sqlPassword).getBytes(Charset.forName("UTF-8")));
             outputStream.write(System.getProperty("line.separator").getBytes());
             outputStream.flush();
-        } finally
+            outputStream.close();
+        }catch (Exception e)
         {
-            try
-            {
-                outputStream.close();
-            } catch (Exception e)
-            {
-
-            }
+            e.printStackTrace();
         }
 
         this.instance.getLinuxBridge().sed("%serverPort%", String.valueOf(server.getPort()), new File(serverPath, "server.properties").getAbsolutePath());
         this.instance.getLinuxBridge().sed("%serverIp%", instance.getAsClient().getIP(), new File(serverPath, "server.properties").getAbsolutePath());
         this.instance.getLinuxBridge().sed("%serverName%", server.getServerName(), new File(serverPath, "scripts.txt").getAbsolutePath());
 
-        File gameFile = new File(serverPath, "game.json");
-        gameFile.createNewFile();
+
 
         JsonObject rootJson = new JsonObject();
+        rootJson.addProperty("template-id", server.getTemplateID());
         rootJson.addProperty("map-name", server.getMap());
         rootJson.addProperty("min-slots", server.getMinSlot());
         rootJson.addProperty("max-slots", server.getMaxSlot());
 
         rootJson.add("options", server.getOptions());
 
-        FileOutputStream fOut = null;
+        File gameFile = new File(serverPath, "game.json");
+        if (!gameFile.createNewFile())
+        {
+            throw new Exception("Erreur creation game.json");
+        }
+        FileOutputStream fOut = new FileOutputStream(gameFile);
         try
         {
-            fOut = new FileOutputStream(gameFile);
             fOut.write(new Gson().toJson(rootJson).getBytes(Charset.forName("UTF-8")));
             fOut.flush();
         } finally
         {
-            try
-            {
-                if (fOut != null)
-                    fOut.close();
-            } catch (IOException e)
-            {
+            fOut.close();
+        }
+    }
 
+    public void extract(File dir ) throws IOException {
+        File listDir[] = dir.listFiles();
+        if (listDir.length!=0){
+            for (File i:listDir){
+        /*  Warning! this will try and extract all files in the directory
+            if other files exist, a for loop needs to go here to check that
+            the file (i) is an archive file before proceeding */
+                if (i.isDirectory()){
+                    break;
+                }
+                String fileName = i.toString();
+                String tarFileName = fileName +".tar";
+                FileInputStream instream= new FileInputStream(fileName);
+                GZIPInputStream ginstream =new GZIPInputStream(instream);
+                FileOutputStream outstream = new FileOutputStream(tarFileName);
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = ginstream.read(buf)) > 0)
+                {
+                    outstream.write(buf, 0, len);
+                }
+                ginstream.close();
+                outstream.close();
+                //There should now be tar files in the directory
+                //extract specific files from tar
+                TarArchiveInputStream myTarFile=new TarArchiveInputStream(new FileInputStream(tarFileName));
+                TarArchiveEntry entry = null;
+                int offset;
+                FileOutputStream outputFile=null;
+                //read every single entry in TAR file
+                while ((entry = myTarFile.getNextTarEntry()) != null) {
+                    //the following two lines remove the .tar.gz extension for the folder name
+                    fileName = i.getName().substring(0, i.getName().lastIndexOf('.'));
+                    fileName = fileName.substring(0, fileName.lastIndexOf('.'));
+                    File outputDir =  new File(i.getParent() + "/" + fileName + "/" + entry.getName());
+                    if(! outputDir.getParentFile().exists()){
+                        outputDir.getParentFile().mkdirs();
+                    }
+                    //if the entry in the tar is a directory, it needs to be created, only files can be extracted
+                    if(entry.isDirectory()){
+                        outputDir.mkdirs();
+                    }else{
+                        byte[] content = new byte[(int) entry.getSize()];
+                        offset=0;
+                        myTarFile.read(content, offset, content.length - offset);
+                        outputFile=new FileOutputStream(outputDir);
+                        IOUtils.write(content,outputFile);
+                        outputFile.close();
+                    }
+                }
+                //close and delete the tar files, leaving the original .tar.gz and the extracted folders
+                myTarFile.close();
+                File tarFile =  new File(tarFileName);
+                tarFile.delete();
             }
         }
     }

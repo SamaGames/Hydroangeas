@@ -1,6 +1,7 @@
 package net.samagames.hydroangeas.server.waitingqueue;
 
 import net.samagames.hydroangeas.common.samapi.GameConnector;
+import net.samagames.hydroangeas.server.client.MinecraftServerS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -138,11 +139,20 @@ public class QGroup
         return leader;
     }
 
+    @Deprecated
     public void sendTo(String serverName)
     {
         for (QPlayer player : players)
         {
             GameConnector.sendPlayerToServer(serverName, player.getUUID());
+        }
+    }
+
+    public void sendTo(MinecraftServerS serverS)
+    {
+        for (QPlayer player : players)
+        {
+            serverS.sendPlayer(player.getUUID());
         }
     }
 }

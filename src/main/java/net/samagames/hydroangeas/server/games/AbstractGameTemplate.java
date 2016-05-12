@@ -24,6 +24,7 @@ public interface AbstractGameTemplate
 
     boolean isCoupaing();
 
+    @Override
     String toString();
 
     JsonElement getStartupOptions();

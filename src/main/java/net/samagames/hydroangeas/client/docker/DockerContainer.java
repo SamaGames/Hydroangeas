@@ -1,5 +1,7 @@
 package net.samagames.hydroangeas.client.docker;
 
+import net.samagames.hydroangeas.Hydroangeas;
+
 import java.io.File;
 
 /**
@@ -9,11 +11,12 @@ public class DockerContainer {
 
     private String name;
     private String id;
+    private String image;
 
     private String[] command;
 
     private int port;
-    private int allowedRam;
+    private long allowedRam;
 
     private File source;
 
@@ -26,46 +29,26 @@ public class DockerContainer {
         this.source = source;
         this.port = port;
         this.command = command;
-        int coef = (allowedRam.endsWith("M")?1:1024);
-        this.allowedRam = Integer.valueOf(allowedRam.substring(0, allowedRam.length()-1))*coef;
+        this.image = "frolvlad/alpine-oraclejdk8";
+        int coef = allowedRam.endsWith("M") ? 1024*1024 : 1024*1024*1024;
+        this.allowedRam = Long.valueOf(allowedRam.substring(0, allowedRam.length()-1))*coef;
 
-        dockerAPI = new DockerAPI();
+        dockerAPI = Hydroangeas.getInstance().getAsClient().getDockerAPI();
     }
 
     public String createContainer() {
 
-        id = dockerAPI.createContainer(name, "frolvlad/alpine-oraclejdk8",
-                flatten(this.command),
-                source,
-                port,
-                allowedRam
-                );
-        return id;
-    }
+        dockerAPI.deleteContainerWithName(name);
 
-    /*(id = execCmd(new String[]{
-                "docker",
-                "run",
-                "-d",
-                "-P",
-                "--name " + name,
-                "-h docker",
-                "-m " + allowedRam,
-                "-p " + port + ":" + port,//Map ports
-                "-v " + source.getAbsolutePath() + ":" + source.getAbsolutePath(),//Volume
-                ,//Image
+        this.id = dockerAPI.createContainer(this);
 
-        }))
-        */
-
-    private String flatten(String[] strings)
-    {
-        String result = "";
-        for(String s : strings)
-        {
-            result += s + " ";
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        return result;
+        dockerAPI.startContainer(id);
+        return this.id;
     }
 
     public void stopContainer()
@@ -73,10 +56,18 @@ public class DockerContainer {
         dockerAPI.stopContainer(id);
     }
 
+    public void killContainer()
+    {
+        dockerAPI.killContainer(id);
+    }
+
     public void removeContainer()
     {
-        if(isRunning())
-            stopContainer();
+        try{
+            killContainer();
+        }catch (Exception e)
+        {
+        }
 
         dockerAPI.removeContainer(id);
     }
@@ -90,7 +81,6 @@ public class DockerContainer {
     {
         return "";
     }
-
 
     public String getName() {
         return name;
@@ -110,5 +100,14 @@ public class DockerContainer {
 
     public String[] getCommand() {
         return command;
+    }
+
+
+    public long getAllowedRam() {
+        return allowedRam;
+    }
+
+    public String getImage() {
+        return image;
     }
 }
