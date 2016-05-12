@@ -124,8 +124,13 @@ public class MinecraftPing {
         out.close();
         in.close();
         socket.close();
-
-        return new Gson().fromJson(json, MinecraftPingReply.class);
+        try {
+            return new Gson().fromJson(json, MinecraftPingReply.class);
+        }catch (Exception e)
+        {
+            //useless
+        }
+        return null;
     }
 
 }

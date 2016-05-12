@@ -12,8 +12,6 @@ import net.samagames.hydroangeas.utils.ping.MinecraftPingOptions;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -34,9 +32,7 @@ public class ServerAliveWatchDog extends Thread
             try{
                 List<MinecraftServerC> servers = new ArrayList<>();
                 servers.addAll(instance.getServerManager().getServers());
-
-                for(MinecraftServerC server : servers)
-                {
+                for(MinecraftServerC server : servers) {
                     if(System.currentTimeMillis() - server.getStartedTime() < 20000L)
                         continue;
                     try {
@@ -46,10 +42,8 @@ public class ServerAliveWatchDog extends Thread
                         Hydroangeas.getInstance().getLogger().info("Can't ping server: " + server.getServerName() + " shutting down");
                         server.stopServer();
                     }
-
                 }
-            }catch (Exception e)
-            {
+            }catch (Exception e){
                 e.printStackTrace();
             }
         }, 15, 15, TimeUnit.SECONDS);

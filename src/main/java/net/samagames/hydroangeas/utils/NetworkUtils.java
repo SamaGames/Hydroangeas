@@ -9,8 +9,12 @@ import java.util.Base64;
 
 public class NetworkUtils
 {
-    public static String readURL(String rawURL)
+    private NetworkUtils()
     {
+
+    }
+
+    public static String readURL(String rawURL) throws IOException {
         try
         {
             URL url = new URL(rawURL);
@@ -31,10 +35,8 @@ public class NetworkUtils
             return inputLine;
         } catch (IOException e)
         {
-            e.printStackTrace();
+            throw e;
         }
-
-        return "";
     }
 
     public static void copyURLToFile(String rawURL, File destination)

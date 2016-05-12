@@ -18,7 +18,6 @@ import org.rauschig.jarchivelib.ArchiverFactory;
 import org.rauschig.jarchivelib.FileType;
 
 import java.io.*;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
@@ -39,9 +38,8 @@ public class ResourceManager
     public void downloadServer(MinecraftServerC server, File serverPath) throws IOException
     {
         String existURL = this.instance.getTemplatesDomain() + "servers/exist.php?game=" + server.getGame();
-        boolean exist = Boolean.valueOf(NetworkUtils.readURL(existURL));
 
-        if (!exist)
+        if (!Boolean.parseBoolean(NetworkUtils.readURL(existURL)))
         {
             throw new IllegalStateException("Server template don't exist!");
         }
@@ -129,7 +127,7 @@ public class ResourceManager
             ArchiverFactory.createArchiver(FileType.get(dest)).extract(dest, pluginsPath.getAbsoluteFile());
     }
 
-    public void patchServer(MinecraftServerC server, File serverPath, boolean isCoupaingServer) throws IOException
+    public void patchServer(MinecraftServerC server, File serverPath, boolean isCoupaingServer) throws Exception
     {
         FileOutputStream outputStream = null;
 
@@ -156,7 +154,7 @@ public class ResourceManager
             outputStream.write(("redis-bungee-password: " + Hydroangeas.getInstance().getConfiguration().redisPassword).getBytes(Charset.forName("UTF-8")));
             outputStream.write(System.getProperty("line.separator").getBytes());
 
-            outputStream.write(("sql-ip: " + Hydroangeas.getInstance().getConfiguration().sqlURL).getBytes(Charset.forName("UTF-8")));
+            outputStream.write(("sql-url: " + Hydroangeas.getInstance().getConfiguration().sqlURL).getBytes(Charset.forName("UTF-8")));
             outputStream.write(System.getProperty("line.separator").getBytes());
             outputStream.write(("sql-user: " + Hydroangeas.getInstance().getConfiguration().sqlUser).getBytes(Charset.forName("UTF-8")));
             outputStream.write(System.getProperty("line.separator").getBytes());
@@ -173,8 +171,7 @@ public class ResourceManager
         this.instance.getLinuxBridge().sed("%serverIp%", instance.getAsClient().getIP(), new File(serverPath, "server.properties").getAbsolutePath());
         this.instance.getLinuxBridge().sed("%serverName%", server.getServerName(), new File(serverPath, "scripts.txt").getAbsolutePath());
 
-        File gameFile = new File(serverPath, "game.json");
-        gameFile.createNewFile();
+
 
         JsonObject rootJson = new JsonObject();
         rootJson.addProperty("template-id", server.getTemplateID());
@@ -184,22 +181,19 @@ public class ResourceManager
 
         rootJson.add("options", server.getOptions());
 
-        FileOutputStream fOut = null;
+        File gameFile = new File(serverPath, "game.json");
+        if (!gameFile.createNewFile())
+        {
+            throw new Exception("Erreur creation game.json");
+        }
+        FileOutputStream fOut = new FileOutputStream(gameFile);
         try
         {
-            fOut = new FileOutputStream(gameFile);
             fOut.write(new Gson().toJson(rootJson).getBytes(Charset.forName("UTF-8")));
             fOut.flush();
         } finally
         {
-            try
-            {
-                if (fOut != null)
-                    fOut.close();
-            } catch (IOException e)
-            {
-
-            }
+            fOut.close();
         }
     }
 

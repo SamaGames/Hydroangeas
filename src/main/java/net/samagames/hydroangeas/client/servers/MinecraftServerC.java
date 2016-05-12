@@ -70,7 +70,7 @@ public class MinecraftServerC
             FileUtils.forceDeleteOnExit(serverFolder);
         } catch (IOException e)
         {
-            this.instance.getLogger().warning(serverFolder + " will not be able to be deleted during JVM shutdown!");
+            Hydroangeas.getLogger().warning(serverFolder + " will not be able to be deleted during JVM shutdown!");
         }
         this.port = port;
 
@@ -104,7 +104,7 @@ public class MinecraftServerC
         try
         {
             this.instance.getResourceManager().patchServer(this, this.serverFolder, isCoupaingServer());
-        } catch (IOException e)
+        } catch (Exception e)
         {
             instance.getConnectionManager().sendPacket(new MinecraftServerIssuePacket(this.instance.getClientUUID(), this.getServerName(), MinecraftServerIssuePacket.Type.PATCH));
             e.printStackTrace();

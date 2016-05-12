@@ -96,6 +96,19 @@ public class MiscUtils
         return sb.toString();
     }
 
+    public static byte[] stringToByte(String ip)
+    {
+        String[] split = ip.split(".");
+        byte[] result = new byte[4];
+        int i = 0;
+        for (String number : split)
+        {
+            result[i] = Byte.valueOf(number);
+            i++;
+        }
+        return result;
+    }
+
     public static int calculServerWeight(String game, int maxSlot, boolean isCoupaing)
     {
         game = game.toLowerCase();
