@@ -33,7 +33,7 @@ public class ServerAliveWatchDog extends Thread
                 List<MinecraftServerC> servers = new ArrayList<>();
                 servers.addAll(instance.getServerManager().getServers());
                 for(MinecraftServerC server : servers) {
-                    if(System.currentTimeMillis() - server.getStartedTime() < 20000L)
+                    if(System.currentTimeMillis() - server.getStartedTime() < 40000L)
                         continue;
                     try {
                         String ip = HydroangeasClient.getInstance().getAsClient().getIP();
