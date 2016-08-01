@@ -1,4 +1,4 @@
-package net.samagames.hydroangeas.client.servers;
+package net.samagames.hydroangeas.client.resources;
 
 public class ServerDependency
 {

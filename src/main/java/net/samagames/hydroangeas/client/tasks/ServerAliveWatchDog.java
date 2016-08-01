@@ -15,9 +15,20 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by Silvanosky on 10/01/2016.
+ ╱╲＿＿＿＿＿＿╱╲
+ ▏╭━━╮╭━━╮▕
+ ▏┃＿＿┃┃＿＿┃▕
+ ▏┃＿▉┃┃▉＿┃▕
+ ▏╰━━╯╰━━╯▕
+ ╲╰╰╯╲╱╰╯╯╱  Created by Silvanosky on 10/01/2016
+ ╱╰╯╰╯╰╯╰╯╲
+ ▏▕╰╯╰╯╰╯▏▕
+ ▏▕╯╰╯╰╯╰▏▕
+ ╲╱╲╯╰╯╰╱╲╱
+ ＿＿╱▕▔▔▏╲＿＿
+ ＿＿▔▔＿＿▔▔＿＿
  */
-public class ServerAliveWatchDog extends Thread
+public class ServerAliveWatchDog
 {
     //private ScheduledExecutorService executor;
     private HydroangeasClient instance;

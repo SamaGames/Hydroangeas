@@ -7,7 +7,6 @@ import com.google.gson.reflect.TypeToken;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;
-import net.samagames.hydroangeas.client.servers.ServerDependency;
 import net.samagames.hydroangeas.utils.NetworkUtils;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;

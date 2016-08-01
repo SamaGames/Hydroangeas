@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import static net.samagames.hydroangeas.Hydroangeas.getLogger;
+
 public class MinecraftServerC
 {
     private final HydroangeasClient instance;
@@ -70,7 +72,7 @@ public class MinecraftServerC
             FileUtils.forceDeleteOnExit(serverFolder);
         } catch (IOException e)
         {
-            Hydroangeas.getLogger().warning(serverFolder + " will not be able to be deleted during JVM shutdown!");
+            getLogger().warning(serverFolder + " will not be able to be deleted during JVM shutdown!");
         }
         this.port = port;
 
@@ -149,13 +151,18 @@ public class MinecraftServerC
                             "-XX:G1MixedGCLiveThresholdPercent=50",
                             "-XX:+AggressiveOpts",
                             "-XX:+UseLargePagesInMetaspace",
+                            "-Dcom.sun.management.jmxremote",
+                            "-Dcom.sun.management.jmxremote.port=9010",
+                            "-Dcom.sun.management.jmxremote.local.only=false",
+                            "-Dcom.sun.management.jmxremote.authenticate=false",
+                            "-Dcom.sun.management.jmxremote.ssl=false",
                             "-jar", serverFolder.getAbsolutePath()+"/spigot.jar", "nogui"},
                     maxRAM
             );
 
-            Hydroangeas.getInstance().getLogger().info(container.createContainer());
+            Hydroangeas.getLogger().info(container.createContainer());
 
-            instance.getLogger().info("Starting server " + getServerName());
+            getLogger().info("Starting server " + getServerName());
         } catch (Exception e)
         {
             this.instance.log(Level.SEVERE, "Can't start the server " + getServerName() + "!");

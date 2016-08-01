@@ -1,7 +1,6 @@
 package net.samagames.hydroangeas.client.resources;
 
 import net.samagames.hydroangeas.client.HydroangeasClient;
-import net.samagames.hydroangeas.client.servers.ServerDependency;
 import net.samagames.hydroangeas.utils.MiscUtils;
 import net.samagames.hydroangeas.utils.NetworkUtils;
 import org.apache.commons.io.FileUtils;

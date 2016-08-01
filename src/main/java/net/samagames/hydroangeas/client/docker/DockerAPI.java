@@ -1,20 +1,17 @@
 package net.samagames.hydroangeas.client.docker;
 
 import com.google.gson.*;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import net.samagames.hydroangeas.Hydroangeas;
-import net.samagames.hydroangeas.client.HydroangeasClient;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.util.Random;
 
 /**
  * Created by Silva on 13/12/2015.
@@ -138,7 +135,7 @@ public class DockerAPI {
         restartPolicy.addProperty("MaximumRetryCount", 0);
 
         ifNotSet(hostconfig, "RestartPolicy", restartPolicy);
-        ifNotSet(hostconfig, "NetworkMode", "host");
+        ifNotSet(hostconfig, "NetworkMode", "bridge");
         ifNotSet(hostconfig, "Devices", new JsonArray());
         ifNotSet(hostconfig, "Ulimits", new JsonArray());
 

@@ -3,9 +3,9 @@
   "redis-ip": "127.0.0.1",
   "redis-port": 6379,
   "redis-password": "passw0rd",
-  "restfull-url": "http://127.0.0.1:2000/",
-  "restfull-user": "test",
-  "restfull-password": "test",
+  "sql-url": "http://127.0.0.1:2000/",
+  "sql-user": "test",
+  "sql-password": "test",
   /** Server **/
 
   /** Client **/
