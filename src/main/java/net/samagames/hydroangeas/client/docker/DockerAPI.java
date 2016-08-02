@@ -2,11 +2,12 @@ package net.samagames.hydroangeas.client.docker;
 
 import com.google.gson.*;
 import net.samagames.hydroangeas.Hydroangeas;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -135,7 +136,7 @@ public class DockerAPI {
         restartPolicy.addProperty("MaximumRetryCount", 0);
 
         ifNotSet(hostconfig, "RestartPolicy", restartPolicy);
-        ifNotSet(hostconfig, "NetworkMode", "bridge");
+        ifNotSet(hostconfig, "NetworkMode", "host");
         ifNotSet(hostconfig, "Devices", new JsonArray());
         ifNotSet(hostconfig, "Ulimits", new JsonArray());
 
@@ -309,7 +310,8 @@ public class DockerAPI {
     public Response sendRequest(String point, JsonElement element, String method) {
         String requestData = GSON.toJson(element);
 
-        HttpClient httpClient = new DefaultHttpClient();
+        HttpClient httpClient = HttpClients.createDefault();
+        new HttpHost()
 
         try {
             HttpEntityEnclosingRequestBase request = new HttpEntityEnclosingRequestBase() {
