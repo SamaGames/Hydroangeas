@@ -7,6 +7,7 @@ import joptsimple.OptionSet;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.client.commands.ClientCommandManager;
 import net.samagames.hydroangeas.client.docker.DockerAPI;
+import net.samagames.hydroangeas.client.receiver.ServiceRequestReceiver;
 import net.samagames.hydroangeas.client.resources.LogManager;
 import net.samagames.hydroangeas.client.resources.ResourceManager;
 import net.samagames.hydroangeas.client.servers.ServerManager;
@@ -16,7 +17,10 @@ import net.samagames.hydroangeas.common.protocol.intranet.ByeFromClientPacket;
 import net.samagames.hydroangeas.utils.MiscUtils;
 import org.apache.commons.io.FileUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -74,6 +78,7 @@ public class HydroangeasClient extends Hydroangeas
         }
 
         connectionManager = new ClientConnectionManager(this);
+        this.redisSubscriber.registerReceiver("samaconnect.services.requests", new ServiceRequestReceiver(this));
 
         commandManager = new ClientCommandManager(this);
 

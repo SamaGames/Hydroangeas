@@ -116,11 +116,16 @@ public abstract class ConnectionManager
         }
         try
         {
-            hydroangeas.getRedisSubscriber().send(channel, i + ":" + gson.toJson(data));
+            sendPacket(channel, i + ":" + gson.toJson(data));
         } catch (Exception e)
         {
             e.printStackTrace();
         }
+    }
+
+    public void sendPacket(String channel, String rawPacket)
+    {
+        hydroangeas.getRedisSubscriber().send(channel, rawPacket);
     }
 
     public abstract void handler(int id, String packet);

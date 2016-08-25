@@ -2,7 +2,6 @@ package net.samagames.hydroangeas.client.docker;
 
 import com.google.gson.*;
 import net.samagames.hydroangeas.Hydroangeas;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
@@ -311,7 +310,6 @@ public class DockerAPI {
         String requestData = GSON.toJson(element);
 
         HttpClient httpClient = HttpClients.createDefault();
-        new HttpHost()
 
         try {
             HttpEntityEnclosingRequestBase request = new HttpEntityEnclosingRequestBase() {

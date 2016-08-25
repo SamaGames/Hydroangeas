@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.docker.DockerContainer;
+import net.samagames.hydroangeas.client.remote.RemoteControl;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerIssuePacket;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerOrderPacket;
 import org.apache.commons.io.FileDeleteStrategy;
@@ -13,6 +14,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import static net.samagames.hydroangeas.Hydroangeas.getLogger;
@@ -43,6 +45,8 @@ public class MinecraftServerC
     private long lastHeartbeat = System.currentTimeMillis();
 
     private DockerContainer container;
+
+    private RemoteControl remoteControl;
 
     public MinecraftServerC(HydroangeasClient instance, MinecraftServerOrderPacket serverInfos, int port)
     {
@@ -151,14 +155,22 @@ public class MinecraftServerC
                             "-XX:G1MixedGCLiveThresholdPercent=50",
                             "-XX:+AggressiveOpts",
                             "-XX:+UseLargePagesInMetaspace",
+                            "-Djava.net.preferIPv4Stack=true",
                             "-Dcom.sun.management.jmxremote",
-                            "-Dcom.sun.management.jmxremote.port=9010",
+                            "-Dcom.sun.management.jmxremote.port=" + (getPort()+1),
                             "-Dcom.sun.management.jmxremote.local.only=false",
                             "-Dcom.sun.management.jmxremote.authenticate=false",
                             "-Dcom.sun.management.jmxremote.ssl=false",
                             "-jar", serverFolder.getAbsolutePath()+"/spigot.jar", "nogui"},
                     maxRAM
             );
+
+            instance.getScheduler().schedule(new Runnable() {
+                @Override
+                public void run() {
+                    remoteControl = new RemoteControl("blackmesa", (getPort()+1));
+                }
+            }, 30, TimeUnit.SECONDS);
 
             Hydroangeas.getLogger().info(container.createContainer());
 
@@ -185,6 +197,8 @@ public class MinecraftServerC
     {
         try
         {
+            if (remoteControl != null) remoteControl.disconnect();
+
             instance.getServerManager().onServerStop(this);
             Hydroangeas.getInstance().getAsClient().getLogManager().saveLog(getServerName(), getTemplateID());
             container.removeContainer();
@@ -307,5 +321,10 @@ public class MinecraftServerC
 
     public DockerContainer getContainer() {
         return container;
+    }
+
+    public RemoteControl getRemoteControl()
+    {
+        return remoteControl;
     }
 }
