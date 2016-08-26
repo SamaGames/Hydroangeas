@@ -44,7 +44,7 @@ public class RemoteControl {
                 try {
                     MBeanInfo mBeanInfo = mBeanServer.getMBeanInfo(object.getObjectName());
                     RemoteService remoteService = new RemoteService(object.getObjectName(), mBeanInfo);
-                    services.put(mBeanInfo.getClassName(), remoteService);
+                    services.put(remoteService.getName(), remoteService);
                 } catch (InstanceNotFoundException
                         | ReflectionException
                         | IntrospectionException e) {

@@ -64,8 +64,11 @@ public class ServiceRequestReceiver implements PacketReceiver
 
             for (RemoteService service : server.getRemoteControl().getServices())
             {
+                if (!service.getmBeanInfo().getClassName().startsWith("net.samagames"))
+                    continue;
+
                 JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("name", service.getmBeanInfo().getClassName());
+                jsonObject.addProperty("name", service.getName());
 
                 JsonArray operations = new JsonArray();
                 for (MBeanOperationInfo operation : service.getmBeanInfo().getOperations())
