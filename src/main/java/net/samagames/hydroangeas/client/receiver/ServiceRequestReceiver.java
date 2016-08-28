@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.samagames.hydroangeas.client.HydroangeasClient;
+import net.samagames.hydroangeas.client.remote.RemoteControl;
 import net.samagames.hydroangeas.client.remote.RemoteService;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;
 import net.samagames.hydroangeas.common.packets.PacketReceiver;
@@ -84,22 +85,30 @@ public class ServiceRequestReceiver implements PacketReceiver
 
         }else
         {
-            RemoteService service = server.getRemoteControl().getService(data.getName());
-
-            if (service != null)
+            RemoteControl remoteControl = server.getRemoteControl();
+            if (remoteControl != null && remoteControl.isConnected())
             {
-                try {
-                    Object result = server.getRemoteControl().invokeService(service, data.getOperation(), data.getArguments(), data.getSignature());
-                    response.addProperty("code", 200);
-                    response.add("data", new Gson().toJsonTree(result));
-                } catch (ReflectionException | IOException | MBeanException | InstanceNotFoundException e) {
-                    e.printStackTrace();
-                    response.addProperty("code", 500);
+                RemoteService service = remoteControl.getService(data.getName());
+
+                if (service != null)
+                {
+                    try {
+                        Object result = server.getRemoteControl().invokeService(service, data.getOperation(), data.getArguments(), data.getSignature());
+                        response.addProperty("code", 200);
+                        response.add("data", new Gson().toJsonTree(result));
+                    } catch (ReflectionException | IOException | MBeanException | InstanceNotFoundException e) {
+                        e.printStackTrace();
+                        response.addProperty("code", 500);
+                        response.add("data", null);
+                    }
+                }else
+                {
+                    response.addProperty("code", 404);
                     response.add("data", null);
                 }
             }else
             {
-                response.addProperty("code", 404);
+                response.addProperty("code", 503);
                 response.add("data", null);
             }
         }

@@ -26,8 +26,13 @@ public class RedisSubscriber extends JedisPubSub
             while (this.continueLoop)
             {
                 Jedis jedis = this.instance.getDatabaseConnector().getJedisPool().getResource();
-                jedis.psubscribe(this, "*");
-
+                try
+                {
+                    jedis.psubscribe(this, "*");
+                }catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
                 this.instance.log(Level.INFO, "Disconnected from database.");
                 jedis.close();
             }

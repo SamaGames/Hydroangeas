@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -77,11 +76,6 @@ public abstract class Hydroangeas
     public static Hydroangeas getInstance()
     {
         return instance;
-    }
-
-    public static int findRandomOpenPort()
-    {
-        return ThreadLocalRandom.current().nextInt(20000, 40001);
     }
 
     public abstract void enable();

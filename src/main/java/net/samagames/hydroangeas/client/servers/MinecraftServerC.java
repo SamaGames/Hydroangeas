@@ -14,7 +14,6 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import static net.samagames.hydroangeas.Hydroangeas.getLogger;
@@ -164,17 +163,11 @@ public class MinecraftServerC
                             "-jar", serverFolder.getAbsolutePath()+"/spigot.jar", "nogui"},
                     maxRAM
             );
-
-            instance.getScheduler().schedule(new Runnable() {
-                @Override
-                public void run() {
-                    remoteControl = new RemoteControl("blackmesa", (getPort()+1));
-                }
-            }, 30, TimeUnit.SECONDS);
-
             Hydroangeas.getLogger().info(container.createContainer());
 
             getLogger().info("Starting server " + getServerName());
+
+            remoteControl = new RemoteControl("blackmesa", (getPort()+1));
         } catch (Exception e)
         {
             this.instance.log(Level.SEVERE, "Can't start the server " + getServerName() + "!");
