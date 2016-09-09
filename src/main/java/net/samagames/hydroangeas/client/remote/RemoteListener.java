@@ -1,5 +1,7 @@
 package net.samagames.hydroangeas.client.remote;
 
+import net.samagames.hydroangeas.Hydroangeas;
+
 import javax.management.MBeanServerNotification;
 import javax.management.Notification;
 import javax.management.NotificationListener;
@@ -32,6 +34,7 @@ class RemoteListener implements NotificationListener {
         MBeanServerNotification mbs = (MBeanServerNotification) notification;
         if(MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(mbs.getType())) {
             remoteControl.addService(mbs.getMBeanName());
+            Hydroangeas.getLogger().info("New service: " + mbs.getMBeanName().getCanonicalName());
         } else if(MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(mbs.getType())) {
             remoteControl.removeService(mbs.getMBeanName());
         }
