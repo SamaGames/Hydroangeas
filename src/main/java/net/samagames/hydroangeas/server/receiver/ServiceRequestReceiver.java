@@ -2,6 +2,7 @@ package net.samagames.hydroangeas.server.receiver;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.samagames.hydroangeas.common.packets.PacketReceiver;
 import net.samagames.hydroangeas.common.protocol.network.TemplateRequest;
 import net.samagames.hydroangeas.server.HydroangeasServer;
@@ -52,7 +53,8 @@ public class ServiceRequestReceiver implements PacketReceiver
         if (data.getName().equals("order"))
         {
             try {
-                SimpleGameTemplate simpleGameTemplate = gson.fromJson(data.getOperation(), SimpleGameTemplate.class);
+                JsonObject parse = new JsonParser().parse(data.getOperation()).getAsJsonObject();
+                SimpleGameTemplate simpleGameTemplate = new SimpleGameTemplate(parse.get("id").getAsString(), parse);
                 MinecraftServerS minecraftServerS = instance.getAlgorithmicMachine().orderTemplate(simpleGameTemplate);
                 if (minecraftServerS != null)
                 {

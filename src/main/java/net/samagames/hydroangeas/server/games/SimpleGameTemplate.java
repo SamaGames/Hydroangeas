@@ -2,7 +2,6 @@ package net.samagames.hydroangeas.server.games;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.samagames.hydroangeas.utils.MiscUtils;
 
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -45,10 +44,10 @@ public class SimpleGameTemplate implements AbstractGameTemplate
 
         JsonObject formated = data.getAsJsonObject();
         this.id = id;
-        this.gameName = formated.get("game-name").getAsString();
-        this.mapName = formated.get("map-name").getAsString();
-        this.minSlot = formated.get("min-slots").getAsInt();
-        this.maxSlot = formated.get("max-slots").getAsInt();
+        this.gameName = multiple(formated, "game-name", "gameName").getAsString();
+        this.mapName = multiple(formated, "map-name", "mapName").getAsString();
+        this.minSlot = multiple(formated, "min-slots", "minSlot").getAsInt();
+        this.maxSlot = multiple(formated, "max-slots", "maxSlot").getAsInt();
         this.options = formated.get("options");
         this.startupOptions = new JsonObject();
         JsonElement startupElement = formated.get("startupOptions");
@@ -68,6 +67,16 @@ public class SimpleGameTemplate implements AbstractGameTemplate
         }
         this.isCoupaing = formated.get("isCoupaing").getAsBoolean();
         this.weight = formated.get("weight").getAsInt();
+    }
+
+    private JsonElement multiple(JsonObject object, String... multiple)
+    {
+        for (String id :
+                multiple) {
+            if (object.has(id))
+                return object.get(id);
+        }
+        return null;
     }
 
     public SimpleGameTemplate(String id, String gameName, String mapName, int minSlot, int maxSlot, int weight, JsonElement options)
