@@ -70,6 +70,7 @@ public class ServiceRequestReceiver implements PacketReceiver
                 }
             }catch (Exception ignored)
             {
+                ignored.printStackTrace();
                 response.addProperty("code", 500);
                 response.addProperty("data", "Malformation template");
             }
