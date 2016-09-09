@@ -42,8 +42,7 @@ public class RemoteControl {
         remoteListener = new RemoteListener(this);
         new Thread(() -> {
             try { Thread.sleep(5000); } catch (InterruptedException ignored) {} //Wait for container start
-            //Try to connect
-            while (isConnected)
+            while (isConnected)//Try to connect
             {
                 try {
                     Thread.sleep(1000);
@@ -58,6 +57,7 @@ public class RemoteControl {
                     Hydroangeas.getLogger().info("Cannot connect to " + host + ":" + port);
                 }
             }
+            try { Thread.sleep(2000); } catch (InterruptedException ignored) {} //Wait for container start
             loadAllService(); //First load, listener will handle after that
         }).start();
     }
