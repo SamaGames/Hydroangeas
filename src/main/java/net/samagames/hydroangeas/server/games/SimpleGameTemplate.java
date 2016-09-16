@@ -66,7 +66,19 @@ public class SimpleGameTemplate implements AbstractGameTemplate
             }
         }
         this.isCoupaing = formated.get("isCoupaing").getAsBoolean();
+
+        //Temproray until autmatic compute
+        this.weight = 150;
+        if (formated.has("weight"))
         this.weight = formated.get("weight").getAsInt();
+    }
+
+    private int computeWeight()
+    {
+
+
+
+        return 0;
     }
 
     private JsonElement multiple(JsonObject object, String... multiple)
