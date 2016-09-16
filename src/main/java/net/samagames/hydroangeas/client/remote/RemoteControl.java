@@ -58,7 +58,7 @@ public class RemoteControl {
                 }
             }
             try { Thread.sleep(2000); } catch (InterruptedException ignored) {} //Wait for container start
-            //loadAllService(); //First load, listener will handle after that
+            loadAllService(); //First load, listener will handle after that
         }).start();
     }
 
