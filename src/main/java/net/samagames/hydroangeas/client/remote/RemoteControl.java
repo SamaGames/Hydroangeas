@@ -42,7 +42,7 @@ public class RemoteControl {
         remoteListener = new RemoteListener(this);
         new Thread(() -> {
             try { Thread.sleep(5000); } catch (InterruptedException ignored) {} //Wait for container start
-            while (isConnected)//Try to connect
+            while (!isConnected)//Try to connect
             {
                 try {
                     Thread.sleep(1000);
