@@ -190,7 +190,12 @@ public class MinecraftServerC
     {
         try
         {
-            if (remoteControl != null) remoteControl.disconnect();
+            try{
+                if (remoteControl != null) remoteControl.disconnect();
+            }catch (Exception ignored)
+            {
+
+            }
 
             instance.getServerManager().onServerStop(this);
             Hydroangeas.getInstance().getAsClient().getLogManager().saveLog(getServerName(), getTemplateID());
