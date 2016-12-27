@@ -57,8 +57,8 @@ public class MinecraftServerSyncPacket extends AbstractPacket {
     {
         this(null,
                 server.getUUID(),
-                server.getHubID(),
                 -1,
+                server.getHubID(),
                 server.getGame(),
                 server.getMap(),
                 server.getTemplateID(),
