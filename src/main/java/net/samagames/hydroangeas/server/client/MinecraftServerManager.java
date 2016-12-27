@@ -1,11 +1,9 @@
 package net.samagames.hydroangeas.server.client;
 
 import net.samagames.hydroangeas.common.protocol.intranet.AskForClientActionPacket;
-import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerInfoPacket;
-import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerOrderPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerSyncPacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
-import net.samagames.hydroangeas.utils.MiscUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,16 +58,18 @@ public class MinecraftServerManager
         server.setWeight(template.getWeight());
 
         servers.add(server);
-        MinecraftServerOrderPacket packet = new MinecraftServerOrderPacket(server);
+        MinecraftServerSyncPacket packet = new MinecraftServerSyncPacket(server);
         packet.setTimeToLive(server.getTimeToLive());
         packet.setStartedTime(server.getStartedTime());
+
+        packet.setAsker(server.getOwner());
 
         instance.getConnectionManager().sendPacket(client, packet);
 
         return server;
     }
 
-    public void handleServerData(MinecraftServerInfoPacket packet)
+    public void handleServerData(MinecraftServerSyncPacket packet)
     {
         if(packet.getServerName() == null)
             return;
@@ -108,7 +108,7 @@ public class MinecraftServerManager
         {//Server here ! so update it !
 
             //First check correspondance between uuid and serverName
-            if (!server.getUUID().equals(packet.getServerUUID()))
+            if (!server.getUUID().equals(packet.getMinecraftUUID()))
             {
                 instance.getLogger().severe("Error server: " + server.getServerName() + " has not the same UUID");
                 instance.getConnectionManager().sendPacket(client,

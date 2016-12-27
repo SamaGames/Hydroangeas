@@ -4,10 +4,7 @@ import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
 import net.samagames.hydroangeas.common.packets.ConnectionManager;
-import net.samagames.hydroangeas.common.protocol.intranet.AskForClientActionPacket;
-import net.samagames.hydroangeas.common.protocol.intranet.AskForClientDataPacket;
-import net.samagames.hydroangeas.common.protocol.intranet.HeartbeatPacket;
-import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerOrderPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.*;
 
 import java.util.concurrent.TimeUnit;
 
@@ -45,9 +42,9 @@ public class ClientConnectionManager extends ConnectionManager
         {
             HeartbeatPacket heartbeatPacket = (HeartbeatPacket) spacket;
             instance.getLifeThread().onServerHeartbeat(heartbeatPacket.getUUID());
-        } else if (spacket instanceof MinecraftServerOrderPacket)
+        } else if (spacket instanceof MinecraftServerSyncPacket)
         {
-            MinecraftServerOrderPacket packet = (MinecraftServerOrderPacket) spacket;
+            MinecraftServerSyncPacket packet = (MinecraftServerSyncPacket) spacket;
 
             Hydroangeas.getInstance().getAsClient().getServerManager().newServer(packet);
         }else if (spacket instanceof AskForClientDataPacket)

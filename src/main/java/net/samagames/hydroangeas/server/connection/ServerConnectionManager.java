@@ -1,7 +1,6 @@
 package net.samagames.hydroangeas.server.connection;
 
 import net.samagames.hydroangeas.Hydroangeas;
-import net.samagames.hydroangeas.common.commands.CommandManager;
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
 import net.samagames.hydroangeas.common.packets.CommandPacket;
 import net.samagames.hydroangeas.common.packets.ConnectionManager;
@@ -77,11 +76,11 @@ public class ServerConnectionManager extends ConnectionManager
                 instance.getHubBalancer().onHubShutdown(server);
             }
             ModMessage.sendError(InstanceType.SERVER, packet.getMessage());
-        } else if (spacket instanceof MinecraftServerInfoPacket)
+        } else if (spacket instanceof MinecraftServerSyncPacket)
         {
-            MinecraftServerInfoPacket packet = (MinecraftServerInfoPacket) spacket;
+            MinecraftServerSyncPacket packet = (MinecraftServerSyncPacket) spacket;
 
-            HydroClient client = instance.getClientManager().getClientByUUID(packet.getUUID());
+            HydroClient client = instance.getClientManager().getClientByUUID(packet.getClientUUID());
             if (client == null)
             {
                 return;

@@ -1,45 +1,27 @@
 package net.samagames.hydroangeas.client.servers;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.docker.DockerContainer;
 import net.samagames.hydroangeas.client.remote.RemoteControl;
+import net.samagames.hydroangeas.common.data.MinecraftServer;
 import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerIssuePacket;
-import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerOrderPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerSyncPacket;
 import org.apache.commons.io.FileDeleteStrategy;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.UUID;
 import java.util.logging.Level;
 
 import static net.samagames.hydroangeas.Hydroangeas.getLogger;
 
-public class MinecraftServerC
+public class MinecraftServerC extends MinecraftServer
 {
     private final HydroangeasClient instance;
 
-    private final UUID uuid;
-    private final boolean coupaingServer;
     private final File serverFolder;
-    private String game;
-    private String map;
-    private int minSlot;
-    private int maxSlot;
-    private JsonElement options, startupOptions;
-    private int port;
-
-    private String templateID;
-
-    private Integer hubID;
-
-    private int weight;
-
-    private long timeToLive = 14400000L;
-    private long startedTime = System.currentTimeMillis();
 
     private long lastHeartbeat = System.currentTimeMillis();
 
@@ -47,26 +29,27 @@ public class MinecraftServerC
 
     private RemoteControl remoteControl;
 
-    public MinecraftServerC(HydroangeasClient instance, MinecraftServerOrderPacket serverInfos, int port)
+    public MinecraftServerC(HydroangeasClient instance,
+                            MinecraftServerSyncPacket serverInfos,
+                            int port)
     {
+        super(serverInfos.getMinecraftUUID(),
+                serverInfos.getGame(),
+                serverInfos.getMap(),
+                serverInfos.getMinSlot(),
+                serverInfos.getMaxSlot(),
+                serverInfos.getOptions(),
+                serverInfos.getStartupOptions()
+                );
         this.instance = instance;
 
-        this.uuid = serverInfos.getUUID();
         this.coupaingServer = serverInfos.isCoupaingServer();
 
         this.hubID = serverInfos.getHubID();
 
-        this.game = serverInfos.getGame();
-        this.map = serverInfos.getMap();
         this.templateID = serverInfos.getTemplateID();
-        this.minSlot = serverInfos.getMinSlot();
-        this.maxSlot = serverInfos.getMaxSlot();
-
-        options = serverInfos.getOptions();
-        startupOptions = serverInfos.getStartupOptions();
 
         this.timeToLive = serverInfos.getTimeToLive();
-        //this.startedTime = serverInfos.getStartedTime();
 
         this.serverFolder = new File(this.instance.getServerFolder(), serverInfos.getServerName());
         try
@@ -191,7 +174,8 @@ public class MinecraftServerC
         try
         {
             try{
-                if (remoteControl != null) remoteControl.disconnect();
+                if (remoteControl != null)
+                    remoteControl.disconnect();
             }catch (Exception ignored)
             {
 
@@ -223,89 +207,9 @@ public class MinecraftServerC
         return this.serverFolder;
     }
 
-    public int getWeight()
-    {
-        return weight;
-    }
-
-    public int getPort()
-    {
-        return this.port;
-    }
-
-    public UUID getUUID()
-    {
-        return this.uuid;
-    }
-
-    public String getGame()
-    {
-        return this.game;
-    }
-
-    public String getMap()
-    {
-        return this.map;
-    }
-
-    public String getServerName()
-    {
-        return this.game + "_" + ((hubID == null) ? this.uuid.toString().split("-")[0] : hubID);
-    }
-
-    public int getMinSlot()
-    {
-        return this.minSlot;
-    }
-
-    public int getMaxSlot()
-    {
-        return this.maxSlot;
-    }
-
-    public JsonElement getOptions()
-    {
-        return this.options;
-    }
-
-    public boolean isCoupaingServer()
-    {
-        return this.coupaingServer;
-    }
-
     public HydroangeasClient getInstance()
     {
         return instance;
-    }
-
-    public boolean isHub()
-    {
-        return hubID != null;
-    }
-
-    public Integer getHubID()
-    {
-        return hubID;
-    }
-
-    public String getTemplateID() {
-        return templateID;
-    }
-
-    public long getTimeToLive() {
-        return timeToLive;
-    }
-
-    public void setTimeToLive(long timeToLive) {
-        this.timeToLive = timeToLive;
-    }
-
-    public long getStartedTime() {
-        return startedTime;
-    }
-
-    public void setStartedTime(long startedTime) {
-        this.startedTime = startedTime;
     }
 
     public long getLastHeartbeat() {
@@ -325,4 +229,5 @@ public class MinecraftServerC
     {
         return remoteControl;
     }
+
 }

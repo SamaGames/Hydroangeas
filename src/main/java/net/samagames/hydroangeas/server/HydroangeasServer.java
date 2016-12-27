@@ -3,6 +3,7 @@ package net.samagames.hydroangeas.server;
 import joptsimple.OptionSet;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.server.algo.AlgorithmicMachine;
+import net.samagames.hydroangeas.server.algo.HostGameManager;
 import net.samagames.hydroangeas.server.algo.TemplateManager;
 import net.samagames.hydroangeas.server.client.ClientManager;
 import net.samagames.hydroangeas.server.commands.ServerCommandManager;
@@ -27,6 +28,7 @@ public class HydroangeasServer extends Hydroangeas
     public ServerConnectionManager connectionManager;
     private ClientManager clientManager;
     private AlgorithmicMachine algorithmicMachine;
+    private HostGameManager hostGameManager;
 
     private TemplateManager templateManager;
 
@@ -66,6 +68,7 @@ public class HydroangeasServer extends Hydroangeas
         this.clientManager = new ClientManager(this);
 
         this.algorithmicMachine = new AlgorithmicMachine(this);
+        this.hostGameManager = new HostGameManager(this);
 
         this.queueManager = new QueueManager(this);
 
@@ -157,5 +160,9 @@ public class HydroangeasServer extends Hydroangeas
     public HubBalancer getHubBalancer()
     {
         return hubBalancer;
+    }
+
+    public HostGameManager getHostGameManager() {
+        return hostGameManager;
     }
 }

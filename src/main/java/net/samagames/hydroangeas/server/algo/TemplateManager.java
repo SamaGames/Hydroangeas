@@ -42,6 +42,7 @@ public class TemplateManager
     public void loadQueues()
     {
         instance.getLogger().info("Ajout des queues pour chaque Template:");
+
         for (AbstractGameTemplate template : templates)
         {
             Queue queue = instance.getQueueManager().getQueueByName(template.getId());

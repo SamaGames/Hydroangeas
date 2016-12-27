@@ -2,8 +2,10 @@ package net.samagames.hydroangeas.server.client;
 
 import com.google.gson.JsonElement;
 import net.samagames.hydroangeas.Hydroangeas;
+import net.samagames.hydroangeas.common.data.MinecraftServer;
+import net.samagames.hydroangeas.common.protocol.hubinfo.HostGameInfoToHubPacket;
 import net.samagames.hydroangeas.common.protocol.intranet.AskForClientActionPacket;
-import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerInfoPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerSyncPacket;
 import net.samagames.hydroangeas.common.samapi.GameConnector;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.data.Status;
@@ -22,34 +24,13 @@ import java.util.UUID;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class MinecraftServerS
+public class MinecraftServerS extends MinecraftServer
 {
-
     private HydroClient client;
-    private UUID uuid;
-    private boolean coupaingServer;
-    private String game;
-    private String map;
-    private int minSlot;
-    private int maxSlot;
-    private JsonElement options, startupOptions;
-
-    private Integer hubID;
 
     private boolean started;
 
-    private String templateID;
-
-    private int weight;
-
-    private int port;
-
-    private Status status = Status.STARTING;
-    private int actualSlots;
-
-    private long timeToLive = CleanServer.LIVETIME;
-    private boolean available = false;
-    private long startedTime;
+    private boolean available;
 
     private List<Runnable> onStartHook;
 
@@ -57,33 +38,55 @@ public class MinecraftServerS
 
     public MinecraftServerS(HydroClient client, AbstractGameTemplate template)
     {
-        this(client, UUID.randomUUID(), template.getGameName(), template.getMapName(), template.getMinSlot(), template.getMaxSlot(), template.getOptions(), template.getStartupOptions());
+        this(client,
+                UUID.randomUUID(),
+                template.getGameName(),
+                template.getMapName(),
+                template.getMinSlot(),
+                template.getMaxSlot(),
+                template.getOptions(),
+                template.getStartupOptions());
+
         this.coupaingServer = template.isCoupaing();
         this.templateID = template.getId();
         this.weight = template.getWeight();
     }
 
-    public MinecraftServerS(HydroClient client, MinecraftServerInfoPacket packet)
+    public MinecraftServerS(HydroClient client, MinecraftServerSyncPacket packet)
     {
-        this(client, packet.getServerUUID(), packet.getGame(), packet.getMap(), packet.getMinSlot(), packet.getMaxSlot(), packet.getOptions(), packet.getStartupOptions());
+        this(client,
+                packet.getMinecraftUUID(),
+                packet.getGame(),
+                packet.getMap(),
+                packet.getMinSlot(),
+                packet.getMaxSlot(),
+                packet.getOptions(),
+                packet.getStartupOptions());
+
         this.templateID = packet.getTemplateID();
         this.port = packet.getPort();
         this.hubID = packet.getHubID();
         this.weight = packet.getWeight();
     }
 
-    public MinecraftServerS(HydroClient client, UUID uuid, String game, String map, int minSlot, int maxSlot, JsonElement options, JsonElement startupOptions)
+    public MinecraftServerS(HydroClient client,
+                            UUID uuid,
+                            String game,
+                            String map,
+                            int minSlot,
+                            int maxSlot,
+                            JsonElement options,
+                            JsonElement startupOptions)
     {
-        this.client = client;
-        this.uuid = uuid;
-        this.game = game;
-        this.map = map;
-        this.minSlot = minSlot;
-        this.maxSlot = maxSlot;
-        this.options = options;
-        this.startupOptions = startupOptions;
+        super(uuid,
+                game,
+                map,
+                minSlot,
+                maxSlot,
+                options,
+                startupOptions);
 
-        this.startedTime = System.currentTimeMillis();
+        this.client = client;
 
         onStartHook = new ArrayList<>();
     }
@@ -104,6 +107,8 @@ public class MinecraftServerS
             client.getInstance().getScheduler().execute(runnable);
         }
 
+        updateHubHostGame(0);
+
        /* String ip = this.client.getIp();
         int port = getPort();
         //Register server in redis cache
@@ -123,6 +128,7 @@ public class MinecraftServerS
             Hydroangeas.getInstance().getAsServer().getHubBalancer().onHubShutdown(this);
         }
         unregisterNetwork();
+        updateHubHostGame(2);
     }
 
     public void addOnStartHook(Runnable runnable)
@@ -146,56 +152,6 @@ public class MinecraftServerS
         Hydroangeas.getInstance().getRedisSubscriber().send("commands.servers."+getServerName(), command);
     }
 
-    public void changeUUID()
-    {
-        this.uuid = UUID.randomUUID();
-    }
-
-    public UUID getUUID()
-    {
-        return this.uuid;
-    }
-
-    public String getGame()
-    {
-        return this.game;
-    }
-
-    public String getMap()
-    {
-        return this.map;
-    }
-
-    public String getServerName()
-    {
-        return this.game + "_" + ((hubID == null) ? this.uuid.toString().split("-")[0] : hubID);
-    }
-
-    public int getMinSlot()
-    {
-        return this.minSlot;
-    }
-
-    public int getMaxSlot()
-    {
-        return this.maxSlot;
-    }
-
-    public JsonElement getOptions()
-    {
-        return this.options;
-    }
-
-    public boolean isCoupaingServer()
-    {
-        return this.coupaingServer;
-    }
-
-    public void setCoupaingServer(boolean isCoupaing)
-    {
-        this.coupaingServer = isCoupaing;
-    }
-
     public boolean isStarted()
     {
         return started;
@@ -204,41 +160,6 @@ public class MinecraftServerS
     public void setStarted(boolean started)
     {
         this.started = started;
-    }
-
-    public int getWeight()
-    {
-        return weight;
-    }
-
-    public void setWeight(int weight)
-    {
-        this.weight = weight;
-    }
-
-    public int getPort()
-    {
-        return port;
-    }
-
-    public void setPort(int port)
-    {
-        this.port = port;
-    }
-
-    public String getTemplateID()
-    {
-        return templateID;
-    }
-
-    public void setTemplateID(String templateID)
-    {
-        this.templateID = templateID;
-    }
-
-    public Status getStatus()
-    {
-        return status;
     }
 
     public void setStatus(Status status)
@@ -255,11 +176,7 @@ public class MinecraftServerS
             }
         }
         this.status = status;
-    }
-
-    public int getActualSlots()
-    {
-        return actualSlots;
+        updateHubHostGame(1);
     }
 
     public void setActualSlots(int actualSlots)
@@ -270,43 +187,25 @@ public class MinecraftServerS
             timeToLive = CleanServer.LIVETIME;
         }
         this.actualSlots = actualSlots;
+        updateHubHostGame(1);
     }
 
-    public boolean isHub()
+    public void updateHubHostGame(int state)
     {
-        return hubID != null;
+        if(!coupaingServer)
+            return;
+
+        HostGameInfoToHubPacket packet = new HostGameInfoToHubPacket();
+        packet.setCreator(owner);
+        packet.setEvent(uuid);
+        packet.setPlayerMaxForMap(maxSlot);
+        packet.setPlayerWaitFor(minSlot);
+        packet.setTotalPlayerOnServers(actualSlots);
+        packet.setState(state);
+
+        Hydroangeas.getInstance().getAsServer().getConnectionManager().sendPacket("hydroHubReceiver", packet);
     }
 
-    public Integer getHubID()
-    {
-        return hubID;
-    }
-
-    public void setHubID(Integer hubID)
-    {
-        this.hubID = hubID;
-    }
-
-    public JsonElement getStartupOptions()
-    {
-        return startupOptions;
-    }
-
-    public long getStartedTime() {
-        return startedTime;
-    }
-
-    public void setStartedTime(long startedTime) {
-        this.startedTime = startedTime;
-    }
-
-    public long getTimeToLive() {
-        return timeToLive;
-    }
-
-    public void setTimeToLive(long timeToLive) {
-        this.timeToLive = timeToLive;
-    }
 
     public HydroClient getClient() {
         return client;

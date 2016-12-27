@@ -71,7 +71,6 @@ public class AlgorithmicMachine
         if (serverStatus.getAction().equals(MinecraftServerUpdatePacket.UType.END))
         {
             instance.log(Level.INFO, "Server ended on " + client.getIp() + " servername: " + serverStatus.getServerName());
-
         }
     }
 
@@ -80,7 +79,11 @@ public class AlgorithmicMachine
         List<MinecraftServerS> servers = new ArrayList<>();
         for (HydroClient client : instance.getClientManager().getClients())
         {
-            servers.addAll(client.getServerManager().getServers().stream().filter(server -> server.getTemplateID().equalsIgnoreCase(templateID) && (server.getStatus().isAllowJoin() || server.getStatus().equals(Status.STARTING)) && server.getActualSlots() < server.getMaxSlot() * 0.90).collect(Collectors.toList()));
+            servers.addAll(client.getServerManager().getServers().stream().filter(server ->
+                    server.getTemplateID().equalsIgnoreCase(templateID)
+                            && (server.getStatus().isAllowJoin()
+                            || server.getStatus().equals(Status.STARTING))
+                            && server.getActualSlots() < server.getMaxSlot() * 0.90).collect(Collectors.toList()));
         }
         return servers;
     }

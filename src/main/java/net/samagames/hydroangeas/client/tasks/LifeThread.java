@@ -4,7 +4,7 @@ import net.samagames.hydroangeas.client.HydroangeasClient;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;
 import net.samagames.hydroangeas.common.protocol.intranet.HeartbeatPacket;
 import net.samagames.hydroangeas.common.protocol.intranet.HelloFromClientPacket;
-import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerInfoPacket;
+import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerSyncPacket;
 import net.samagames.hydroangeas.utils.InstanceType;
 import net.samagames.hydroangeas.utils.ModMessage;
 
@@ -70,7 +70,7 @@ public class LifeThread
             Thread.sleep(3);
             for (MinecraftServerC server : instance.getServerManager().getServers())
             {
-                instance.getConnectionManager().sendPacket(new MinecraftServerInfoPacket(instance, server));
+                instance.getConnectionManager().sendPacket(new MinecraftServerSyncPacket(instance, server));
             }
         }
     }

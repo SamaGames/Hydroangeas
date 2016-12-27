@@ -9,6 +9,8 @@ import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.server.games.SimpleGameTemplate;
 
+import java.util.UUID;
+
 /**
  * ╱╲＿＿＿＿＿＿╱╲
  * ▏╭━━╮╭━━╮▕
@@ -54,8 +56,10 @@ public class ServiceRequestReceiver implements PacketReceiver
         {
             try {
                 JsonObject parse = new JsonParser().parse(data.getOperation()).getAsJsonObject();
+                UUID asker = UUID.fromString(parse.get("uuid").getAsString());
                 SimpleGameTemplate simpleGameTemplate = new SimpleGameTemplate(parse.get("id").getAsString(), parse);
-                MinecraftServerS minecraftServerS = instance.getAlgorithmicMachine().orderTemplate(simpleGameTemplate);
+
+                MinecraftServerS minecraftServerS = instance.getHostGameManager().orderServer(asker, simpleGameTemplate);
                 if (minecraftServerS != null)
                 {
                     response.addProperty("code", 200);

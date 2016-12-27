@@ -1,10 +1,7 @@
 package net.samagames.hydroangeas.client.servers;
 
 import net.samagames.hydroangeas.client.HydroangeasClient;
-import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerInfoPacket;
-import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerIssuePacket;
-import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerOrderPacket;
-import net.samagames.hydroangeas.common.protocol.intranet.MinecraftServerUpdatePacket;
+import net.samagames.hydroangeas.common.protocol.intranet.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +19,7 @@ public class ServerManager
         this.instance = instance;
     }
 
-    public void newServer(MinecraftServerOrderPacket serverInfos)
+    public void newServer(MinecraftServerSyncPacket serverInfos)
     {
         try
         {
@@ -54,7 +51,7 @@ public class ServerManager
 
             instance.getConnectionManager().sendPacket(new MinecraftServerUpdatePacket(instance, server.getServerName(), MinecraftServerUpdatePacket.UType.START));
             //Complete data of the server
-            instance.getConnectionManager().sendPacket(new MinecraftServerInfoPacket(instance, server));
+            instance.getConnectionManager().sendPacket(new MinecraftServerSyncPacket(instance, server));
         } catch (Exception e)
         {
             e.printStackTrace();

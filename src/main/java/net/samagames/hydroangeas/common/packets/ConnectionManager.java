@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.common.protocol.coupaings.CoupaingServerPacket;
 import net.samagames.hydroangeas.common.protocol.hubinfo.GameInfosToHubPacket;
+import net.samagames.hydroangeas.common.protocol.hubinfo.HostGameInfoToHubPacket;
 import net.samagames.hydroangeas.common.protocol.intranet.*;
 import net.samagames.hydroangeas.common.protocol.queues.*;
 
@@ -34,9 +35,8 @@ public abstract class ConnectionManager
         packets[4] = new AskForClientActionPacket();
         packets[5] = new ByeFromClientPacket();
         packets[6] = new MinecraftServerIssuePacket();
-        packets[7] = new MinecraftServerOrderPacket();
+        packets[7] = new MinecraftServerSyncPacket();
         packets[8] = new MinecraftServerUpdatePacket();
-        packets[9] = new MinecraftServerInfoPacket();
 
 
         //Queues Packets
@@ -48,6 +48,7 @@ public abstract class ConnectionManager
 
         //HubInfos
         packets[110] = new GameInfosToHubPacket();
+        packets[111] = new HostGameInfoToHubPacket();
 
         packets[200] = new CommandPacket();
 
