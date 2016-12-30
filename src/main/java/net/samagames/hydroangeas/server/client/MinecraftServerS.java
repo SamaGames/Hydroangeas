@@ -202,6 +202,7 @@ public class MinecraftServerS extends MinecraftServer
         packet.setPlayerWaitFor(minSlot);
         packet.setTotalPlayerOnServers(actualSlots);
         packet.setState(state);
+        packet.setServerName(this.getServerName());
 
         Hydroangeas.getInstance().getAsServer().getConnectionManager().sendPacket("hydroHubReceiver", packet);
     }

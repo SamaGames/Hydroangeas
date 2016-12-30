@@ -23,6 +23,8 @@ public class HostGameInfoToHubPacket extends AbstractPacket
     private UUID event;
     private UUID creator;
 
+    private String serverName;
+
     private int state;// 0 = create / 1 = update / 2 = delete
 
     private int playerMaxForMap;
@@ -75,5 +77,13 @@ public class HostGameInfoToHubPacket extends AbstractPacket
 
     public void setState(int state) {
         this.state = state;
+    }
+
+    public String getServerName() {
+        return serverName;
+    }
+
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
     }
 }
