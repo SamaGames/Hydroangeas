@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class BalancingTask extends Thread
 {
-    public static final double HUB_SAFETY_MARGIN = 2;
+    public static final double HUB_SAFETY_MARGIN = 1;
     public static final int HUB_CONSIDERED_AS_EMPTY = 5; //Number minimum of player on a HUB we can stop
     private HubBalancer hubBalancer;
     private int coolDown = 0; //*100ms
@@ -79,7 +79,11 @@ public class BalancingTask extends Thread
 
     public double needNumberOfHub()
     {
-        return ( (((double) hubBalancer.getUsedSlots())*1.1) / (double) hubBalancer.getHubTemplate().getMaxSlot()) + HUB_SAFETY_MARGIN;
+        double v = (((double) hubBalancer.getUsedSlots()) * 1.1) / (double) hubBalancer.getHubTemplate().getMaxSlot();
+        if(v <= 1)
+            return 1;
+
+        return v + HUB_SAFETY_MARGIN;
     }
 
     public void checkCooldown() throws InterruptedException
