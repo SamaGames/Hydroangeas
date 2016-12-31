@@ -168,7 +168,8 @@ public class MinecraftServerS extends MinecraftServer
         {
             try{
                 AbstractGameTemplate templateByID = HydroangeasServer.getInstance().getAsServer().getTemplateManager().getTemplateByID(this.templateID);
-                templateByID.addTimeToStart(System.currentTimeMillis() - startedTime);
+                if(templateByID != null)
+                    templateByID.addTimeToStart(System.currentTimeMillis() - startedTime);
             }catch (Exception e)
             {
                 Hydroangeas.getLogger().severe("Error to save starting stat for: " + getServerName());
