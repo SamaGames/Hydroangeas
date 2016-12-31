@@ -1,14 +1,17 @@
 package net.samagames.hydroangeas.server.receiver;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.samagames.hydroangeas.common.packets.PacketReceiver;
 import net.samagames.hydroangeas.common.protocol.network.TemplateRequest;
 import net.samagames.hydroangeas.server.HydroangeasServer;
+import net.samagames.hydroangeas.server.client.HydroClient;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.server.games.SimpleGameTemplate;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -94,6 +97,32 @@ public class ServiceRequestReceiver implements PacketReceiver
                 response.addProperty("code", 404);
                 response.addProperty("data", "Server not found, maybe crashed.");
             }
+        }else if(data.getName().equals("list"))
+        {
+            response.addProperty("code", 200);
+            List<HydroClient> clients = instance.getClientManager().getClients();
+            JsonArray result = new JsonArray();
+
+            for(HydroClient client : clients)
+            {
+                for (MinecraftServerS s : client.getServerManager().getServers())
+                {
+                    if(s.isCoupaingServer())
+                    {
+                        JsonObject jsonObject = new JsonObject();
+
+                        jsonObject.addProperty("name", s.getServerName());
+                        jsonObject.addProperty("uuid", s.getUUID().toString());
+                        jsonObject.addProperty("owner", s.getOwner().toString());
+                        jsonObject.addProperty("template", s.getTemplateID());
+                        jsonObject.addProperty("startedTime", System.currentTimeMillis() - s.getStartedTime());
+                        jsonObject.addProperty("status", s.getStatus().toString());
+
+                        result.add(jsonObject);
+                    }
+                }
+            }
+            response.add("data", result);
         }
 
         instance.getConnectionManager().sendPacket("samaconnect.services.responses", response.toString());
