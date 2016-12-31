@@ -79,7 +79,6 @@ public class ServiceRequestReceiver implements PacketReceiver
                 response.addProperty("data", "Malformation template");
             }
 
-
         }else if (data.getName().equals("status"))
         {
             String serverName = data.getOperation();

@@ -2,15 +2,10 @@ package net.samagames.hydroangeas.client.docker;
 
 import com.google.gson.*;
 import net.samagames.hydroangeas.Hydroangeas;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClients;
+import okhttp3.*;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.URI;
 import java.util.Random;
 
 /**
@@ -309,31 +304,23 @@ public class DockerAPI {
     public Response sendRequest(String point, JsonElement element, String method) {
         String requestData = GSON.toJson(element);
 
-        HttpClient httpClient = HttpClients.createDefault();
+        OkHttpClient client = new OkHttpClient();
 
         try {
-            HttpEntityEnclosingRequestBase request = new HttpEntityEnclosingRequestBase() {
-                @Override
-                public String getMethod() {
-                    return method;
-                }
-            };
-            request.setURI(new URI(this.url + point));
-            request.addHeader("Content-Type", "application/json");
-            StringEntity params = new StringEntity(requestData);
-            request.setEntity(params);
+            MediaType mediaType = MediaType.parse("application/json");
 
-            HttpResponse responses = httpClient.execute(request);
+            RequestBody body = RequestBody.create(mediaType, requestData);
 
-            int statusCode = responses.getStatusLine().getStatusCode();
+            Request request = new Request.Builder().url(this.url + point).method(method, body).build();
+
+            okhttp3.Response responses = client.newCall(request).execute();
+
+            int statusCode = responses.code();
             JsonElement json = null;
-            if(responses.getEntity() != null)
+            if(responses.body() != null)
             {
-                BufferedReader in = new BufferedReader(
-                        new InputStreamReader(responses.getEntity().getContent()));
-
                 try{
-                    json = new JsonParser().parse(in);
+                    json = new JsonParser().parse(responses.body().string());
                 }catch (Exception e)
                 {
                     json = null;
@@ -342,8 +329,6 @@ public class DockerAPI {
             return new Response(statusCode, json);
         } catch (Exception e) {
             Hydroangeas.getInstance().getLogger().severe("Error for " + point + " (message:" + e.getMessage() + ")");
-        } finally {
-            httpClient.getConnectionManager().shutdown();
         }
 
         return new Response(500, null);
