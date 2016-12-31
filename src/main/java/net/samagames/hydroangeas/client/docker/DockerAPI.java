@@ -311,7 +311,12 @@ public class DockerAPI {
 
             RequestBody body = RequestBody.create(mediaType, requestData);
 
-            Request request = new Request.Builder().url(this.url + point).method(method, body).build();
+            Request request;
+            if(method.equalsIgnoreCase("get"))
+            {
+                request = new Request.Builder().url(this.url + point).get().build();
+            }else
+                request = new Request.Builder().url(this.url + point).method(method, body).build();
 
             okhttp3.Response responses = client.newCall(request).execute();
 
