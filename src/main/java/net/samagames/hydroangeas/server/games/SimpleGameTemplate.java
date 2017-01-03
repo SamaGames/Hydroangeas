@@ -207,7 +207,7 @@ public class SimpleGameTemplate implements AbstractGameTemplate
             startTime += time;
             nb++;
         }
-        return (nb > 0) ? startTime / nb : 0;
+        return (nb > 0) ? startTime / nb : -1;
     }
 
     @Override

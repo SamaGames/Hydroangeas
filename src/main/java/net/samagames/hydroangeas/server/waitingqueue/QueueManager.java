@@ -1,7 +1,6 @@
 package net.samagames.hydroangeas.server.waitingqueue;
 
 import net.samagames.hydroangeas.common.packets.AbstractPacket;
-import net.samagames.hydroangeas.common.packets.CommandPacket;
 import net.samagames.hydroangeas.common.protocol.queues.*;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
@@ -42,7 +41,15 @@ public class QueueManager
         {
             //No queue to add get out !
             //PlayerMessager.sendMessage(player.getUUID(), ChatColor.RED + "Aucun template disponible pour ce jeu!");
-            sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, false, ChatColor.RED + "Aucun template disponible pour ce jeu!"));
+            QueueInfosUpdatePacket queueInfosUpdatePacket = new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, packet.getTemplateID());
+
+            queueInfosUpdatePacket.setGame(packet.getGame());
+            queueInfosUpdatePacket.setMap(packet.getMap());
+
+            queueInfosUpdatePacket.setErrorMessage(ChatColor.RED + "Aucun template disponible pour ce jeu!");
+            queueInfosUpdatePacket.setSuccess(false);
+
+            sendPacketHub(queueInfosUpdatePacket);
             return;
         }
 
@@ -69,26 +76,25 @@ public class QueueManager
     public void handlePacket(QueueRemovePlayerPacket packet)
     {
         QPlayer player = packet.getPlayer();
-        //Queue designedQueue = getQueue(packet);
         Queue currentQueue = getQueueByPlayer(player.getUUID());
 
-        /*if(designedQueue == null)
-        {
-            //No queue maybe not known ?
-            //PlayerMessager.sendMessage(player.getUUID(), ChatColor.RED + "Aucun queue définis!");
-        }*/
         if (currentQueue == null)
         {
             //No queue, security remove ?
-            sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, false, "Vous n\'avez aucune queue!"));
-            //PlayerMessager.sendMessage(player.getUUID(), ChatColor.RED + "Vous n'êtes dans aucune queue!");
+            QueueInfosUpdatePacket queueInfosUpdatePacket = new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, packet.getTemplateID());
+            queueInfosUpdatePacket.setGame(packet.getGame());
+            queueInfosUpdatePacket.setMap(packet.getMap());
+
+            queueInfosUpdatePacket.setErrorMessage("Vous n'avez aucune queue!");
+
+            sendPacketHub(queueInfosUpdatePacket);
             return;
         }
 
         currentQueue.removeQPlayer(player);
-
-        //PlayerMessager.sendMessage(player.getUUID(), ChatColor.YELLOW + "Vous quittez la queue " + currentQueue.getName());
-        sendPacketHub(new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, currentQueue.getGame(), currentQueue.getMap()));
+        QueueInfosUpdatePacket queueInfosUpdatePacket = new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.REMOVE, currentQueue.getGame(), currentQueue.getMap());
+        queueInfosUpdatePacket.setTemplateId(packet.getTemplateID());
+        sendPacketHub(queueInfosUpdatePacket);
     }
 
     public void handlePacket(QueueAttachPlayerPacket packet)
@@ -120,11 +126,15 @@ public class QueueManager
         if (group == null)
         {
             //Logically not possible but.. #MOJANG
+            QueueInfosUpdatePacket queueInfosUpdatePacket = new QueueInfosUpdatePacket(null, QueueInfosUpdatePacket.Type.REMOVE, packet.getGame(), packet.getMap());
+            queueInfosUpdatePacket.setTemplateId(packet.getTemplateID());
+            queueInfosUpdatePacket.setSuccess(false);
+            queueInfosUpdatePacket.setErrorMessage("Vous n'êtes pas leader de party!");
 
             for (QPlayer qPlayer : packet.getPlayers())
             {
-                sendPacketHub(new QueueInfosUpdatePacket(qPlayer, QueueInfosUpdatePacket.Type.REMOVE, false, "Vous n'êtes pas leader de party!"));
-                //PlayerMessager.sendMessage(qPlayer.getUUID(), ChatColor.RED + "Le leader de votre party n'a pas choisit de queue !");
+                queueInfosUpdatePacket.setPlayer(qPlayer);
+                sendPacketHub(queueInfosUpdatePacket);
             }
             return;
         }

@@ -5,11 +5,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.samagames.hydroangeas.Hydroangeas;
 import net.samagames.hydroangeas.client.HydroangeasClient;
+import net.samagames.hydroangeas.client.remote.RemoteService;
 import net.samagames.hydroangeas.client.servers.MinecraftServerC;
 import net.samagames.hydroangeas.utils.ping.MinecraftPing;
 import net.samagames.hydroangeas.utils.ping.MinecraftPingOptions;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -46,11 +46,23 @@ public class ServerAliveWatchDog
                 for(MinecraftServerC server : servers) {
                     if(System.currentTimeMillis() - server.getStartedTime() < 60000L)
                         continue;
-                    try {
-                        String ip = HydroangeasClient.getInstance().getAsClient().getIP();
-                        new MinecraftPing().getPing(new MinecraftPingOptions().setHostname(ip).setPort(server.getPort()).setTimeout(100));
-                    } catch (IOException e) {
-                        Hydroangeas.getInstance().getLogger().info("Can't ping server: " + server.getServerName() + " shutting down");
+                    RemoteService serverFunction;
+                    try{
+                        if(server.getRemoteControl() != null
+                                && (serverFunction = server.getRemoteControl().getService("ServerFunction")) != null)
+                        {
+
+                            double tps = (double) server.getRemoteControl().invokeService(serverFunction, "tps", new Object[]{}, new String[]{});
+                            if(tps < 10)
+                                Hydroangeas.getLogger().info("Warning tps low for " + server.getServerName() + ", tps:" + tps);
+                        }else{
+                            String ip = HydroangeasClient.getInstance().getAsClient().getIP();
+                            new MinecraftPing().getPing(new MinecraftPingOptions().setHostname(ip).setPort(server.getPort()).setTimeout(100));
+                        }
+                    }catch (Exception e)
+                    {
+                        Hydroangeas.getLogger().info("Can't ping server: " + server.getServerName() + " shutting down");
+                        e.printStackTrace();
                         server.stopServer();
                     }
                 }

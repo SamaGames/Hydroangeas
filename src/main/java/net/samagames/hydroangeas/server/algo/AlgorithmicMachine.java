@@ -40,17 +40,6 @@ public class AlgorithmicMachine
         return null;
     }
 
-    public MinecraftServerS orderBasic(String game, String map)
-    {
-        AbstractGameTemplate template = instance.getTemplateManager().getTemplateByGameAndMap(game, map);
-        if (template == null)
-        {
-            instance.getLogger().warning("Error template " + game + " " + map + " doesn't exist!");
-            return null;
-        }
-        return orderTemplate(template);
-    }
-
     public MinecraftServerS orderTemplate(AbstractGameTemplate template)
     {
         HydroClient client = selectGoodHydroClient(template);

@@ -6,31 +6,27 @@ import net.samagames.hydroangeas.common.protocol.hubinfo.GameInfosToHubPacket;
 import net.samagames.hydroangeas.common.protocol.queues.QueueInfosUpdatePacket;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
-import net.samagames.hydroangeas.server.data.Status;
 import net.samagames.hydroangeas.server.games.AbstractGameTemplate;
 import net.samagames.hydroangeas.server.games.PackageGameTemplate;
-import net.samagames.hydroangeas.server.tasks.CleanServer;
-import net.samagames.hydroangeas.utils.ChatColor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+
+import static net.samagames.hydroangeas.Hydroangeas.getLogger;
 
 /**
  * This file is a part of the SamaGames Project CodeBase
  * This code is absolutely confidential.
- * Created by Geekpower14 on 12/07/2015.
+ * Created by Silvanosky on 12/07/2015.
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
 public class Queue
 {
 
-    private ScheduledFuture workerTask, hubRefreshTask, queueChecker;
+    private ScheduledFuture hubRefreshTask;
+    private ScheduledFuture queueChecker;
 
     private QueueManager manager;
 
@@ -40,17 +36,17 @@ public class Queue
 
     private AbstractGameTemplate template;
 
-    private int coolDown = 2; //*100ms
-
     //Anticipation
 
     private DataQueue dataQueue;
 
+    // Manager
+
+    private WatchQueue watchQueue;
+
     //Hub data
 
     private volatile boolean sendInfo = true;
-
-    private AtomicInteger lastServerStartNB = new AtomicInteger(0);
 
     private long lastSend = System.currentTimeMillis();
 
@@ -71,21 +67,18 @@ public class Queue
         }
 
         //Si priority plus grande alors tu passe devant.
-        this.queue = new PriorityPlayerQueue(100000, (o1, o2) -> Integer.compare(o1.getPriority(), o2.getPriority()));
+        this.queue = new PriorityPlayerQueue(100000, Comparator.comparingInt(QGroup::getPriority));
 
-        startQueueWorker();
+        watchQueue = new WatchQueue(instance, this);
 
         queueChecker = instance.getScheduler().scheduleAtFixedRate(() -> {
             //Control check
             try{
-                if(workerTask != null)
+                if(!watchQueue.isProcessing())
                 {
-                    if(workerTask.isDone())
-                    {
-                        instance.getLogger().info("Queue worker stopped ! For: " + template.getId());
-                        instance.getLogger().info("Restarting task..");
-                        startQueueWorker();
-                    }
+                    getLogger().info("Queue worker stopped ! For: " + template.getId());
+                    getLogger().info("Restarting task..");
+                    watchQueue.startProcess();
                 }
 
                 //Player inform
@@ -93,158 +86,42 @@ public class Queue
                 groups.addAll(queue);
                 int queueSize = getSize();
                 int index = 0;
-                for(int i = 0; i< groups.size(); i++)
+                for(int i = 0; i < groups.size(); i++)
                 {
                     QGroup group = groups.get(i);
                     index += group.getSize();
 
                     for(QPlayer player : group.getQPlayers())
                     {
-                        List<String> messages = new ArrayList<>();
-                        QueueInfosUpdatePacket queueInfosUpdatePacket = new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.INFO, getGame(), getMap());
-                        if(index < template.getMaxSlot()*lastServerStartNB.get())
-                        {
-                            messages.add(ChatColor.GREEN + "Votre serveur est en train de démarrer !");
-                            if(template.getTimeToStart() > 0)
-                            {
-                                long timeToStart = template.getTimeToStart();
-                                String time = String.format("%d min %d sec",
-                                        TimeUnit.MILLISECONDS.toMinutes(timeToStart),
-                                        TimeUnit.MILLISECONDS.toSeconds(timeToStart) -
-                                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(timeToStart))
-                                );
-
-                                messages.add(ChatColor.AQUA + "Votre serveur met en moyenne " + time  + " pour démarrer.");
-                            }else
-                            {
-                                messages.add(ChatColor.AQUA + "Durée de démarrage non estimée.");
-                            }
-
-                        }else{
-                            messages.add(ChatColor.RED + "Votre serveur n'a pas encore démarré.");
-                            if(queueSize < template.getMaxSlot())
-                            {
-                            	int n = template.getMinSlot() - queueSize;
-                                messages.add("Il manque " + ChatColor.RED + (n < 0 ? 0 : n) + "<RESET> joueur(s) pour qu'il démarre.");
-                            }
-                        }
-
-                        messages.add("Vous êtes actuellement à la place " + ChatColor.RED + (i+1) + "<RESET> dans la file.");
-                        if(group.getSize() > 1)
-                        {
-                            messages.add("Votre groupe est composé de "+ group.getSize() + " personnes.");
-                        }
-
-                        queueInfosUpdatePacket.setMessage(messages);
-                        sendPacketHub(queueInfosUpdatePacket);
+                        sendInfoToPlayer(group, player, index, i+1, queueSize);
                     }
                 }
             }catch (Exception e)
             {
                 e.printStackTrace();
             }
-        }, 0, 15, TimeUnit.SECONDS);
+        }, 0, 10, TimeUnit.SECONDS);
+
         hubRefreshTask = instance.getScheduler().scheduleAtFixedRate(this::sendInfoToHub, 0, 750, TimeUnit.MILLISECONDS);
-
     }
 
-    public void startQueueWorker()
+    public long sendGroups(List<MinecraftServerS> servers)
     {
-        //If task already started force shutdown
-        if(workerTask != null && !workerTask.isDone())
-        {
-            workerTask.cancel(true);
-        }
-
-        workerTask = instance.getScheduler().scheduleAtFixedRate(() ->
-        {
-            try{
-                if (template == null)
-                {
-                    Hydroangeas.getInstance().getLogger().info("Template null!");
-                    return;
-                }
-
-                try {
-                    checkCooldown();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                List<MinecraftServerS> servers = instance.getAlgorithmicMachine().getServerByTemplatesAndAvailable(template.getId());
-
-                servers.stream().filter(server ->
-                        (server.getStatus().equals(Status.WAITING_FOR_PLAYERS)
-                        || server.getStatus().equals(Status.READY_TO_START))
-                        && server.getMaxSlot() - server.getActualSlots() > 0
-                ).forEach(server -> {
-
-
-                    List<QGroup> groups = new ArrayList<>();
-                    queue.drainPlayerTo(groups, server.getMaxSlot() - server.getActualSlots());
-                    for (QGroup group : groups) {
-                        group.sendTo(server);
-                    }
-                    coolDown += 11;
-                });
-                lastServerStartNB.lazySet(servers.size());
-
-                //Check if server are started, if not start one
-                boolean hasNotEnoughtServer = servers.size() <= 0;
-
-                //If already started check if there are all available(not full), if there are none start new one !
-                if(!hasNotEnoughtServer)
-                {
-                    int numberOfAvailableServer = servers.size();
-                    for(MinecraftServerS serverS : servers)
-                    {
-                        if(serverS.getMaxSlot() - serverS.getActualSlots() <= 0)
-                        {
-                            numberOfAvailableServer--;
-                        }
-                    }
-                    hasNotEnoughtServer = numberOfAvailableServer <= 0;
-                }
-
-                //If server capacity is less than needed, start we a new server now ? (if there are enough player or if we override)
-                if (hasNotEnoughtServer && (getSize() >= template.getMinSlot() || dataQueue.needToAnticipate()))
-                {
-                    MinecraftServerS server = Hydroangeas.getInstance().getAsServer().getAlgorithmicMachine().orderTemplate(template);
-
-                    //Server started let's proceed
-                    if(server != null)
-                    {
-                        //To avoid starting loop we wait the real start
-                        server.addOnStartHook(() -> dataQueue.startedServer());
-
-                        //Security stop
-                        server.setTimeToLive(150000L);
-                        if (template instanceof PackageGameTemplate) // If it's a package template we change it now
-                        {
-                            ((PackageGameTemplate) template).selectTemplate();
-                        }
-                    }
-                }
-            }catch (Exception e)
-            {
-                e.printStackTrace();
+        long n = 0;
+        for(MinecraftServerS s : servers) {
+            List<QGroup> groups = new ArrayList<>();
+            queue.drainPlayerTo(groups, s.getMaxSlot() - s.getActualSlots());
+            for (QGroup group : groups) {
+                group.sendTo(s);
             }
-        }, 0, 800, TimeUnit.MILLISECONDS);
-    }
-
-    public void checkCooldown() throws InterruptedException
-    {
-        while (coolDown > 0)
-        {
-            coolDown--;
-            Thread.sleep(100);
+            n += 1;
         }
-        coolDown = 0;//Security in case of forgot
+        return n;
     }
 
     public void remove()
     {
-        workerTask.cancel(true);
+        watchQueue.stop();
         hubRefreshTask.cancel(true);
         queueChecker.cancel(true);
     }
@@ -425,7 +302,29 @@ public class Queue
         sendInfo = true;
     }
 
-    public void sendInfoToHub()
+    private void sendInfoToPlayer(QGroup group, QPlayer player, int index, int place, int queueSize)
+    {
+        QueueInfosUpdatePacket queueInfosUpdatePacket = new QueueInfosUpdatePacket(player, QueueInfosUpdatePacket.Type.INFO, getGame(), getMap());
+        int nbAvailable = template.getMaxSlot() * dataQueue.getLastServerStartNB();
+        queueInfosUpdatePacket.setStarting(false);
+        if(index < nbAvailable)
+        {
+            queueInfosUpdatePacket.setStarting(true);
+            queueInfosUpdatePacket.setTimeToStart(template.getTimeToStart());
+        }else{
+            int n = template.getMinSlot() - (queueSize - nbAvailable);
+            queueInfosUpdatePacket.setRemainingPlayer(n);
+        }
+
+        queueInfosUpdatePacket.setPlace(place);
+        if(group.getSize() > 1)
+        {
+            queueInfosUpdatePacket.setGroupSize(group.getSize());
+        }
+        sendPacketHub(queueInfosUpdatePacket);
+    }
+
+    private void sendInfoToHub()
     {
         try
         {
@@ -455,7 +354,7 @@ public class Queue
         }
     }
 
-    public void sendPacketHub(AbstractPacket packet)
+    private void sendPacketHub(AbstractPacket packet)
     {
         instance.getConnectionManager().sendPacket("hydroHubReceiver", packet);
     }
@@ -488,9 +387,18 @@ public class Queue
         return template;
     }
 
+    public DataQueue getDataQueue() {
+        return dataQueue;
+    }
+
+    public WatchQueue getWatchQueue() {
+        return watchQueue;
+    }
+
     public void resetStats()
     {
         //Todo reset stats
     }
+
 
 }
