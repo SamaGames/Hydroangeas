@@ -122,6 +122,11 @@ public class MinecraftServerS extends MinecraftServer
 
     public void onShutdown()
     {
+        if(isCoupaingServer())
+        {
+            Hydroangeas.getInstance().getAsServer().getHostGameManager().removeServer(getServerName());
+        }
+
         //If we need to save some data after shutdown
         if (isHub())
         {

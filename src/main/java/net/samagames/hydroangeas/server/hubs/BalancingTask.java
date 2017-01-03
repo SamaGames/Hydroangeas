@@ -80,7 +80,7 @@ public class BalancingTask extends Thread
     public double needNumberOfHub()
     {
         double v = (((double) hubBalancer.getUsedSlots()) * 1.1) / (double) hubBalancer.getHubTemplate().getMaxSlot();
-        if(v <= 1)
+        if(v <= 0.5)
             return 1;
 
         return v + HUB_SAFETY_MARGIN;

@@ -3,6 +3,7 @@ package net.samagames.hydroangeas.server.algo;
 import net.samagames.hydroangeas.server.HydroangeasServer;
 import net.samagames.hydroangeas.server.client.MinecraftServerS;
 import net.samagames.hydroangeas.server.games.SimpleGameTemplate;
+import net.samagames.hydroangeas.server.waitingqueue.Queue;
 
 import java.util.UUID;
 
@@ -33,6 +34,12 @@ public class HostGameManager {
 
     public MinecraftServerS orderServer(UUID asker, SimpleGameTemplate template)
     {
+        if(instance.getQueueManager().getQueueByTemplate(template.getId()) != null)
+            return null;
+
+        Queue queue = instance.getQueueManager().addQueue(template);
+        queue.getWatchQueue().setAutoOrder(false);
+
         MinecraftServerS minecraftServerS = instance.getAlgorithmicMachine().orderTemplate(template);
         //servers.put(minecraftServerS.getUUID(), minecraftServerS);
         minecraftServerS.setOwner(asker);
@@ -41,11 +48,21 @@ public class HostGameManager {
         return minecraftServerS;
     }
 
-    /*public MinecraftServerS removeServer(UUID uuid)
+    public boolean removeServer(String name)
     {
+        MinecraftServerS s = instance.getClientManager().getServerByName(name);
 
-
-    }*/
+        if(s != null)
+        {
+            Queue queue = instance.getQueueManager().getQueueByTemplate(s.getTemplateID());
+            if(queue != null)
+            {
+                instance.getQueueManager().removeQueue(queue);
+                return true;
+            }
+        }
+        return false;
+    }
 
 
 

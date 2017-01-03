@@ -69,7 +69,6 @@ public class WatchQueue {
     private void process()
     {
         try{
-
             AbstractGameTemplate template = queue.getTemplate();
 
             List<MinecraftServerS> servers = instance.getAlgorithmicMachine().getServerByTemplatesAndAvailable(template.getId());
