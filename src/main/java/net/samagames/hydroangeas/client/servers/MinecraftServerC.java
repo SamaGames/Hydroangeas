@@ -150,7 +150,7 @@ public class MinecraftServerC extends MinecraftServer
 
             getLogger().info("Starting server " + getServerName());
 
-            remoteControl = new RemoteControl("blackmesa", (getPort()+1));
+            remoteControl = new RemoteControl(this, "blackmesa", (getPort()+1));
         } catch (Exception e)
         {
             this.instance.log(Level.SEVERE, "Can't start the server " + getServerName() + "!");

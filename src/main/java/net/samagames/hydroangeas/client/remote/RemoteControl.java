@@ -1,6 +1,7 @@
 package net.samagames.hydroangeas.client.remote;
 
 import net.samagames.hydroangeas.Hydroangeas;
+import net.samagames.hydroangeas.client.servers.MinecraftServerC;
 
 import javax.management.*;
 import javax.management.relation.MBeanServerNotificationFilter;
@@ -37,13 +38,21 @@ public class RemoteControl {
 
     private boolean isConnected = false;
 
-    public RemoteControl(String host, int port)
+    public RemoteControl(MinecraftServerC serverC, String host, int port)
     {
         remoteListener = new RemoteListener(this);
         new Thread(() -> {
             try { Thread.sleep(5000); } catch (InterruptedException ignored) {} //Wait for container start
+            int i = 0;
             while (!isConnected)//Try to connect
             {
+                if(i > 5)
+                {
+                    Hydroangeas.getLogger().info("Failed to connect at RMI shutdown: " + serverC.getServerName());
+                    serverC.stopServer();
+                    return;
+                }
+
                 try {
                     Thread.sleep(1000);
                     JMXServiceURL url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + host + ":" + port + "/jmxrmi");
@@ -56,6 +65,7 @@ public class RemoteControl {
                 } catch (IOException | InstanceNotFoundException | InterruptedException e) {
                     Hydroangeas.getLogger().info("Cannot connect to " + host + ":" + port);
                 }
+                i++;
             }
             try { Thread.sleep(2000); } catch (InterruptedException ignored) {} //Wait for container start
             loadAllService(); //First load, listener will handle after that
