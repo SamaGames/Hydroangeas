@@ -182,7 +182,7 @@ public class MinecraftServerS extends MinecraftServer
 
     public void setActualSlots(int actualSlots)
     {
-        if(!available && actualSlots > 1)
+        if(!available && actualSlots >= 1)
         {
             available = true;
             timeToLive = CleanServer.LIVETIME;

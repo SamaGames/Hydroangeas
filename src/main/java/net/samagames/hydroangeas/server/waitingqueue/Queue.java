@@ -114,6 +114,7 @@ public class Queue
             for (QGroup group : groups) {
                 group.sendTo(s);
             }
+
             n += 1;
         }
         return n;
