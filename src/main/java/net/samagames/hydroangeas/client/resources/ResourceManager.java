@@ -159,6 +159,9 @@ public class ResourceManager
             outputStream.write(System.getProperty("line.separator").getBytes());
             outputStream.write(("sql-pass: " + Hydroangeas.getInstance().getConfiguration().sqlPassword).getBytes(Charset.forName("UTF-8")));
             outputStream.write(System.getProperty("line.separator").getBytes());
+
+            outputStream.write(("data-url: " + this.instance.getTemplatesDomain()).getBytes(Charset.forName("UTF-8")));
+            outputStream.write(System.getProperty("line.separator").getBytes());
             outputStream.flush();
             outputStream.close();
         }catch (Exception e)
