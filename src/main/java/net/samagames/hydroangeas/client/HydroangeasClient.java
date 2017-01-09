@@ -118,7 +118,7 @@ public class HydroangeasClient extends Hydroangeas
         blacklist = new ArrayList<>();
         whitelist = new ArrayList<>();
 
-        this.templatesDomain = this.configuration.getJsonConfiguration().get("web-domain").getAsString() + "templates/";
+        this.templatesDomain = this.configuration.getJsonConfiguration().get("web-domain").getAsString();
         this.maxWeight = this.configuration.getJsonConfiguration().get("max-weight").getAsInt();
         this.serverFolder = new File(MiscUtils.getJarFolder(), "servers");
 
@@ -195,9 +195,14 @@ public class HydroangeasClient extends Hydroangeas
         return serverManager.getWeightOfAllServers();
     }
 
-    public String getTemplatesDomain()
+    public String getSimpleTemplatesDomain()
     {
         return this.templatesDomain;
+    }
+
+    public String getTemplatesDomain()
+    {
+        return this.templatesDomain + "static/templates/";
     }
 
     public File getServerFolder()
