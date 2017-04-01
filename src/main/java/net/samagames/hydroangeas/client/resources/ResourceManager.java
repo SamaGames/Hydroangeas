@@ -140,11 +140,11 @@ public class ResourceManager
             outputStream = new FileOutputStream(apiConfiguration);
             outputStream.write(("bungeename: " + server.getServerName()).getBytes(Charset.forName("UTF-8")));
             outputStream.flush();
+            outputStream.close();
 
             // Generate data.yml
             File credentialsFile = new File(serverPath, "data.yml");
             FileUtils.deleteQuietly(credentialsFile);
-            outputStream.close();
             outputStream = new FileOutputStream(credentialsFile);
             outputStream.write(("redis-bungee-ip: " + Hydroangeas.getInstance().getConfiguration().redisIp).getBytes(Charset.forName("UTF-8")));
             outputStream.write(System.getProperty("line.separator").getBytes());

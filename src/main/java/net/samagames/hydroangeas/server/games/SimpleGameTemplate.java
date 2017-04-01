@@ -33,12 +33,11 @@ public class SimpleGameTemplate implements AbstractGameTemplate
     private boolean isCoupaing;
 
     private int weight;
-
+,,
     private ArrayBlockingQueue<Long> stats;
 
     public SimpleGameTemplate(String id, JsonElement data)
     {
-        //TODO package of template
 
         stats = new ArrayBlockingQueue<>(5, true);
 

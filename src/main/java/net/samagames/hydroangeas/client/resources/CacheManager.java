@@ -24,44 +24,40 @@ public class CacheManager
 
     private HydroangeasClient instance;
 
-    public CacheManager(HydroangeasClient instance)
+    CacheManager(HydroangeasClient instance)
     {
         this.instance = instance;
     }
 
-    public File getServerFiles(String game)
+    File getServerFiles(String game)
     {
-
-        String checksumURL = this.instance.getTemplatesDomain() + "servers/checksum.php?file=" + game;
-        String wgetURL = this.instance.getTemplatesDomain() + "servers/" + game + ".tar.gz";
-        File cache = new File(this.instance.getServerFolder(), "cache/servers/" + game + ".tar.gz");
-
-        return getCache(wgetURL, checksumURL, cache);
+        return getUrlCache("servers", game, ".tar.gz");
     }
 
-    public File getMapFiles(String game, String map)
+    File getMapFiles(String game, String map)
     {
         String fileName = game + "_" + map;
 
-        String checksumURL = this.instance.getTemplatesDomain() + "maps/checksum.php?file=" + fileName;
-        String wgetURL = this.instance.getTemplatesDomain() + "maps/" + fileName + ".tar.gz";
-        File cache = new File(this.instance.getServerFolder(), "cache/maps/" + fileName + ".tar.gz");
-
-        return getCache(wgetURL, checksumURL, cache);
+        return getUrlCache("maps", fileName, ".tar.gz");
     }
 
-    public File getDebFiles(ServerDependency dependency)
+    File getDebFiles(ServerDependency dependency)
     {
         String fileName = dependency.getName() + "-" + dependency.getVersion();
 
-        String checksumURL = this.instance.getTemplatesDomain() + "dependencies/checksum.php?file=" + fileName + "." + dependency.getExt();
-        String wgetURL = this.instance.getTemplatesDomain() + "dependencies/" + fileName + "." + dependency.getExt();
-        File cache = new File(this.instance.getServerFolder(), "cache/dependencies/" + fileName + "." + dependency.getExt());
+        return getUrlCache("dependencies", fileName, dependency.getExt());
+    }
+
+    private File getUrlCache(String type, String fileName, String fileExt)
+    {
+        String checksumURL = this.instance.getTemplatesDomain() + type + "/checksum.php?file=" + fileName + "." + fileExt;
+        String wgetURL = this.instance.getTemplatesDomain() + type + "/" + fileName + "." + fileExt;
+        File cache = new File(this.instance.getServerFolder(), "cache/" + type + "/" + fileName + "." + fileExt);
 
         return getCache(wgetURL, checksumURL, cache);
     }
 
-    public File getCache(String wgetURL, String checksumURL, File cache)
+    private File getCache(String wgetURL, String checksumURL, File cache)
     {
         if (!cache.exists())
         {
